@@ -126,11 +126,14 @@
           <div class="mb-1 text-start">
             <div class="d-flex justify-content-between align-items-center mb-1">
               <span class="text-white fw-bold text-uppercase" style="font-size: 0.85rem; letter-spacing: 0.5px;">Quick Presets</span>
-              <div class="d-flex gap-2">
-                <button type="button" id="toggleSavePresetBtn" class="btn btn-sm btn-outline-warning fw-bold px-2 py-0" style="font-size: 0.85rem;">
+              <div class="d-flex gap-1">
+                <button type="button" id="tempoHistoryBtn" class="btn btn-sm btn-outline-info fw-bold px-2 py-0" style="font-size: 0.82rem;" data-bs-toggle="modal" data-bs-target="#tempoHistoryModal" title="Recent tempos played for 3+ measures">
+                  <i class="bi bi-clock-history me-1"></i>History <span id="tempoHistoryBadge" class="badge bg-info text-dark ms-1 d-none">0</span>
+                </button>
+                <button type="button" id="toggleSavePresetBtn" class="btn btn-sm btn-outline-warning fw-bold px-2 py-0" style="font-size: 0.82rem;">
                   <i class="bi bi-pencil-square me-1"></i><span id="toggleSavePresetText">Save</span>
                 </button>
-                <button type="button" id="resetPresetsBtn" class="btn btn-sm btn-outline-light fw-bold px-2 py-0" style="font-size: 0.85rem;">
+                <button type="button" id="resetPresetsBtn" class="btn btn-sm btn-outline-light fw-bold px-2 py-0" style="font-size: 0.82rem;">
                   <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
                 </button>
               </div>
@@ -345,6 +348,39 @@
             <button type="submit" class="btn btn-success">Save Song</button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tempo History Modal -->
+  <div class="modal fade" id="tempoHistoryModal" tabindex="-1" aria-labelledby="tempoHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content custom-card border-secondary">
+        <div class="modal-header border-secondary">
+          <div>
+            <h5 class="modal-title text-white fw-bold" id="tempoHistoryModalLabel">
+              <i class="bi bi-clock-history me-2 text-info"></i>Recent Tempos
+            </h5>
+            <small class="text-white-50" style="font-size: 0.8rem;">Tempos played for at least 3 measures</small>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-3">
+          <div id="tempoHistoryEmpty" class="text-center text-muted py-4">
+            <i class="bi bi-clock-history fs-1 d-block mb-2 text-secondary"></i>
+            No qualified tempos recorded yet.<br>
+            <small class="text-white-50">Tempos that run for at least 3 full measures will be automatically saved here.</small>
+          </div>
+          <div id="tempoHistoryList" class="list-group">
+            <!-- Dynamically populated from localStorage -->
+          </div>
+        </div>
+        <div class="modal-footer border-secondary d-flex justify-content-between">
+          <button type="button" id="clearHistoryBtn" class="btn btn-sm btn-outline-danger fw-bold">
+            <i class="bi bi-trash3 me-1"></i>Clear History
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary fw-bold" data-bs-dismiss="modal">Close</button>
+        </div>
       </div>
     </div>
   </div>

@@ -53,6 +53,151 @@ function undoTappedBpm() {
   }
 }
 
+// Tempo History qualification state (qualifies after running for at least 3 measures)
+let beatsAtCurrentTempo = 0;
+let hasAddedCurrentTempoToHistory = false;
+const MAX_TEMPO_HISTORY_ITEMS = 20;
+
+function getTempoHistory() {
+  try {
+    const data = localStorage.getItem("metronome_tempo_history");
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveTempoHistory(history) {
+  try {
+    localStorage.setItem("metronome_tempo_history", JSON.stringify(history));
+  } catch (e) {}
+}
+
+function addTempoToHistory(tempoBpm, sig) {
+  let history = getTempoHistory();
+  // Filter out any previous entry for this exact BPM so it bubbles to the top
+  history = history.filter(function (item) {
+    return item.bpm !== tempoBpm;
+  });
+  history.unshift({
+    bpm: tempoBpm,
+    timeSignature: sig || timeSignature,
+    timestamp: Date.now()
+  });
+  if (history.length > MAX_TEMPO_HISTORY_ITEMS) {
+    history = history.slice(0, MAX_TEMPO_HISTORY_ITEMS);
+  }
+  saveTempoHistory(history);
+  renderTempoHistory();
+}
+
+function clearAllTempoHistory() {
+  saveTempoHistory([]);
+  renderTempoHistory();
+}
+
+function recallHistoryTempo(targetBpm, targetSig) {
+  updateBpm(targetBpm, false);
+  if (targetSig) {
+    timeSignature = targetSig;
+    setEngineBeatsPerMeasure(timeSignature);
+    renderBeatDots();
+    const sigSelect = document.getElementById("timeSignatureSelect");
+    if (sigSelect) {
+      sigSelect.value = targetSig;
+    }
+  }
+  // Close modal if open
+  const modalEl = document.getElementById("tempoHistoryModal");
+  if (modalEl && typeof bootstrap !== "undefined" && bootstrap.Modal) {
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (modalInstance) {
+      modalInstance.hide();
+    }
+  }
+}
+
+function formatTimeAgo(timestamp) {
+  const diffSec = Math.floor((Date.now() - timestamp) / 1000);
+  if (diffSec < 60) return "Just now";
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return diffMin + "m ago";
+  const diffHours = Math.floor(diffMin / 60);
+  if (diffHours < 24) return diffHours + "h ago";
+  return Math.floor(diffHours / 24) + "d ago";
+}
+
+function renderTempoHistory() {
+  const history = getTempoHistory();
+  const badge = document.getElementById("tempoHistoryBadge");
+  const listContainer = document.getElementById("tempoHistoryList");
+  const emptyState = document.getElementById("tempoHistoryEmpty");
+
+  if (badge) {
+    badge.textContent = history.length;
+    if (history.length > 0) {
+      badge.classList.remove("d-none");
+    } else {
+      badge.classList.add("d-none");
+    }
+  }
+
+  if (!listContainer) return;
+
+  if (history.length === 0) {
+    listContainer.innerHTML = "";
+    if (emptyState) emptyState.classList.remove("d-none");
+    return;
+  }
+
+  if (emptyState) emptyState.classList.add("d-none");
+  listContainer.innerHTML = "";
+
+  history.forEach(function (item) {
+    const row = document.createElement("div");
+    row.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center bg-dark text-white border-secondary p-2 mb-2 rounded shadow-sm";
+    row.style.cursor = "pointer";
+
+    const leftDiv = document.createElement("div");
+    leftDiv.className = "d-flex align-items-center";
+
+    const bpmSpan = document.createElement("span");
+    bpmSpan.className = "fs-2 fw-bolder text-white me-2";
+    bpmSpan.textContent = item.bpm;
+
+    const bpmUnit = document.createElement("span");
+    bpmUnit.className = "text-info fw-bold me-3";
+    bpmUnit.textContent = "BPM";
+
+    const sigBadge = document.createElement("span");
+    sigBadge.className = "badge bg-secondary me-2 fs-6";
+    sigBadge.textContent = (item.timeSignature || 4) + "/4";
+
+    const timeSpan = document.createElement("small");
+    timeSpan.className = "text-muted";
+    timeSpan.textContent = formatTimeAgo(item.timestamp);
+
+    leftDiv.appendChild(bpmSpan);
+    leftDiv.appendChild(bpmUnit);
+    leftDiv.appendChild(sigBadge);
+    leftDiv.appendChild(timeSpan);
+
+    const recallBtn = document.createElement("button");
+    recallBtn.type = "button";
+    recallBtn.className = "btn btn-outline-success fw-bold px-3 py-1 fs-6";
+    recallBtn.innerHTML = '<i class="bi bi-play-circle me-1"></i>Load';
+
+    row.appendChild(leftDiv);
+    row.appendChild(recallBtn);
+
+    row.addEventListener("click", function () {
+      recallHistoryTempo(item.bpm, item.timeSignature);
+    });
+
+    listContainer.appendChild(row);
+  });
+}
+
 // Screen wake lock sentinel
 let wakeLockSentinel = null;
 
@@ -337,7 +482,12 @@ function toggleSavePresetMode(forceState) {
 
 // Update BPM UI display and engine
 function updateBpm(newBpm, preserveHistory) {
-  bpm = Math.max(30, Math.min(300, Math.round(newBpm)));
+  const roundedBpm = Math.max(30, Math.min(300, Math.round(newBpm)));
+  if (bpm !== roundedBpm) {
+    beatsAtCurrentTempo = 0;
+    hasAddedCurrentTempoToHistory = false;
+  }
+  bpm = roundedBpm;
   setEngineTempo(bpm);
 
   if (!preserveHistory) {
@@ -449,6 +599,13 @@ function handleBeat(beatNumber, isFirstBeat) {
       }
     }
   }
+
+  // Qualify tempo for history: must run for at least 3 full measures (3 * timeSignature beats)
+  beatsAtCurrentTempo++;
+  if (!hasAddedCurrentTempoToHistory && beatsAtCurrentTempo >= 3 * timeSignature) {
+    addTempoToHistory(bpm, timeSignature);
+    hasAddedCurrentTempoToHistory = true;
+  }
 }
 
 // Tap Tempo logic
@@ -534,6 +691,8 @@ async function togglePlayMetronome() {
   if (isEnginePlaying()) {
     stopMetronomeEngine();
     await releaseScreenWakeLock();
+    beatsAtCurrentTempo = 0;
+    hasAddedCurrentTempoToHistory = false;
 
     if (playBtn) {
       playBtn.classList.remove("btn-danger");
@@ -554,6 +713,8 @@ async function togglePlayMetronome() {
       if (dot) dot.classList.remove("active-beat");
     }
   } else {
+    beatsAtCurrentTempo = 0;
+    hasAddedCurrentTempoToHistory = false;
     startMetronomeEngine();
     await requestScreenWakeLock();
 
@@ -624,6 +785,8 @@ function initMetronome() {
       timeSignature = parseInt(this.value, 10);
       setEngineBeatsPerMeasure(timeSignature);
       renderBeatDots();
+      beatsAtCurrentTempo = 0;
+      hasAddedCurrentTempoToHistory = false;
     });
   }
 
@@ -688,6 +851,18 @@ function initMetronome() {
     resetPresetsBtn.addEventListener("click", function () {
       if (confirm("Reset the 6 quick presets to default values (140, 120, 110, 100, 90, 80)?")) {
         resetQuickPresets();
+      }
+    });
+  }
+
+  // Initialize Tempo History
+  renderTempoHistory();
+
+  const clearHistBtn = document.getElementById("clearHistoryBtn");
+  if (clearHistBtn) {
+    clearHistBtn.addEventListener("click", function () {
+      if (confirm("Clear all recorded tempo history?")) {
+        clearAllTempoHistory();
       }
     });
   }
