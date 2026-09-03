@@ -46,6 +46,21 @@
 
   <!-- Main Content Areas -->
   <main class="container-sm flex-grow-1 mb-2">
+
+    <!-- Quick Metronome Controller Bar (Active in Setlist & Tuner when playing) -->
+    <div id="globalMetronomeBar" class="d-none custom-card p-2 px-3 mb-2 d-flex align-items-center justify-content-between shadow" style="min-height: 54px;">
+      <div class="d-flex align-items-center text-white overflow-hidden me-2" role="button" id="globalMetronomeGoToBtn" title="Jump back to Metronome tab">
+        <span class="spinner-grow spinner-grow-sm text-danger me-2 flex-shrink-0" role="status"></span>
+        <div class="text-truncate">
+          <span class="badge bg-danger text-white me-2 fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">PLAYING</span>
+          <strong id="globalMetronomeInfo" class="text-white" style="font-size: 1.05rem;">120 BPM</strong>
+        </div>
+      </div>
+      <button id="globalStopMetronomeBtn" class="btn btn-danger fw-bold px-3 py-1 shadow text-white d-flex align-items-center" style="min-height: 42px; min-width: 96px; font-size: 1.05rem; color: #ffffff !important;" title="Stop Metronome">
+        <i class="bi bi-stop-fill me-1 fs-4"></i>Stop
+      </button>
+    </div>
+
     <div class="tab-content" id="pills-tabContent">
 
       <!-- ================= 1. METRONOME TAB ================= -->

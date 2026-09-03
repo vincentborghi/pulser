@@ -519,6 +519,8 @@ function updateBpm(newBpm, preserveHistory) {
       }
     }
   });
+
+  updateGlobalMetronomeBar();
 }
 
 // Update time signature dots
@@ -682,6 +684,33 @@ function handleTapTempo() {
   }
 }
 
+// Quick metronome banner (visible in Setlist & Tuner when metronome is playing)
+function updateGlobalMetronomeBar() {
+  const bar = document.getElementById("globalMetronomeBar");
+  if (!bar) return;
+
+  const isPlaying = (typeof isEnginePlaying === "function") ? isEnginePlaying() : false;
+  const metronomeTab = document.getElementById("pills-metronome-tab");
+  const isMetronomeTabActive = metronomeTab ? metronomeTab.classList.contains("active") : true;
+
+  if (isPlaying && !isMetronomeTabActive) {
+    bar.classList.remove("d-none");
+    const infoEl = document.getElementById("globalMetronomeInfo");
+    if (infoEl) {
+      let songLabel = "";
+      if (typeof getActivePlaylist === "function" && typeof currentSongIndex !== "undefined" && currentSongIndex >= 0) {
+        const playlist = getActivePlaylist();
+        if (playlist && playlist[currentSongIndex]) {
+          songLabel = playlist[currentSongIndex].title + " • ";
+        }
+      }
+      infoEl.textContent = songLabel + bpm + " BPM (" + timeSignature + "/4)";
+    }
+  } else {
+    bar.classList.add("d-none");
+  }
+}
+
 // Toggle Play/Stop
 async function togglePlayMetronome() {
   const playBtn = document.getElementById("playButton");
@@ -729,6 +758,8 @@ async function togglePlayMetronome() {
       playText.textContent = "Stop";
     }
   }
+
+  updateGlobalMetronomeBar();
 }
 
 // Initialize metronome controls and listeners
@@ -742,6 +773,27 @@ function initMetronome() {
   const playBtn = document.getElementById("playButton");
   if (playBtn) {
     playBtn.addEventListener("click", togglePlayMetronome);
+  }
+
+  // Global quick stop button (visible on Setlist and Tuner tabs)
+  const globalStopBtn = document.getElementById("globalStopMetronomeBtn");
+  if (globalStopBtn) {
+    globalStopBtn.addEventListener("click", function () {
+      if (isEnginePlaying()) {
+        togglePlayMetronome();
+      }
+    });
+  }
+
+  // Global jump to metronome button
+  const globalGoToBtn = document.getElementById("globalMetronomeGoToBtn");
+  if (globalGoToBtn) {
+    globalGoToBtn.addEventListener("click", function () {
+      const metronomeTabBtn = document.getElementById("pills-metronome-tab");
+      if (metronomeTabBtn) {
+        metronomeTabBtn.click();
+      }
+    });
   }
 
   // Tap button

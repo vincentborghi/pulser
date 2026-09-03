@@ -320,6 +320,9 @@ function renderSetlistUI() {
   renderSetlistSelect();
   renderSetlist();
   updateActiveSongBadge();
+  if (typeof updateGlobalMetronomeBar === "function") {
+    updateGlobalMetronomeBar();
+  }
 }
 
 function escapeHtml(str) {

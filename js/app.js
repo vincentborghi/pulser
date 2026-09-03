@@ -63,6 +63,11 @@ function setupTabEvents() {
       if (targetId !== "#pills-tuner" && typeof isTunerActive !== "undefined" && isTunerActive) {
         stopTuner();
       }
+
+      // Update global metronome quick stop bar when switching tabs
+      if (typeof updateGlobalMetronomeBar === "function") {
+        updateGlobalMetronomeBar();
+      }
     });
   });
 }
