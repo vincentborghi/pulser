@@ -215,20 +215,30 @@
       <div class="tab-pane fade" id="pills-tuner" role="tabpanel">
 
         <div class="custom-card p-3 mb-3">
-          <div class="mb-3">
-            <label for="tunerInstrumentSelect" class="form-label small text-muted fw-bold">Select Instrument</label>
-            <select class="form-select" id="tunerInstrumentSelect">
-              <option value="guitar" selected>Guitar (Standard E-A-D-G-B-E)</option>
-              <option value="bass">Electric Bass (4-Str E-A-D-G)</option>
-              <option value="ukulele">Ukulele (Standard G-C-E-A)</option>
-              <option value="violin">Violin (Standard G-D-A-E)</option>
-              <option value="banjo">Banjo 5-Strings (Open G: g-D-G-B-D)</option>
-              <option value="chromatic">Chromatic (All Notes)</option>
-            </select>
+          <div class="row g-2 mb-3">
+            <div class="col-8">
+              <label for="tunerInstrumentSelect" class="form-label small text-muted fw-bold">Select Instrument</label>
+              <select class="form-select" id="tunerInstrumentSelect">
+                <option value="guitar" selected>Guitar (Standard E-A-D-G-B-E)</option>
+                <option value="bass">Electric Bass (4-Str E-A-D-G)</option>
+                <option value="ukulele">Ukulele (Standard G-C-E-A)</option>
+                <option value="violin">Violin (Standard G-D-A-E)</option>
+                <option value="banjo">Banjo 5-Strings (Open G: g-D-G-B-D)</option>
+                <option value="chromatic">Chromatic (All Notes)</option>
+              </select>
+            </div>
+            <div class="col-4">
+              <label for="tunerNotationSelect" class="form-label small text-muted fw-bold">Notation</label>
+              <select class="form-select" id="tunerNotationSelect">
+                <option value="both" selected>Both (A / La)</option>
+                <option value="french">French (Do Re Mi)</option>
+                <option value="anglo">Anglo (A B C)</option>
+              </select>
+            </div>
           </div>
 
           <!-- Target string quick filters -->
-          <div class="mb-3">
+          <div class="mb-2">
             <div class="small text-muted mb-2">Target String (Auto or click to lock):</div>
             <div id="instrumentStringsContainer" class="d-flex flex-wrap">
               <!-- Dynamically populated -->
@@ -242,10 +252,12 @@
           <div id="tunerErrorAlert" class="alert alert-danger d-none py-2 px-3 small mb-3"></div>
 
           <div class="tuner-note-box mb-3">
-            <div class="d-inline-flex align-items-start">
+            <div class="d-inline-flex align-items-baseline">
               <span id="tunerNoteName" class="tuner-note-name">-</span>
               <span id="tunerNoteOctave" class="tuner-note-octave ms-1"></span>
             </div>
+            <!-- French Solfege Note Display -->
+            <div id="tunerNoteFrench" class="tuner-note-french">-</div>
             <div id="tunerFrequency" class="tuner-frequency">-- Hz</div>
             <div id="tunerCents" class="small fw-semibold text-muted mt-1">0 cents</div>
           </div>

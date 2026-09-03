@@ -53,15 +53,48 @@ document.addEventListener("visibilitychange", async function () {
   }
 });
 
-// Load quick presets from storage
+// Quick BPM presets with 6 distinct colors and drag-and-drop reordering
+const PRESETS_STORAGE_KEY = "metronome_quick_bpm_presets_v1";
+const DEFAULT_PRESETS = [
+  { id: "p1", bpm: 140, colorClass: "preset-color-1", name: "P1" },
+  { id: "p2", bpm: 120, colorClass: "preset-color-2", name: "P2" },
+  { id: "p3", bpm: 110, colorClass: "preset-color-3", name: "P3" },
+  { id: "p4", bpm: 100, colorClass: "preset-color-4", name: "P4" },
+  { id: "p5", bpm: 90,  colorClass: "preset-color-5", name: "P5" },
+  { id: "p6", bpm: 80,  colorClass: "preset-color-6", name: "P6" }
+];
+let quickPresets = JSON.parse(JSON.stringify(DEFAULT_PRESETS));
+let isSavingPresetMode = false;
+
+// Drag and drop state
+let draggedPresetIndex = null;
+let touchDragStartIndex = null;
+let touchMoved = false;
+let touchStartPos = { x: 0, y: 0 };
+
+// Load quick presets from storage (with migration for legacy format)
 function loadQuickPresets() {
   try {
     const saved = localStorage.getItem(PRESETS_STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.length === 6) {
-        quickPresets = parsed.map(function (v) {
-          return parseInt(v, 10) || 120;
+        quickPresets = parsed.map(function (item, idx) {
+          if (typeof item === "number") {
+            // Migrate legacy number format to colored preset objects
+            return {
+              id: "p" + (idx + 1),
+              bpm: parseInt(item, 10) || 120,
+              colorClass: "preset-color-" + (idx + 1),
+              name: "P" + (idx + 1)
+            };
+          }
+          return {
+            id: item.id || ("p" + (idx + 1)),
+            bpm: parseInt(item.bpm, 10) || 120,
+            colorClass: item.colorClass || ("preset-color-" + (idx + 1)),
+            name: item.name || ("P" + (idx + 1))
+          };
         });
         return;
       }
@@ -69,7 +102,7 @@ function loadQuickPresets() {
   } catch (err) {
     console.error("Failed to load quick presets:", err);
   }
-  quickPresets = [...DEFAULT_PRESETS];
+  quickPresets = JSON.parse(JSON.stringify(DEFAULT_PRESETS));
 }
 
 // Save quick presets to storage
@@ -83,7 +116,7 @@ function saveQuickPresets() {
 
 // Reset quick presets to defaults
 function resetQuickPresets() {
-  quickPresets = [...DEFAULT_PRESETS];
+  quickPresets = JSON.parse(JSON.stringify(DEFAULT_PRESETS));
   saveQuickPresets();
   if (isSavingPresetMode) {
     toggleSavePresetMode(false);
@@ -91,34 +124,144 @@ function resetQuickPresets() {
   renderQuickPresets();
 }
 
-// Render the 6 quick preset slots
+// Reorder preset from one slot to another
+function reorderPresets(fromIndex, toIndex) {
+  if (fromIndex === null || toIndex === null || fromIndex === toIndex) return;
+  if (fromIndex < 0 || fromIndex >= quickPresets.length || toIndex < 0 || toIndex >= quickPresets.length) return;
+
+  const movedItem = quickPresets.splice(fromIndex, 1)[0];
+  quickPresets.splice(toIndex, 0, movedItem);
+  saveQuickPresets();
+  renderQuickPresets();
+}
+
+// Render the 6 quick preset slots with distinct colors and drag-and-drop
 function renderQuickPresets() {
   const container = document.getElementById("quickPresetsContainer");
   if (!container) return;
 
   container.innerHTML = "";
 
-  quickPresets.forEach(function (presetBpm, idx) {
+  quickPresets.forEach(function (presetItem, idx) {
     const col = document.createElement("div");
-    col.className = "col-4 col-sm-2";
+    col.className = "col-4 col-sm-2 preset-col p-1";
+    col.dataset.index = idx;
 
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "btn preset-btn w-100" + (presetBpm === bpm ? " active-preset" : "") + (isSavingPresetMode ? " saving-mode" : "");
+    btn.className = "btn preset-btn w-100 " + presetItem.colorClass + (presetItem.bpm === bpm ? " active-preset" : "") + (isSavingPresetMode ? " saving-mode" : "");
     btn.id = "presetBtn_" + idx;
-    btn.innerHTML = `<span class="small text-muted d-block" style="font-size:0.65rem">P${idx + 1}</span>${presetBpm}`;
+    btn.dataset.index = idx;
+    btn.setAttribute("draggable", isSavingPresetMode ? "false" : "true");
+    btn.innerHTML = `<span class="small opacity-75 d-block" style="font-size:0.65rem; pointer-events:none;">${presetItem.name || ('P' + (idx + 1))}</span><span style="pointer-events:none;">${presetItem.bpm}</span>`;
 
-    btn.addEventListener("click", function () {
+    // Click handler (Desktop and standard taps)
+    btn.addEventListener("click", function (e) {
+      if (touchMoved) return; // Ignore click triggered after touch drag
+
       if (isSavingPresetMode) {
-        // Save current metronome BPM into this preset slot
-        quickPresets[idx] = bpm;
+        presetItem.bpm = bpm;
         saveQuickPresets();
         toggleSavePresetMode(false);
         renderQuickPresets();
       } else {
-        // Load preset BPM
-        updateBpm(presetBpm);
+        updateBpm(presetItem.bpm);
       }
+    });
+
+    // Desktop HTML5 Drag and Drop events
+    btn.addEventListener("dragstart", function (e) {
+      if (isSavingPresetMode) {
+        e.preventDefault();
+        return;
+      }
+      draggedPresetIndex = idx;
+      btn.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", idx);
+    });
+
+    btn.addEventListener("dragend", function () {
+      btn.classList.remove("dragging");
+      document.querySelectorAll(".preset-col").forEach(function (c) {
+        c.classList.remove("drag-over");
+      });
+      draggedPresetIndex = null;
+    });
+
+    col.addEventListener("dragover", function (e) {
+      if (draggedPresetIndex === null) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      col.classList.add("drag-over");
+    });
+
+    col.addEventListener("dragleave", function () {
+      col.classList.remove("drag-over");
+    });
+
+    col.addEventListener("drop", function (e) {
+      e.preventDefault();
+      col.classList.remove("drag-over");
+      const toIndex = parseInt(col.dataset.index, 10);
+      reorderPresets(draggedPresetIndex, toIndex);
+      draggedPresetIndex = null;
+    });
+
+    // Touch Screen Drag and Drop events (for Android mobile touch)
+    btn.addEventListener("touchstart", function (e) {
+      if (isSavingPresetMode) return;
+      touchMoved = false;
+      touchDragStartIndex = idx;
+      touchStartPos = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY
+      };
+    }, { passive: true });
+
+    btn.addEventListener("touchmove", function (e) {
+      if (isSavingPresetMode || touchDragStartIndex === null) return;
+
+      const deltaX = Math.abs(e.touches[0].clientX - touchStartPos.x);
+      const deltaY = Math.abs(e.touches[0].clientY - touchStartPos.y);
+
+      if (deltaX > 10 || deltaY > 10) {
+        touchMoved = true;
+        btn.classList.add("dragging");
+
+        // Find element under touch point
+        const el = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+        const targetCol = el ? el.closest(".preset-col") : null;
+
+        document.querySelectorAll(".preset-col").forEach(function (c) {
+          c.classList.remove("drag-over");
+        });
+
+        if (targetCol) {
+          targetCol.classList.add("drag-over");
+        }
+      }
+    }, { passive: false });
+
+    btn.addEventListener("touchend", function (e) {
+      btn.classList.remove("dragging");
+
+      if (touchMoved && touchDragStartIndex !== null) {
+        const activeOver = document.querySelector(".preset-col.drag-over");
+        if (activeOver) {
+          const toIndex = parseInt(activeOver.dataset.index, 10);
+          activeOver.classList.remove("drag-over");
+          reorderPresets(touchDragStartIndex, toIndex);
+        }
+        document.querySelectorAll(".preset-col").forEach(function (c) {
+          c.classList.remove("drag-over");
+        });
+      }
+
+      touchDragStartIndex = null;
+      setTimeout(function () {
+        touchMoved = false;
+      }, 50);
     });
 
     col.appendChild(btn);
@@ -173,10 +316,10 @@ function updateBpm(newBpm) {
   }
 
   // Update active preset highlighting
-  quickPresets.forEach(function (val, idx) {
+  quickPresets.forEach(function (presetItem, idx) {
     const btn = document.getElementById("presetBtn_" + idx);
     if (btn) {
-      if (val === bpm) {
+      if (presetItem.bpm === bpm) {
         btn.classList.add("active-preset");
       } else {
         btn.classList.remove("active-preset");

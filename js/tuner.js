@@ -14,6 +14,20 @@ const buffer = new Float32Array(BUFFER_SIZE);
 
 // Musical note definitions (A4 = 440 Hz standard)
 const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+// French Solfege note names without accents per project rules
+const NOTE_NAMES_FRENCH = ["Do", "Do#", "Re", "Re#", "Mi", "Fa", "Fa#", "Sol", "Sol#", "La", "La#", "Si"];
+
+let tunerNotation = "both"; // "both", "french", "anglo"
+
+function getFrenchNoteName(noteName) {
+  if (!noteName || noteName === "-") return "-";
+  const upper = noteName.toUpperCase();
+  const idx = NOTE_NAMES.indexOf(upper);
+  if (idx !== -1) {
+    return NOTE_NAMES_FRENCH[idx];
+  }
+  return noteName;
+}
 
 // Instrument preset tunings
 const INSTRUMENT_PRESETS = {
@@ -241,12 +255,14 @@ function stopTuner() {
 function resetTunerView() {
   const noteNameEl = document.getElementById("tunerNoteName");
   const noteOctaveEl = document.getElementById("tunerNoteOctave");
+  const noteFrenchEl = document.getElementById("tunerNoteFrench");
   const freqEl = document.getElementById("tunerFrequency");
   const centsEl = document.getElementById("tunerCents");
   const needle = document.getElementById("tunerNeedle");
 
   if (noteNameEl) noteNameEl.textContent = "-";
   if (noteOctaveEl) noteOctaveEl.textContent = "";
+  if (noteFrenchEl) noteFrenchEl.textContent = "-";
   if (freqEl) freqEl.textContent = "-- Hz";
   if (centsEl) centsEl.textContent = "0 cents";
   if (needle) {
@@ -264,6 +280,7 @@ function tunerProcessLoop() {
 
   const noteNameEl = document.getElementById("tunerNoteName");
   const noteOctaveEl = document.getElementById("tunerNoteOctave");
+  const noteFrenchEl = document.getElementById("tunerNoteFrench");
   const freqEl = document.getElementById("tunerFrequency");
   const centsEl = document.getElementById("tunerCents");
   const needle = document.getElementById("tunerNeedle");
@@ -304,8 +321,23 @@ function tunerProcessLoop() {
     // Percentage for needle (0% = -50 cents, 50% = 0 cents, 100% = +50 cents)
     const needlePercent = 50 + (clampedCents);
 
-    if (noteNameEl) noteNameEl.textContent = targetNoteText;
-    if (noteOctaveEl) noteOctaveEl.textContent = targetOctave;
+    const frenchName = getFrenchNoteName(targetNoteText);
+
+    if (tunerNotation === "french") {
+      if (noteNameEl) noteNameEl.textContent = frenchName;
+      if (noteOctaveEl) noteOctaveEl.textContent = targetOctave;
+      if (noteFrenchEl) noteFrenchEl.textContent = targetNoteText + (targetOctave !== "" ? " " + targetOctave : "");
+    } else if (tunerNotation === "anglo") {
+      if (noteNameEl) noteNameEl.textContent = targetNoteText;
+      if (noteOctaveEl) noteOctaveEl.textContent = targetOctave;
+      if (noteFrenchEl) noteFrenchEl.textContent = "";
+    } else {
+      // Both Anglo and French notation (default)
+      if (noteNameEl) noteNameEl.textContent = targetNoteText;
+      if (noteOctaveEl) noteOctaveEl.textContent = targetOctave;
+      if (noteFrenchEl) noteFrenchEl.textContent = frenchName + (targetOctave !== "" ? " " + targetOctave : "");
+    }
+
     if (freqEl) freqEl.textContent = freq.toFixed(1) + " Hz";
 
     const isTunelnTune = Math.abs(cents) <= 3;
@@ -356,7 +388,15 @@ function renderInstrumentStringsButtons() {
     btn.type = "button";
     btn.className = "btn btn-sm btn-outline-secondary string-target-btn me-2 mb-2";
     btn.setAttribute("data-string-id", s.note + s.octave);
-    btn.innerHTML = s.note + '<small class="text-muted">' + s.octave + '</small>';
+
+    const french = getFrenchNoteName(s.note);
+    let label = s.note + '<small class="text-muted">' + s.octave + '</small>';
+    if (tunerNotation === "french") {
+      label = french + '<small class="text-muted">' + s.octave + '</small>';
+    } else if (tunerNotation === "both") {
+      label = s.note + '<small class="text-muted">' + s.octave + ' (' + french + ')</small>';
+    }
+    btn.innerHTML = label;
 
     btn.addEventListener("click", function () {
       if (lockedTargetStringIndex === idx) {
@@ -408,5 +448,21 @@ function initTuner() {
     });
   }
 
+  const notationSelect = document.getElementById("tunerNotationSelect");
+  if (notationSelect) {
+    const savedNotation = localStorage.getItem("tuner_notation");
+    if (savedNotation) {
+      tunerNotation = savedNotation;
+      notationSelect.value = savedNotation;
+    }
+    notationSelect.addEventListener("change", function () {
+      tunerNotation = this.value;
+      localStorage.setItem("tuner_notation", tunerNotation);
+      renderInstrumentStringsButtons();
+      resetTunerView();
+    });
+  }
+
   renderInstrumentStringsButtons();
 }
+

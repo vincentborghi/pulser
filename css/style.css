@@ -136,33 +136,80 @@ body {
   font-size: 1.1rem;
   padding: 0.5rem 0.25rem;
   border-radius: 0.75rem;
-  background-color: #1e293b;
-  border: 1px solid #475569;
-  color: var(--text-main);
   transition: all 0.15s ease;
   position: relative;
+  cursor: grab;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.preset-btn:hover {
-  background-color: #334155;
-  color: #ffffff;
+.preset-btn:active {
+  cursor: grabbing;
 }
 
+/* 6 Distinct Preset Colors */
+.preset-color-1 {
+  background-color: #9a3412 !important; /* Rust / Amber */
+  border: 2px solid #ea580c !important;
+  color: #ffffff !important;
+}
+
+.preset-color-2 {
+  background-color: #166534 !important; /* Emerald */
+  border: 2px solid #22c55e !important;
+  color: #ffffff !important;
+}
+
+.preset-color-3 {
+  background-color: #0e7490 !important; /* Teal / Cyan */
+  border: 2px solid #06b6d4 !important;
+  color: #ffffff !important;
+}
+
+.preset-color-4 {
+  background-color: #1e40af !important; /* Royal Blue */
+  border: 2px solid #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+.preset-color-5 {
+  background-color: #6b21a8 !important; /* Purple */
+  border: 2px solid #a855f7 !important;
+  color: #ffffff !important;
+}
+
+.preset-color-6 {
+  background-color: #9f1239 !important; /* Crimson */
+  border: 2px solid #f43f5e !important;
+  color: #ffffff !important;
+}
+
+/* Active Preset (Bright Neon Outline & Scale) */
 .preset-btn.active-preset {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
-  color: #000000;
-  box-shadow: 0 0 10px rgba(0, 230, 118, 0.4);
+  box-shadow: 0 0 0 4px #00e676, 0 0 15px rgba(0, 230, 118, 0.7) !important;
+  transform: scale(1.05);
+  z-index: 5;
 }
 
 .preset-btn.saving-mode {
-  border: 2px dashed var(--color-warning) !important;
-  animation: pulse-border 1s infinite;
+  border: 2px dashed #ffffff !important;
+  animation: pulse-border 0.8s infinite;
+}
+
+/* Drag and Drop Visual Feedback */
+.preset-btn.dragging {
+  opacity: 0.35;
+  transform: scale(0.92);
+}
+
+.preset-col.drag-over {
+  background-color: rgba(0, 230, 118, 0.15);
+  outline: 2px dashed #00e676;
+  border-radius: 0.75rem;
 }
 
 @keyframes pulse-border {
   0% { transform: scale(1); }
-  50% { transform: scale(1.03); }
+  50% { transform: scale(1.04); }
   100% { transform: scale(1); }
 }
 
@@ -238,6 +285,14 @@ body {
   font-size: 1.25rem;
   color: var(--color-accent);
   font-family: monospace;
+}
+
+.tuner-note-french {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  letter-spacing: 0.5px;
+  min-height: 2.2rem;
 }
 
 /* Tuner Gauge Meter */
