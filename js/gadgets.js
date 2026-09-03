@@ -158,6 +158,10 @@ function openConcertGadget(type) {
 }
 
 function closeConcertGadget() {
+  if (candleInteractiveCleanup !== null) {
+    candleInteractiveCleanup();
+  }
+
   if (gadgetAnimFrameId !== null) {
     cancelAnimationFrame(gadgetAnimFrameId);
     gadgetAnimFrameId = null;
@@ -214,22 +218,77 @@ function toggleGadgetControlsHint() {
   }
 }
 
-// --- GADGET 1: FLAMME DE BOUGIE / BRIQUET CONCERT ---
+// --- GADGET 1: CONCERT CANDLE / LIGHTER FLAME ---
+let candleInteractiveCleanup = null;
+
 function startCandleFlame(container) {
   container.innerHTML = `
     <div class="candle-wrapper text-center">
       <div class="candle-halo"></div>
-      <div class="candle-flame">
-        <div class="flame-outer"></div>
-        <div class="flame-inner"></div>
-        <div class="flame-core"></div>
-        <div class="flame-base-blue"></div>
+      <div class="candle-flame-anchor" id="interactiveCandleAnchor">
+        <div class="candle-flame">
+          <div class="flame-outer"></div>
+          <div class="flame-inner"></div>
+          <div class="flame-core"></div>
+          <div class="flame-base-blue"></div>
+        </div>
       </div>
       <div class="candle-wick"></div>
-      <div class="candle-body"></div>
-      <div class="candle-glow-reflection"></div>
+      <div class="candle-body">
+        <div class="candle-glow-reflection"></div>
+      </div>
     </div>
   `;
+
+  const anchorElem = container.querySelector("#interactiveCandleAnchor");
+  if (!anchorElem) return;
+
+  let currentTilt = 0;
+  let targetTilt = 0;
+  let animId = null;
+
+  function updateFlameTilt() {
+    currentTilt += (targetTilt - currentTilt) * 0.12;
+    if (anchorElem) {
+      anchorElem.style.transform = `rotate(${currentTilt.toFixed(1)}deg)`;
+    }
+    animId = requestAnimationFrame(updateFlameTilt);
+  }
+  animId = requestAnimationFrame(updateFlameTilt);
+
+  function handlePointerMove(e) {
+    const rect = container.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const deltaX = (e.clientX - centerX) / (rect.width / 2);
+    targetTilt = Math.max(-20, Math.min(20, deltaX * 20));
+  }
+
+  function handlePointerUp() {
+    targetTilt = 0;
+  }
+
+  function handleOrientation(e) {
+    if (e.gamma !== null && e.gamma !== undefined) {
+      targetTilt = Math.max(-24, Math.min(24, e.gamma * 0.7));
+    }
+  }
+
+  container.addEventListener("pointermove", handlePointerMove);
+  window.addEventListener("pointerup", handlePointerUp);
+  window.addEventListener("pointercancel", handlePointerUp);
+  window.addEventListener("deviceorientation", handleOrientation);
+
+  candleInteractiveCleanup = function () {
+    if (animId !== null) {
+      cancelAnimationFrame(animId);
+      animId = null;
+    }
+    container.removeEventListener("pointermove", handlePointerMove);
+    window.removeEventListener("pointerup", handlePointerUp);
+    window.removeEventListener("pointercancel", handlePointerUp);
+    window.removeEventListener("deviceorientation", handleOrientation);
+    candleInteractiveCleanup = null;
+  };
 }
 
 // --- GADGET 2: GRAND "BRAVO" ANIMÉ (PAYSAGE) ---
@@ -304,7 +363,7 @@ function setGlowstickColor(colorHex) {
   }
 }
 
-// --- GADGET 5: CŒUR BATTANT PULSÉ (POUR SLOWS / BALLADES) ---
+// --- GADGET 5: PULSING HEART (FOR SLOW SONGS / BALLADS) ---
 function startPulsingHeart(container) {
   container.innerHTML = `
     <div class="heart-wrapper w-100 h-100 d-flex flex-column justify-content-center align-items-center">
