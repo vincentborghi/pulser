@@ -103,7 +103,7 @@
               <div id="beatDotsContainer" class="mt-2"></div>
             </div>
 
-            <!-- Right: Undo Button (Top), Drum Pad Tap (Middle), and Start/Stop (Bottom) -->
+            <!-- Right: Undo Button (Top), Drum Pad Tap (Middle), Start/Stop, and Auto-BPM (Full Width) -->
             <div class="col-7 d-flex flex-column justify-content-between gap-2">
               <!-- UNDO TAP BUTTON (At the top of the column, fixed reserved slot) -->
               <div class="undo-tap-slot w-100" style="min-height: 38px;">
@@ -113,33 +113,29 @@
               </div>
 
               <!-- TAP TEMPO DRUMPAD BUTTON (Directly above Start/Stop) -->
-              <button id="tapButton" class="btn btn-tap w-100 flex-grow-1 shadow">
+              <button id="tapButton" class="btn btn-tap w-100 flex-grow-1 shadow" style="min-height: 50px;">
                 <span class="pad-label text-white fw-bolder fs-4"><i class="bi bi-grid-fill me-2 opacity-75"></i>Tap Tempo</span>
               </button>
 
               <!-- START / STOP BUTTON (Fixed layout height) -->
-              <button id="playButton" class="btn btn-success btn-play w-100 flex-grow-1 shadow">
+              <button id="playButton" class="btn btn-success btn-play w-100 flex-grow-1 shadow" style="min-height: 50px;">
                 <i id="playButtonIcon" class="bi bi-play-fill me-1 fs-2"></i><span id="playButtonText" class="fs-3">Start</span>
+              </button>
+
+              <!-- AUTO-BPM BUTTON (Same width as Tap and Start) -->
+              <button id="openAutoBpmModalBtn" class="btn btn-outline-info text-white fw-bold w-100 shadow-sm py-2 d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#autoBpmModal" title="Listen to ambient music with microphone and detect BPM" style="min-height: 44px; font-size: 1.1rem;">
+                <i class="bi bi-mic-fill me-2 text-danger fs-5"></i>Auto-BPM
               </button>
             </div>
           </div>
 
-          <!-- Quick Delta Buttons (-5, -1, +1, +5) & Ambient Auto-BPM Detector -->
-          <div class="d-flex justify-content-between align-items-center gap-1 mb-1">
-            <div class="d-flex gap-1 flex-grow-1">
-              <button class="btn btn-outline-light btn-delta text-white fw-bold flex-fill py-1" data-bpm-delta="-5">-5</button>
-              <button class="btn btn-outline-light btn-delta text-white fw-bold flex-fill py-1" data-bpm-delta="-1">-1</button>
-              <button class="btn btn-outline-light btn-delta text-white fw-bold flex-fill py-1" data-bpm-delta="1">+1</button>
-              <button class="btn btn-outline-light btn-delta text-white fw-bold flex-fill py-1" data-bpm-delta="5">+5</button>
-            </div>
-            <button id="openAutoBpmModalBtn" class="btn btn-outline-info text-white fw-bold px-2 py-1 shadow-sm d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#autoBpmModal" title="Listen to ambient music with microphone and detect BPM" style="min-height: 38px;">
-              <i class="bi bi-mic-fill me-1 text-danger fs-6"></i>Auto-BPM
-            </button>
-          </div>
-
-          <!-- Tempo Slider -->
-          <div class="px-1 mb-2">
-            <input type="range" class="form-range" id="tempoSlider" min="30" max="300" value="120">
+          <!-- Tempo Slider with flanking Quick Delta Buttons (-5, -1 on left, +1, +5 on right) on ONE single line -->
+          <div class="d-flex align-items-center gap-1 px-1 mb-2">
+            <button class="btn btn-outline-light btn-delta text-white fw-bold px-2 py-1" data-bpm-delta="-5" style="min-width: 38px;">-5</button>
+            <button class="btn btn-outline-light btn-delta text-white fw-bold px-2 py-1" data-bpm-delta="-1" style="min-width: 38px;">-1</button>
+            <input type="range" class="form-range flex-grow-1 mx-2" id="tempoSlider" min="30" max="300" value="120">
+            <button class="btn btn-outline-light btn-delta text-white fw-bold px-2 py-1" data-bpm-delta="1" style="min-width: 38px;">+1</button>
+            <button class="btn btn-outline-light btn-delta text-white fw-bold px-2 py-1" data-bpm-delta="5" style="min-width: 38px;">+5</button>
           </div>
 
           <!-- Customizable BPM Quick Presets (Compact margin & padding) -->
@@ -529,7 +525,11 @@
               <span id="autoBpmValueDisplay" class="fw-black text-info" style="font-size: 4.5rem; line-height: 1; font-family: monospace;">---</span>
               <span class="text-white fw-bold fs-4">BPM</span>
             </div>
-            <div id="autoBpmStatusText" class="text-white-50 fw-semibold mt-2" style="min-height: 24px; font-size: 0.95rem;">
+
+            <!-- Scrolling Beat Dots with detected beats -->
+            <div id="autoBpmBeatDots" class="d-flex justify-content-center align-items-center gap-3 my-2" style="min-height: 32px;"></div>
+
+            <div id="autoBpmStatusText" class="text-white-50 fw-semibold mt-1" style="min-height: 24px; font-size: 0.95rem;">
               Click "Start Listening" near speakers or playing instruments
             </div>
           </div>

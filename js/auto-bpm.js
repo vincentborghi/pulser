@@ -13,13 +13,57 @@ let autoBpmDetectedValue = null;
 let autoBpmLastBeatTime = 0;
 let autoBpmIntervalHistory = [];
 let autoBpmEnergyHistory = [];
+let autoBpmBeatCounter = 0;
 
 const AUTO_BPM_MIN_TEMPO = 40;
 const AUTO_BPM_MAX_TEMPO = 240;
 const AUTO_BPM_MIN_INTERVAL = 60.0 / AUTO_BPM_MAX_TEMPO; // ~0.25s
 const AUTO_BPM_MAX_INTERVAL = 60.0 / AUTO_BPM_MIN_TEMPO; // ~1.5s
 
+function renderAutoBpmBeatDots() {
+  const container = document.getElementById("autoBpmBeatDots");
+  if (!container) return;
+  container.innerHTML = "";
+  for (let i = 0; i < 4; i++) {
+    const dot = document.createElement("span");
+    dot.className = "beat-dot" + (i === 0 ? " first-beat" : "");
+    dot.id = "autoBpmDot_" + i;
+    container.appendChild(dot);
+  }
+}
+
+function advanceAutoBpmBeatDot() {
+  const currentBeat = autoBpmBeatCounter % 4;
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById("autoBpmDot_" + i);
+    if (!dot) continue;
+    if (i === currentBeat) {
+      if (i === 0) {
+        dot.classList.add("active-beat-accent");
+        dot.classList.remove("active-beat-normal");
+      } else {
+        dot.classList.add("active-beat-normal");
+        dot.classList.remove("active-beat-accent");
+      }
+    } else {
+      dot.classList.remove("active-beat-accent", "active-beat-normal");
+    }
+  }
+  autoBpmBeatCounter++;
+}
+
+function resetAutoBpmBeatDots() {
+  autoBpmBeatCounter = 0;
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById("autoBpmDot_" + i);
+    if (dot) {
+      dot.classList.remove("active-beat-accent", "active-beat-normal");
+    }
+  }
+}
+
 function initAutoBpm() {
+  renderAutoBpmBeatDots();
   const modalEl = document.getElementById("autoBpmModal");
   const listenBtn = document.getElementById("autoBpmListenToggleBtn");
   const applyBtn = document.getElementById("autoBpmApplyBtn");
@@ -199,10 +243,12 @@ function stopAutoBpmListening() {
     beatIndicator.className = "badge bg-secondary text-white px-2 py-1 fw-bold";
     beatIndicator.textContent = "Inactive";
   }
+  resetAutoBpmBeatDots();
 }
 
 function resetAutoBpmUI() {
   autoBpmDetectedValue = null;
+  resetAutoBpmBeatDots();
   const valDisplay = document.getElementById("autoBpmValueDisplay");
   const statusText = document.getElementById("autoBpmStatusText");
   const applyBtn = document.getElementById("autoBpmApplyBtn");
@@ -268,6 +314,7 @@ function processAutoBpmAudio() {
 }
 
 function handleDetectedBeatOnset(timestamp) {
+  advanceAutoBpmBeatDot();
   const beatIndicator = document.getElementById("autoBpmBeatIndicator");
 
   if (beatIndicator) {
@@ -375,8 +422,8 @@ function updateDetectedBpm(bpm) {
     valDisplay.textContent = bpm;
   }
   if (statusText) {
-    statusText.textContent = "Stable BPM detected! Tap 'Apply to Metronome' or adjust octave below.";
-    statusText.className = "text-success fw-bold mt-2";
+    statusText.textContent = "Stable BPM detected!";
+    statusText.className = "text-success fw-bold mt-1";
   }
 
   if (applyBtn) {
