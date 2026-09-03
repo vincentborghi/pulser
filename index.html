@@ -73,9 +73,14 @@
           <button id="quickPrevSongBtn" class="btn btn-outline-secondary btn-sm" title="Previous Song">
             <i class="bi bi-skip-start-fill"></i>
           </button>
-          <div class="text-center overflow-hidden px-2">
-            <div id="activeSongBadge" class="fw-bold text-truncate text-white">No song selected</div>
-            <small id="activeSongSubText" class="text-muted text-truncate d-block">Select in Setlist</small>
+          <div class="text-center overflow-hidden px-2 flex-grow-1">
+            <div class="d-flex align-items-center justify-content-center">
+              <span id="activeSongBadge" class="fw-bold text-truncate text-white">Free Mode (No Song)</span>
+              <button id="clearActiveSongBtn" class="btn btn-sm btn-link text-warning p-0 ms-2 d-none" title="Return to Free Mode (clear song)">
+                <i class="bi bi-x-circle-fill"></i>
+              </button>
+            </div>
+            <small id="activeSongSubText" class="text-muted text-truncate d-block">Manual Tempo</small>
           </div>
           <button id="quickNextSongBtn" class="btn btn-outline-secondary btn-sm" title="Next Song">
             <i class="bi bi-skip-end-fill"></i>
@@ -112,6 +117,27 @@
             <input type="range" class="form-range" id="tempoSlider" min="30" max="300" value="120">
           </div>
 
+          <!-- Customizable BPM Quick Presets -->
+          <div class="mb-3 px-1 text-start">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <small class="text-muted fw-bold text-uppercase" style="font-size: 0.75rem;">Quick BPM Presets</small>
+              <div>
+                <button type="button" id="toggleSavePresetBtn" class="btn btn-link btn-sm text-decoration-none text-warning p-0 me-2" style="font-size: 0.75rem;">
+                  <i class="bi bi-pencil-square me-1"></i><span id="toggleSavePresetText">Save to Preset</span>
+                </button>
+                <button type="button" id="resetPresetsBtn" class="btn btn-link btn-sm text-decoration-none text-muted p-0" style="font-size: 0.75rem;">
+                  <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+                </button>
+              </div>
+            </div>
+            <div id="savePresetHint" class="alert alert-warning py-1 px-2 small mb-2 d-none" style="font-size: 0.78rem;">
+              <i class="bi bi-info-circle me-1"></i>Tap a preset box to store current BPM (<strong id="saveCurrentBpmValue">120</strong>).
+            </div>
+            <div class="row g-2" id="quickPresetsContainer">
+              <!-- 6 preset slots rendered by metronome.js -->
+            </div>
+          </div>
+
           <!-- TAP TEMPO BUTTON -->
           <button id="tapButton" class="btn btn-tap w-100 mb-3 shadow-sm">
             <span><i class="bi bi-hand-index-thumb-fill me-2"></i>TAP TEMPO</span>
@@ -141,17 +167,21 @@
               </select>
             </div>
 
-            <div class="col-6 d-flex flex-column justify-content-end">
-              <div class="form-check form-switch mb-1">
-                <input class="form-check-input" type="checkbox" id="muteAudioCheck">
-                <label class="form-check-label small" for="muteAudioCheck">
-                  <i class="bi bi-volume-mute me-1"></i>Silent Mode
-                </label>
-              </div>
+            <div class="col-6">
+              <label for="flashModeSelect" class="form-label small text-muted">Screen Flash</label>
+              <select class="form-select form-select-sm" id="flashModeSelect">
+                <option value="off">Off (Disabled)</option>
+                <option value="subtle">Subtle (Soft Neon)</option>
+                <option value="vivid" selected>Vivid (Bright Neon)</option>
+                <option value="strobe">Strobe (Ultra White)</option>
+              </select>
+            </div>
+
+            <div class="col-12">
               <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="fullscreenFlashCheck">
-                <label class="form-check-label small" for="fullscreenFlashCheck">
-                  <i class="bi bi-brightness-high me-1"></i>Screen Flash
+                <input class="form-check-input" type="checkbox" id="muteAudioCheck">
+                <label class="form-check-label small text-muted" for="muteAudioCheck">
+                  <i class="bi bi-volume-mute me-1"></i>Silent Mode (Visual metronome only, no click sound)
                 </label>
               </div>
             </div>

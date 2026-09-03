@@ -4,7 +4,7 @@
 const STORAGE_KEY = "metronome_setlist_v1";
 
 let playlist = [];
-let currentSongIndex = 0;
+let currentSongIndex = -1; // -1 represents Free Mode (neutral, no song selected)
 
 // Load playlist from localStorage or initialize with defaults
 function loadSetlist() {
@@ -59,29 +59,48 @@ function selectSong(index) {
   renderSetlist();
 }
 
+// Clear active song and return to neutral free metronome mode
+function clearActiveSong() {
+  currentSongIndex = -1;
+  updateActiveSongBadge();
+  renderSetlist();
+}
+
 function nextSong() {
   if (playlist.length === 0) return;
-  const nextIdx = (currentSongIndex + 1) % playlist.length;
-  selectSong(nextIdx);
+  if (currentSongIndex === -1) {
+    selectSong(0);
+  } else {
+    const nextIdx = (currentSongIndex + 1) % playlist.length;
+    selectSong(nextIdx);
+  }
 }
 
 function prevSong() {
   if (playlist.length === 0) return;
-  const prevIdx = (currentSongIndex - 1 + playlist.length) % playlist.length;
-  selectSong(prevIdx);
+  if (currentSongIndex === -1) {
+    selectSong(playlist.length - 1);
+  } else {
+    const prevIdx = (currentSongIndex - 1 + playlist.length) % playlist.length;
+    selectSong(prevIdx);
+  }
 }
 
 // Update the quick song bar visible above the metronome
 function updateActiveSongBadge() {
   const badge = document.getElementById("activeSongBadge");
   const subText = document.getElementById("activeSongSubText");
-  if (playlist.length > 0 && playlist[currentSongIndex]) {
+  const clearBtn = document.getElementById("clearActiveSongBtn");
+
+  if (currentSongIndex >= 0 && playlist.length > 0 && playlist[currentSongIndex]) {
     const song = playlist[currentSongIndex];
     if (badge) badge.textContent = (currentSongIndex + 1) + ". " + song.title;
     if (subText) subText.textContent = song.bpm + " BPM (" + (song.timeSignature || 4) + "/4)";
+    if (clearBtn) clearBtn.classList.remove("d-none");
   } else {
-    if (badge) badge.textContent = "No song selected";
-    if (subText) subText.textContent = "-";
+    if (badge) badge.textContent = "Free Mode (No Song)";
+    if (subText) subText.textContent = "Manual Tempo";
+    if (clearBtn) clearBtn.classList.add("d-none");
   }
 }
 
@@ -95,6 +114,21 @@ function renderSetlist() {
   if (playlist.length === 0) {
     container.innerHTML = '<div class="text-center text-muted py-4">No songs in playlist. Add one below!</div>';
     return;
+  }
+
+  // If a song is currently loaded, display a button to detach / return to Free Mode
+  if (currentSongIndex >= 0 && playlist[currentSongIndex]) {
+    const freeModeBanner = document.createElement("div");
+    freeModeBanner.className = "d-flex justify-content-between align-items-center mb-3 p-2 bg-dark rounded border border-warning-subtle";
+    freeModeBanner.innerHTML = `
+      <div class="small text-truncate me-2">
+        <span class="text-muted">Active:</span> <strong class="text-white">${escapeHtml(playlist[currentSongIndex].title)}</strong>
+      </div>
+      <button class="btn btn-sm btn-outline-warning" onclick="clearActiveSong()">
+        <i class="bi bi-x-circle me-1"></i>Free Mode
+      </button>
+    `;
+    container.appendChild(freeModeBanner);
   }
 
   playlist.forEach(function (song, idx) {
@@ -157,8 +191,10 @@ function addSong(title, songBpm, timeSig, notes) {
 function deleteSong(index) {
   if (index < 0 || index >= playlist.length) return;
   playlist.splice(index, 1);
-  if (currentSongIndex >= playlist.length) {
-    currentSongIndex = Math.max(0, playlist.length - 1);
+  if (currentSongIndex === index) {
+    currentSongIndex = -1; // Reset to free mode if active song deleted
+  } else if (currentSongIndex > index) {
+    currentSongIndex--;
   }
   saveSetlist();
   updateActiveSongBadge();
@@ -195,6 +231,15 @@ function initSetlist() {
   if (prevBtn) prevBtn.addEventListener("click", prevSong);
   if (nextBtn) nextBtn.addEventListener("click", nextSong);
 
+  // Clear active song button on metronome view
+  const clearBtn = document.getElementById("clearActiveSongBtn");
+  if (clearBtn) {
+    clearBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      clearActiveSong();
+    });
+  }
+
   // Add song form
   const addForm = document.getElementById("addSongForm");
   if (addForm) {
@@ -230,3 +275,4 @@ function initSetlist() {
     });
   }
 }
+

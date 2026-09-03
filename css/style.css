@@ -97,7 +97,7 @@ body {
   box-shadow: 0 0 25px var(--color-accent);
 }
 
-/* Fullscreen silent flash overlay */
+/* Fullscreen silent flash overlay with intensity modes */
 #screenFlashOverlay {
   position: fixed;
   top: 0;
@@ -105,14 +105,65 @@ body {
   width: 100vw;
   height: 100vh;
   pointer-events: none;
-  background-color: rgba(0, 230, 118, 0.25);
   opacity: 0;
   z-index: 9999;
   transition: opacity 0.04s ease-out;
 }
 
+#screenFlashOverlay.flash-subtle {
+  background-color: rgba(0, 230, 118, 0.35);
+}
+
+#screenFlashOverlay.flash-vivid {
+  background-color: rgba(0, 230, 118, 0.75);
+}
+
+#screenFlashOverlay.flash-strobe {
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+#screenFlashOverlay.flash-strobe-accent {
+  background-color: rgba(0, 230, 118, 1.0);
+}
+
 #screenFlashOverlay.flash-active {
   opacity: 1;
+}
+
+/* Quick BPM Presets Grid */
+.preset-btn {
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0.5rem 0.25rem;
+  border-radius: 0.75rem;
+  background-color: #1e293b;
+  border: 1px solid #475569;
+  color: var(--text-main);
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.preset-btn:hover {
+  background-color: #334155;
+  color: #ffffff;
+}
+
+.preset-btn.active-preset {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #000000;
+  box-shadow: 0 0 10px rgba(0, 230, 118, 0.4);
+}
+
+.preset-btn.saving-mode {
+  border: 2px dashed var(--color-warning) !important;
+  animation: pulse-border 1s infinite;
+}
+
+@keyframes pulse-border {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+  100% { transform: scale(1); }
 }
 
 /* Beat indicators dots */

@@ -4,7 +4,13 @@
 let bpm = 120;
 let timeSignature = 4;
 let isMuted = false;
-let fullscreenFlashEnabled = false;
+let flashMode = "vivid"; // "off", "subtle", "vivid", "strobe"
+
+// Quick BPM presets (6 customizable slots)
+const PRESETS_STORAGE_KEY = "metronome_quick_bpm_presets_v1";
+const DEFAULT_PRESETS = [140, 120, 110, 100, 90, 80];
+let quickPresets = [...DEFAULT_PRESETS];
+let isSavingPresetMode = false;
 
 // Tap tempo state
 const tapTimestamps = [];
@@ -47,6 +53,106 @@ document.addEventListener("visibilitychange", async function () {
   }
 });
 
+// Load quick presets from storage
+function loadQuickPresets() {
+  try {
+    const saved = localStorage.getItem(PRESETS_STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length === 6) {
+        quickPresets = parsed.map(function (v) {
+          return parseInt(v, 10) || 120;
+        });
+        return;
+      }
+    }
+  } catch (err) {
+    console.error("Failed to load quick presets:", err);
+  }
+  quickPresets = [...DEFAULT_PRESETS];
+}
+
+// Save quick presets to storage
+function saveQuickPresets() {
+  try {
+    localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(quickPresets));
+  } catch (err) {
+    console.error("Failed to save quick presets:", err);
+  }
+}
+
+// Reset quick presets to defaults
+function resetQuickPresets() {
+  quickPresets = [...DEFAULT_PRESETS];
+  saveQuickPresets();
+  if (isSavingPresetMode) {
+    toggleSavePresetMode(false);
+  }
+  renderQuickPresets();
+}
+
+// Render the 6 quick preset slots
+function renderQuickPresets() {
+  const container = document.getElementById("quickPresetsContainer");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  quickPresets.forEach(function (presetBpm, idx) {
+    const col = document.createElement("div");
+    col.className = "col-4 col-sm-2";
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn preset-btn w-100" + (presetBpm === bpm ? " active-preset" : "") + (isSavingPresetMode ? " saving-mode" : "");
+    btn.id = "presetBtn_" + idx;
+    btn.innerHTML = `<span class="small text-muted d-block" style="font-size:0.65rem">P${idx + 1}</span>${presetBpm}`;
+
+    btn.addEventListener("click", function () {
+      if (isSavingPresetMode) {
+        // Save current metronome BPM into this preset slot
+        quickPresets[idx] = bpm;
+        saveQuickPresets();
+        toggleSavePresetMode(false);
+        renderQuickPresets();
+      } else {
+        // Load preset BPM
+        updateBpm(presetBpm);
+      }
+    });
+
+    col.appendChild(btn);
+    container.appendChild(col);
+  });
+}
+
+// Toggle edit / save preset mode
+function toggleSavePresetMode(forceState) {
+  if (typeof forceState === "boolean") {
+    isSavingPresetMode = forceState;
+  } else {
+    isSavingPresetMode = !isSavingPresetMode;
+  }
+
+  const hint = document.getElementById("savePresetHint");
+  const toggleBtnText = document.getElementById("toggleSavePresetText");
+  const currentBpmEl = document.getElementById("saveCurrentBpmValue");
+
+  if (currentBpmEl) {
+    currentBpmEl.textContent = bpm;
+  }
+
+  if (isSavingPresetMode) {
+    if (hint) hint.classList.remove("d-none");
+    if (toggleBtnText) toggleBtnText.textContent = "Cancel Save";
+  } else {
+    if (hint) hint.classList.add("d-none");
+    if (toggleBtnText) toggleBtnText.textContent = "Save to Preset";
+  }
+
+  renderQuickPresets();
+}
+
 // Update BPM UI display and engine
 function updateBpm(newBpm) {
   bpm = Math.max(30, Math.min(300, Math.round(newBpm)));
@@ -54,12 +160,29 @@ function updateBpm(newBpm) {
 
   const tempoDisplay = document.getElementById("tempoDisplay");
   const tempoSlider = document.getElementById("tempoSlider");
+  const currentBpmEl = document.getElementById("saveCurrentBpmValue");
+
   if (tempoDisplay) {
     tempoDisplay.textContent = bpm;
   }
   if (tempoSlider && parseInt(tempoSlider.value, 10) !== bpm) {
     tempoSlider.value = bpm;
   }
+  if (currentBpmEl) {
+    currentBpmEl.textContent = bpm;
+  }
+
+  // Update active preset highlighting
+  quickPresets.forEach(function (val, idx) {
+    const btn = document.getElementById("presetBtn_" + idx);
+    if (btn) {
+      if (val === bpm) {
+        btn.classList.add("active-preset");
+      } else {
+        btn.classList.remove("active-preset");
+      }
+    }
+  });
 }
 
 // Update time signature dots
@@ -104,12 +227,29 @@ function handleBeat(beatNumber, isFirstBeat) {
     }, 90);
   }
 
-  // Fullscreen silent flash if enabled
-  if (screenOverlay && fullscreenFlashEnabled) {
-    screenOverlay.classList.add("flash-active");
+  // Configurable screen flash mode
+  if (screenOverlay && flashMode !== "off") {
+    screenOverlay.className = ""; // Reset previous classes
+
+    let flashClass = "flash-vivid";
+    let duration = 65;
+
+    if (flashMode === "subtle") {
+      flashClass = "flash-subtle";
+      duration = 50;
+    } else if (flashMode === "vivid") {
+      flashClass = "flash-vivid";
+      duration = isFirstBeat ? 85 : 60;
+    } else if (flashMode === "strobe") {
+      // Strobe mode: pure high-contrast white on normal beats, intense neon green on beat 1
+      flashClass = isFirstBeat ? "flash-strobe-accent" : "flash-strobe";
+      duration = isFirstBeat ? 95 : 60;
+    }
+
+    screenOverlay.classList.add(flashClass, "flash-active");
     setTimeout(function () {
       screenOverlay.classList.remove("flash-active");
-    }, 60);
+    }, duration);
   }
 
   // Highlight active dot
@@ -277,11 +417,39 @@ function initMetronome() {
     });
   }
 
-  // Fullscreen flash toggle
-  const flashCheck = document.getElementById("fullscreenFlashCheck");
-  if (flashCheck) {
-    flashCheck.addEventListener("change", function () {
-      fullscreenFlashEnabled = this.checked;
+  // Initialize Quick BPM presets
+  loadQuickPresets();
+  renderQuickPresets();
+
+  const toggleSaveBtn = document.getElementById("toggleSavePresetBtn");
+  if (toggleSaveBtn) {
+    toggleSaveBtn.addEventListener("click", function () {
+      toggleSavePresetMode();
+    });
+  }
+
+  const resetPresetsBtn = document.getElementById("resetPresetsBtn");
+  if (resetPresetsBtn) {
+    resetPresetsBtn.addEventListener("click", function () {
+      if (confirm("Reset the 6 quick presets to default values (140, 120, 110, 100, 90, 80)?")) {
+        resetQuickPresets();
+      }
+    });
+  }
+
+  // Flash mode select
+  const flashSelect = document.getElementById("flashModeSelect");
+  if (flashSelect) {
+    // Restore saved preference if any
+    const savedFlash = localStorage.getItem("metronome_flash_mode");
+    if (savedFlash) {
+      flashMode = savedFlash;
+      flashSelect.value = savedFlash;
+    }
+    flashSelect.addEventListener("change", function () {
+      flashMode = this.value;
+      localStorage.setItem("metronome_flash_mode", flashMode);
     });
   }
 }
+
