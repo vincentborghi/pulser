@@ -17,6 +17,28 @@ let isAudioMuted = false;
 let currentSoundType = "drumkit"; // "drumkit", "woodblock", "beep", "silent"
 let noiseBuffer = null;
 
+// Queue of notes scheduled for visual sync
+const notesInQueue = [];
+
+// Beat callback for visual UI updates
+let onBeatCallback = null;
+
+function setOnBeatCallback(callback) {
+  onBeatCallback = callback;
+}
+
+// Initialize audio context on first user interaction
+function getAudioContext() {
+  if (!audioCtx) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioContextClass();
+  }
+  if (audioCtx.state === "suspended") {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
 // Generate 1 second of white noise for realistic percussive synthesis
 function getNoiseBuffer(ctx) {
   if (!noiseBuffer) {
