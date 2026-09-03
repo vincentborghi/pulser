@@ -548,12 +548,17 @@ function initMetronome() {
     });
   }
 
-  // Audio Mute toggle (Silent mode)
-  const muteCheck = document.getElementById("muteAudioCheck");
-  if (muteCheck) {
-    muteCheck.addEventListener("change", function () {
-      isMuted = this.checked;
-      setEngineMuted(isMuted);
+  // Sound type select (Drum Kit, Woodblock, Beep, Silent)
+  const soundSelect = document.getElementById("soundTypeSelect");
+  if (soundSelect) {
+    const savedSound = localStorage.getItem("metronome_sound_type") || "drumkit";
+    soundSelect.value = savedSound;
+    setEngineSoundType(savedSound);
+
+    soundSelect.addEventListener("change", function () {
+      const selectedSound = this.value;
+      setEngineSoundType(selectedSound);
+      localStorage.setItem("metronome_sound_type", selectedSound);
     });
   }
 

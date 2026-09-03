@@ -20,7 +20,7 @@
   <!-- Custom App Styles -->
   <link rel="stylesheet" href="./css/style.css">
 </head>
-<body class="d-flex flex-column">
+<body class="d-flex flex-column ui-size-large">
 
   <!-- Fullscreen Silent Visual Flash Overlay -->
   <div id="screenFlashOverlay"></div>
@@ -34,9 +34,7 @@
         </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="pills-setlist-tab" data-bs-toggle="pill" data-bs-target="#pills-setlist" type="button" role="tab" aria-selected="false">
-          <i class="bi bi-music-note-list me-1"></i>Setlist
-        </button>
+        <button class="nav-link" id="pills-setlist-tab" data-bs-toggle="pill" data-bs-target="#pills-setlist" type="button" role="tab" aria-selected="false">Setlist</button>
       </li>
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="pills-tuner-tab" data-bs-toggle="pill" data-bs-target="#pills-tuner" type="button" role="tab" aria-selected="false">
@@ -141,7 +139,7 @@
           </div>
         </div>
 
-        <!-- Metronome Settings (No redundant title, compact grid) -->
+        <!-- Metronome Settings: 3 Symmetric Dropdowns (Signature, Sound, Flash) -->
         <div class="custom-card p-2 px-3 mb-2">
           <div class="row g-2">
             <div class="col-4">
@@ -157,6 +155,16 @@
             </div>
 
             <div class="col-4">
+              <label for="soundTypeSelect" class="form-label text-white fw-bold small mb-1">Sound</label>
+              <select class="form-select form-select-sm text-white fw-bold" id="soundTypeSelect">
+                <option value="drumkit" selected>Drum (Kick/Hat)</option>
+                <option value="woodblock">Woodblock</option>
+                <option value="beep">Beep</option>
+                <option value="silent">Silent (Muted)</option>
+              </select>
+            </div>
+
+            <div class="col-4">
               <label for="flashModeSelect" class="form-label text-white fw-bold small mb-1">Flash</label>
               <select class="form-select form-select-sm text-white fw-bold" id="flashModeSelect">
                 <option value="off">Off</option>
@@ -165,25 +173,14 @@
                 <option value="strobe">Strobe</option>
               </select>
             </div>
-
-            <div class="col-4">
-              <label for="uiSizeSelect" class="form-label text-white fw-bold small mb-1">Display</label>
-              <select class="form-select form-select-sm text-white fw-bold" id="uiSizeSelect">
-                <option value="large" selected>Large</option>
-                <option value="xlarge">X-Large</option>
-                <option value="normal">Normal</option>
-              </select>
-            </div>
-
-            <div class="col-12">
-              <div class="form-check form-switch pt-1">
-                <input class="form-check-input" type="checkbox" id="muteAudioCheck" style="width: 2.2em; height: 1.1em;">
-                <label class="form-check-label text-white fw-bold small ms-2" for="muteAudioCheck">
-                  <i class="bi bi-volume-mute me-1"></i>Silent Mode (Visual metronome only)
-                </label>
-              </div>
-            </div>
           </div>
+
+          <!-- Hidden Display Size Select (Kept in DOM if needed later) -->
+          <select id="uiSizeSelect" class="d-none">
+            <option value="large" selected>Large</option>
+            <option value="xlarge">X-Large</option>
+            <option value="normal">Normal</option>
+          </select>
         </div>
 
       </div>
