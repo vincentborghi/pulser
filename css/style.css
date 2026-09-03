@@ -49,10 +49,12 @@ label {
 
 .nav-pills .nav-link {
   color: #ffffff;
-  border-radius: 9999px;
+  border-radius: 6px !important;
   font-weight: 700;
-  padding: 0.5rem 1.25rem;
-  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  padding: 0.35rem 0.45rem !important;
+  white-space: nowrap !important;
+  transition: all 0.15s ease;
 }
 
 .nav-pills .nav-link:not(.active) {
@@ -444,14 +446,26 @@ body.ui-size-xlarge .preset-btn .preset-bpm {
   background-color: rgba(245, 158, 11, 0.18);
   border: 2px solid #f59e0b !important;
   color: #fef08a !important;
-  font-weight: 800;
-  font-size: 0.95rem;
-  border-radius: 0.65rem;
+  font-weight: 700;
+  font-size: 0.86rem !important;
+  border-radius: 0.5rem;
   min-height: 36px;
-  display: flex;
+  padding: 2px 4px !important;
+  white-space: nowrap !important;
+  display: inline-flex;
   justify-content: center;
   align-items: center;
+  line-height: 1.2;
   transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.btn-undo-tap span,
+.btn-undo-tap #undoTapBpm {
+  display: inline;
+  vertical-align: baseline !important;
+  line-height: inherit !important;
+  font-size: inherit !important;
+  font-family: inherit !important;
 }
 
 .btn-undo-tap:hover:not(:disabled),

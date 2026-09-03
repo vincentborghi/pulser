@@ -26,18 +26,18 @@
   <div id="screenFlashOverlay"></div>
 
   <!-- Navigation Tabs directly at top for maximum vertical space -->
-  <div class="container-sm pt-2 pb-1">
-    <ul class="nav nav-pills nav-fill bg-dark p-1 rounded-pill border border-secondary" id="pills-tab" role="tablist">
+  <div class="container-sm px-2 pt-2 pb-1">
+    <ul class="nav nav-pills nav-fill flex-nowrap bg-dark p-1 rounded-2 border border-secondary" id="pills-tab" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="pills-metronome-tab" data-bs-toggle="pill" data-bs-target="#pills-metronome" type="button" role="tab" aria-selected="true">
+        <button class="nav-link active px-2 py-1 text-nowrap" id="pills-metronome-tab" data-bs-toggle="pill" data-bs-target="#pills-metronome" type="button" role="tab" aria-selected="true">
           <i class="bi bi-stopwatch me-1"></i>Metronome
         </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="pills-setlist-tab" data-bs-toggle="pill" data-bs-target="#pills-setlist" type="button" role="tab" aria-selected="false">Setlist</button>
+        <button class="nav-link px-2 py-1 text-nowrap" id="pills-setlist-tab" data-bs-toggle="pill" data-bs-target="#pills-setlist" type="button" role="tab" aria-selected="false">Setlist</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="pills-tuner-tab" data-bs-toggle="pill" data-bs-target="#pills-tuner" type="button" role="tab" aria-selected="false">
+        <button class="nav-link px-2 py-1 text-nowrap" id="pills-tuner-tab" data-bs-toggle="pill" data-bs-target="#pills-tuner" type="button" role="tab" aria-selected="false">
           <i class="bi bi-tuning me-1"></i>Tuner
         </button>
       </li>
@@ -107,8 +107,8 @@
             <div class="col-7 d-flex flex-column justify-content-between gap-2">
               <!-- UNDO TAP BUTTON (At the top of the column, fixed reserved slot) -->
               <div class="undo-tap-slot w-100" style="min-height: 38px;">
-                <button id="undoTapBtn" class="btn btn-undo-tap w-100 py-1 shadow-sm invisible" disabled title="Forget tapped tempo and restore previous tempo">
-                  <i class="bi bi-arrow-counterclockwise me-1 text-warning"></i>Undo Tap (<span id="undoTapBpm" class="fw-bold">120</span>&thinsp;BPM)
+                <button id="undoTapBtn" class="btn btn-undo-tap w-100 py-1 shadow-sm invisible text-nowrap" disabled title="Forget tapped tempo and restore previous tempo">
+                  <i class="bi bi-arrow-counterclockwise me-1 text-warning"></i><span>Undo Tap (<span id="undoTapBpm" class="fw-bold">120</span> BPM)</span>
                 </button>
               </div>
 
