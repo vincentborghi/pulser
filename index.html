@@ -124,12 +124,17 @@
             </div>
           </div>
 
-          <!-- Quick Delta Buttons (-5, -1, +1, +5) in pure bright white -->
-          <div class="d-flex justify-content-center gap-1 mb-1">
-            <button class="btn btn-outline-light btn-delta text-white fw-bold px-3 py-1" data-bpm-delta="-5">-5</button>
-            <button class="btn btn-outline-light btn-delta text-white fw-bold px-3 py-1" data-bpm-delta="-1">-1</button>
-            <button class="btn btn-outline-light btn-delta text-white fw-bold px-3 py-1" data-bpm-delta="1">+1</button>
-            <button class="btn btn-outline-light btn-delta text-white fw-bold px-3 py-1" data-bpm-delta="5">+5</button>
+          <!-- Quick Delta Buttons (-5, -1, +1, +5) & Ambient Auto-BPM Detector -->
+          <div class="d-flex justify-content-between align-items-center gap-1 mb-1">
+            <div class="d-flex gap-1 flex-grow-1">
+              <button class="btn btn-outline-light btn-delta text-white fw-bold flex-fill py-1" data-bpm-delta="-5">-5</button>
+              <button class="btn btn-outline-light btn-delta text-white fw-bold flex-fill py-1" data-bpm-delta="-1">-1</button>
+              <button class="btn btn-outline-light btn-delta text-white fw-bold flex-fill py-1" data-bpm-delta="1">+1</button>
+              <button class="btn btn-outline-light btn-delta text-white fw-bold flex-fill py-1" data-bpm-delta="5">+5</button>
+            </div>
+            <button id="openAutoBpmModalBtn" class="btn btn-outline-info text-white fw-bold px-2 py-1 shadow-sm d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#autoBpmModal" title="Listen to ambient music with microphone and detect BPM" style="min-height: 38px;">
+              <i class="bi bi-mic-fill me-1 text-danger fs-6"></i>Auto-BPM
+            </button>
           </div>
 
           <!-- Tempo Slider -->
@@ -503,12 +508,77 @@
     </div>
   </div>
 
+  <!-- Ambient Auto-BPM Detector Modal -->
+  <div class="modal fade" id="autoBpmModal" tabindex="-1" aria-labelledby="autoBpmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content custom-card border-info shadow-lg">
+        <div class="modal-header border-secondary">
+          <div>
+            <h5 class="modal-title text-white fw-bold" id="autoBpmModalLabel">
+              <i class="bi bi-mic-fill me-2 text-danger"></i>Ambient Auto-BPM
+            </h5>
+            <small class="text-white-50" style="font-size: 0.82rem;">Listen to ambient music and detect tempo</small>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-3 text-center">
+          <!-- Big Detected BPM Display -->
+          <div class="py-2">
+            <span class="text-white-50 small text-uppercase fw-bold d-block mb-1">Detected Tempo</span>
+            <div class="d-flex align-items-baseline justify-content-center gap-2">
+              <span id="autoBpmValueDisplay" class="fw-black text-info" style="font-size: 4.5rem; line-height: 1; font-family: monospace;">---</span>
+              <span class="text-white fw-bold fs-4">BPM</span>
+            </div>
+            <div id="autoBpmStatusText" class="text-white-50 fw-semibold mt-2" style="min-height: 24px; font-size: 0.95rem;">
+              Click "Start Listening" near speakers or playing instruments
+            </div>
+          </div>
+
+          <!-- Live Mic Level Meter & Beat Indicator -->
+          <div class="my-2 p-2 rounded bg-dark border border-secondary">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="text-white-50 small fw-bold"><i class="bi bi-soundwave me-1"></i>Mic Level</span>
+              <span id="autoBpmBeatIndicator" class="badge bg-secondary text-white px-2 py-1 fw-bold">Inactive</span>
+            </div>
+            <div class="progress" style="height: 12px; background-color: #1e293b;">
+              <div id="autoBpmLevelBar" class="progress-bar bg-info" role="progressbar" style="width: 0%; transition: width 0.05s ease;"></div>
+            </div>
+          </div>
+
+          <!-- Octave Adjusters (Half / Double) -->
+          <div class="d-flex justify-content-center gap-2 my-3">
+            <button type="button" id="autoBpmHalveBtn" class="btn btn-outline-secondary fw-bold px-3 py-1 text-white" disabled title="Divide tempo by 2">
+              &divide;2 (<span id="autoBpmHalfVal">--</span>)
+            </button>
+            <button type="button" id="autoBpmDoubleBtn" class="btn btn-outline-secondary fw-bold px-3 py-1 text-white" disabled title="Multiply tempo by 2">
+              &times;2 (<span id="autoBpmDoubleVal">--</span>)
+            </button>
+          </div>
+
+          <!-- Controls: Start/Stop Listening and Apply to Metronome -->
+          <div class="d-grid gap-2 mt-3">
+            <button type="button" id="autoBpmListenToggleBtn" class="btn btn-primary btn-lg fw-bold py-2 shadow" style="min-height: 48px;">
+              <i class="bi bi-mic-fill me-2 fs-5"></i><span id="autoBpmListenBtnText">Start Listening</span>
+            </button>
+            <button type="button" id="autoBpmApplyBtn" class="btn btn-success btn-lg fw-bold py-2 shadow" disabled style="min-height: 48px; color: #ffffff !important;">
+              <i class="bi bi-check-circle-fill me-2 fs-5"></i>Apply to Metronome
+            </button>
+          </div>
+        </div>
+        <div class="modal-footer border-secondary">
+          <button type="button" class="btn btn-outline-secondary fw-bold" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Bootstrap 5 Bundle JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Application Logic -->
   <script src="./js/voice-data.js"></script>
   <script src="./js/audio-engine.js"></script>
+  <script src="./js/auto-bpm.js"></script>
   <script src="./js/metronome.js"></script>
   <script src="./js/setlist.js"></script>
   <script src="./js/tuner.js"></script>

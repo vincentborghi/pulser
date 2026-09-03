@@ -77,6 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initMetronome();
   initSetlist();
   initTuner();
+  initAutoBpm();
   setupTabEvents();
   setupInstallPrompt();
   registerServiceWorker();
