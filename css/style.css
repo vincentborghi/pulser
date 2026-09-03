@@ -316,19 +316,50 @@ body.ui-size-xlarge .preset-btn .preset-bpm {
 }
 
 /* Beat indicators dots */
-.beat-dot {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background-color: #334155;
-  display: inline-block;
-  margin: 0 4px;
-  transition: background-color 0.08s ease;
+#beatDotsContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 30px;
 }
 
+.beat-dot {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background-color: #1e293b;
+  border: 2px solid #475569;
+  display: inline-block;
+  margin: 0;
+  transition: transform 0.08s ease, background-color 0.08s ease, box-shadow 0.08s ease, border-color 0.08s ease;
+}
+
+/* First beat dot is visibly larger */
+.beat-dot.first-beat,
+.beat-dot:first-child {
+  width: 24px;
+  height: 24px;
+  border: 2.5px solid #64748b;
+}
+
+/* Beat 1 active: matches circle flasher Beat 1 (Neon Green #00e676) */
+.beat-dot.active-beat-accent,
+.beat-dot.first-beat.active-beat,
+.beat-dot:first-child.active-beat {
+  background-color: var(--color-primary) !important; /* #00e676 */
+  border-color: #ffffff !important;
+  box-shadow: 0 0 16px var(--color-primary) !important;
+  transform: scale(1.22);
+}
+
+/* Other beats active: matches circle flasher normal beats (Vivid Cyan #00d2ff) */
+.beat-dot.active-beat-normal,
 .beat-dot.active-beat {
-  background-color: var(--color-primary);
-  box-shadow: 0 0 10px var(--color-primary);
+  background-color: var(--color-accent) !important; /* #00d2ff */
+  border-color: #ffffff !important;
+  box-shadow: 0 0 14px var(--color-accent) !important;
+  transform: scale(1.18);
 }
 
 /* Drum Pad Tap Button - Lighter Grey Silicone Finish */

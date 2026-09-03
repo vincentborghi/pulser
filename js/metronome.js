@@ -531,7 +531,7 @@ function renderBeatDots() {
   container.innerHTML = "";
   for (let i = 0; i < timeSignature; i++) {
     const dot = document.createElement("span");
-    dot.className = "beat-dot";
+    dot.className = "beat-dot" + (i === 0 ? " first-beat" : "");
     dot.id = "beatDot_" + i;
     container.appendChild(dot);
   }
@@ -596,8 +596,15 @@ function handleBeat(beatNumber, isFirstBeat) {
     if (dot) {
       if (i === beatNumber) {
         dot.classList.add("active-beat");
+        if (i === 0) {
+          dot.classList.add("active-beat-accent");
+          dot.classList.remove("active-beat-normal");
+        } else {
+          dot.classList.add("active-beat-normal");
+          dot.classList.remove("active-beat-accent");
+        }
       } else {
-        dot.classList.remove("active-beat");
+        dot.classList.remove("active-beat", "active-beat-accent", "active-beat-normal");
       }
     }
   }
@@ -739,7 +746,7 @@ async function togglePlayMetronome() {
     if (flasherText) flasherText.textContent = "-";
     for (let i = 0; i < timeSignature; i++) {
       const dot = document.getElementById("beatDot_" + i);
-      if (dot) dot.classList.remove("active-beat");
+      if (dot) dot.classList.remove("active-beat", "active-beat-accent", "active-beat-normal");
     }
   } else {
     beatsAtCurrentTempo = 0;
