@@ -88,11 +88,16 @@
               <div id="beatDotsContainer" class="mt-2"></div>
             </div>
 
-            <!-- Right: Expanded Tap and Start/Stop buttons -->
+            <!-- Right: Drum Pad Tap, Undo Button, and Start/Stop -->
             <div class="col-7 d-flex flex-column justify-content-between gap-2">
-              <!-- TAP TEMPO BUTTON -->
-              <button id="tapButton" class="btn btn-tap w-100 flex-grow-1 shadow-sm">
-                <span class="text-white fw-bolder fs-4"><i class="bi bi-hand-index-thumb-fill me-2"></i>Tap Tempo</span>
+              <!-- TAP TEMPO DRUMPAD BUTTON -->
+              <button id="tapButton" class="btn btn-tap w-100 flex-grow-1 shadow">
+                <span class="pad-label text-white fw-bolder fs-4"><i class="bi bi-grid-fill me-2 opacity-75"></i>Tap Tempo</span>
+              </button>
+
+              <!-- UNDO TAP BUTTON (Appears when tempo is modified by tap) -->
+              <button id="undoTapBtn" class="btn btn-sm text-white fw-bold w-100 py-1 d-none shadow-sm" style="min-height: 38px; border-width: 2px; font-size: 0.95rem;" title="Forget tapped tempo and restore previous tempo">
+                <i class="bi bi-arrow-counterclockwise me-1 text-warning"></i>Undo Tap (<span id="undoTapBpm">120</span> BPM)
               </button>
 
               <!-- START / STOP BUTTON -->

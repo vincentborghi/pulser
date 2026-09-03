@@ -12,6 +12,35 @@ let lastActiveFlashMode = "vivid";
 const tapTimestamps = [];
 const TAP_RESET_TIMEOUT_MS = 2500;
 let lastTapTime = 0;
+let bpmBeforeTap = null;
+
+function showUndoTapButton() {
+  const undoBtn = document.getElementById("undoTapBtn");
+  const undoBpmEl = document.getElementById("undoTapBpm");
+  if (undoBtn && bpmBeforeTap !== null && bpmBeforeTap !== bpm) {
+    if (undoBpmEl) {
+      undoBpmEl.textContent = bpmBeforeTap;
+    }
+    undoBtn.classList.remove("d-none");
+  }
+}
+
+function hideUndoTapButton() {
+  const undoBtn = document.getElementById("undoTapBtn");
+  if (undoBtn) {
+    undoBtn.classList.add("d-none");
+  }
+  bpmBeforeTap = null;
+}
+
+function undoTappedBpm() {
+  if (bpmBeforeTap !== null) {
+    const previousBpm = bpmBeforeTap;
+    hideUndoTapButton();
+    tapTimestamps.length = 0;
+    updateBpm(previousBpm, false);
+  }
+}
 
 // Screen wake lock sentinel
 let wakeLockSentinel = null;
@@ -296,9 +325,13 @@ function toggleSavePresetMode(forceState) {
 }
 
 // Update BPM UI display and engine
-function updateBpm(newBpm) {
+function updateBpm(newBpm, isFromTap) {
   bpm = Math.max(30, Math.min(300, Math.round(newBpm)));
   setEngineTempo(bpm);
+
+  if (!isFromTap) {
+    hideUndoTapButton();
+  }
 
   const tempoDisplay = document.getElementById("tempoDisplay");
   const tempoSlider = document.getElementById("tempoSlider");
@@ -394,7 +427,7 @@ function handleBeat(beatNumber, isFirstBeat) {
     }, duration);
   }
 
-  // Highlight active dot
+  // Update signature dots
   for (let i = 0; i < timeSignature; i++) {
     const dot = document.getElementById("beatDot_" + i);
     if (dot) {
@@ -409,11 +442,22 @@ function handleBeat(beatNumber, isFirstBeat) {
 
 // Tap Tempo logic
 function handleTapTempo() {
+  // Drumpad tactile strike visual feedback
+  const tapBtn = document.getElementById("tapButton");
+  if (tapBtn) {
+    tapBtn.classList.add("pad-hit");
+    clearTimeout(tapBtn._hitTimeout);
+    tapBtn._hitTimeout = setTimeout(function () {
+      tapBtn.classList.remove("pad-hit");
+    }, 90);
+  }
+
   const now = performance.now();
   const timeSinceLastTap = now - lastTapTime;
 
-  if (timeSinceLastTap > TAP_RESET_TIMEOUT_MS) {
+  if (timeSinceLastTap > TAP_RESET_TIMEOUT_MS || tapTimestamps.length === 0) {
     tapTimestamps.length = 0;
+    bpmBeforeTap = bpm; // Save previous tempo before starting tap sequence
   }
 
   tapTimestamps.push(now);
@@ -440,13 +484,13 @@ function handleTapTempo() {
     if (medianInterval > 0) {
       const calculatedBpm = Math.round(60000 / medianInterval);
       if (calculatedBpm >= 30 && calculatedBpm <= 300) {
-        updateBpm(calculatedBpm);
+        updateBpm(calculatedBpm, true);
+        showUndoTapButton();
       }
     }
   }
 
   // Tap button visual feedback
-  const tapBtn = document.getElementById("tapButton");
   const tapLabel = document.getElementById("tapSubtext");
   if (tapLabel) {
     tapLabel.textContent = "Tap " + tapTimestamps.length + " (BPM " + bpm + ")";
@@ -521,6 +565,15 @@ function initMetronome() {
     tapBtn.addEventListener("pointerdown", function (e) {
       e.preventDefault();
       handleTapTempo();
+    });
+  }
+
+  // Undo Tap button
+  const undoTapBtn = document.getElementById("undoTapBtn");
+  if (undoTapBtn) {
+    undoTapBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      undoTappedBpm();
     });
   }
 
