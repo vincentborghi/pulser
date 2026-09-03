@@ -8,39 +8,48 @@ let flashMode = "vivid"; // "off", "subtle", "vivid", "strobe"
 let lastActiveSoundType = "drumkit";
 let lastActiveFlashMode = "vivid";
 
-// Tap tempo state
+// Tap tempo state & multi-level undo stack
 const tapTimestamps = [];
 const TAP_RESET_TIMEOUT_MS = 2500;
 let lastTapTime = 0;
-let bpmBeforeTap = null;
+const tapUndoHistory = []; // Stack of previous tempos e.g. [120, 135]
+let currentTapSequenceBaseBpm = null;
+let hasPushedSequenceToHistory = false;
 
-function showUndoTapButton() {
+function updateUndoTapButton() {
   const undoBtn = document.getElementById("undoTapBtn");
   const undoBpmEl = document.getElementById("undoTapBpm");
-  if (undoBtn && bpmBeforeTap !== null && bpmBeforeTap !== bpm) {
+
+  if (!undoBtn) return;
+
+  if (tapUndoHistory.length > 0) {
+    const targetBpm = tapUndoHistory[tapUndoHistory.length - 1];
     if (undoBpmEl) {
-      undoBpmEl.textContent = bpmBeforeTap;
+      undoBpmEl.textContent = targetBpm;
     }
     undoBtn.classList.remove("invisible");
     undoBtn.disabled = false;
-  }
-}
-
-function hideUndoTapButton() {
-  const undoBtn = document.getElementById("undoTapBtn");
-  if (undoBtn) {
+  } else {
     undoBtn.classList.add("invisible");
     undoBtn.disabled = true;
   }
-  bpmBeforeTap = null;
+}
+
+function clearTapUndoHistory() {
+  tapUndoHistory.length = 0;
+  currentTapSequenceBaseBpm = null;
+  hasPushedSequenceToHistory = false;
+  updateUndoTapButton();
 }
 
 function undoTappedBpm() {
-  if (bpmBeforeTap !== null) {
-    const previousBpm = bpmBeforeTap;
-    hideUndoTapButton();
+  if (tapUndoHistory.length > 0) {
+    const previousBpm = tapUndoHistory.pop();
     tapTimestamps.length = 0;
-    updateBpm(previousBpm, false);
+    currentTapSequenceBaseBpm = null;
+    hasPushedSequenceToHistory = false;
+    updateBpm(previousBpm, true); // Preserve remaining history stack
+    updateUndoTapButton();
   }
 }
 
@@ -327,12 +336,12 @@ function toggleSavePresetMode(forceState) {
 }
 
 // Update BPM UI display and engine
-function updateBpm(newBpm, isFromTap) {
+function updateBpm(newBpm, preserveHistory) {
   bpm = Math.max(30, Math.min(300, Math.round(newBpm)));
   setEngineTempo(bpm);
 
-  if (!isFromTap) {
-    hideUndoTapButton();
+  if (!preserveHistory) {
+    clearTapUndoHistory();
   }
 
   const tempoDisplay = document.getElementById("tempoDisplay");
@@ -457,9 +466,11 @@ function handleTapTempo() {
   const now = performance.now();
   const timeSinceLastTap = now - lastTapTime;
 
+  // New tap sequence detected
   if (timeSinceLastTap > TAP_RESET_TIMEOUT_MS || tapTimestamps.length === 0) {
     tapTimestamps.length = 0;
-    bpmBeforeTap = bpm; // Save previous tempo before starting tap sequence
+    currentTapSequenceBaseBpm = bpm;
+    hasPushedSequenceToHistory = false;
   }
 
   tapTimestamps.push(now);
@@ -486,8 +497,19 @@ function handleTapTempo() {
     if (medianInterval > 0) {
       const calculatedBpm = Math.round(60000 / medianInterval);
       if (calculatedBpm >= 30 && calculatedBpm <= 300) {
+        // Push the sequence baseline tempo to the undo history stack once per sequence
+        if (!hasPushedSequenceToHistory && currentTapSequenceBaseBpm !== null && currentTapSequenceBaseBpm !== calculatedBpm) {
+          if (tapUndoHistory.length === 0 || tapUndoHistory[tapUndoHistory.length - 1] !== currentTapSequenceBaseBpm) {
+            tapUndoHistory.push(currentTapSequenceBaseBpm);
+            if (tapUndoHistory.length > 10) {
+              tapUndoHistory.shift();
+            }
+          }
+          hasPushedSequenceToHistory = true;
+        }
+
         updateBpm(calculatedBpm, true);
-        showUndoTapButton();
+        updateUndoTapButton();
       }
     }
   }
