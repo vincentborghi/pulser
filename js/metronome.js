@@ -6,12 +6,6 @@ let timeSignature = 4;
 let isMuted = false;
 let flashMode = "vivid"; // "off", "subtle", "vivid", "strobe"
 
-// Quick BPM presets (6 customizable slots)
-const PRESETS_STORAGE_KEY = "metronome_quick_bpm_presets_v1";
-const DEFAULT_PRESETS = [140, 120, 110, 100, 90, 80];
-let quickPresets = [...DEFAULT_PRESETS];
-let isSavingPresetMode = false;
-
 // Tap tempo state
 const tapTimestamps = [];
 const TAP_RESET_TIMEOUT_MS = 2500;

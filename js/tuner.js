@@ -185,8 +185,15 @@ async function startTuner() {
   if (errorAlert) errorAlert.classList.add("d-none");
 
   try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      throw new Error("Microphone API not available in this context. Please ensure you are accessing via https:// or localhost.");
+    }
+
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     tunerAudioCtx = new AudioContextClass();
+    if (tunerAudioCtx.state === "suspended") {
+      await tunerAudioCtx.resume();
+    }
 
     // Disable all audio processing filters to capture pure musical pitch
     tunerMediaStream = await navigator.mediaDevices.getUserMedia({
@@ -212,8 +219,14 @@ async function startTuner() {
     tunerProcessLoop();
   } catch (err) {
     console.error("Microphone access failed:", err);
+    isTunerActive = false;
+    if (btn) {
+      btn.classList.remove("btn-danger");
+      btn.classList.add("btn-primary");
+      btn.innerHTML = '<i class="bi bi-mic-fill me-2"></i>Start Tuner';
+    }
     if (errorAlert) {
-      errorAlert.textContent = "Microphone access denied or unavailable. Please grant microphone permissions in your browser.";
+      errorAlert.textContent = err.message || "Microphone access denied or unavailable. Please grant microphone permissions in your browser.";
       errorAlert.classList.remove("d-none");
     }
   }
