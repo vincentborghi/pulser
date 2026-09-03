@@ -579,6 +579,39 @@ function stopMetronomeEngine() {
   notesInQueue.length = 0;
 }
 
+// Resynchronize on-the-fly to Beat 1 (measure downbeat)
+function resyncEngineToBeatOne() {
+  if (!isPlaying) {
+    return;
+  }
+
+  const ctx = getAudioContext();
+
+  if (timerId !== null) {
+    clearTimeout(timerId);
+    timerId = null;
+  }
+  notesInQueue.length = 0;
+
+  currentBeatInMeasure = 0;
+  nextNoteTime = ctx.currentTime + 0.005;
+
+  scheduleTick(nextNoteTime, true, 0);
+
+  notesInQueue.push({
+    noteNumber: 0,
+    time: nextNoteTime,
+    isFirstBeat: true
+  });
+
+  advanceNextNote();
+  scheduler();
+
+  if (onBeatCallback) {
+    onBeatCallback(0, true);
+  }
+}
+
 function setEngineTempo(bpm) {
   const clamped = Math.max(30, Math.min(300, Math.round(bpm)));
   currentTempo = clamped;

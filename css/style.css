@@ -335,12 +335,28 @@ body.ui-size-xlarge .preset-btn .preset-bpm {
   transition: transform 0.08s ease, background-color 0.08s ease, box-shadow 0.08s ease, border-color 0.08s ease;
 }
 
-/* First beat dot is visibly larger */
+/* First beat dot is visibly larger & clickable to resynchronize Beat 1 */
 .beat-dot.first-beat,
 .beat-dot:first-child {
   width: 24px;
   height: 24px;
   border: 2.5px solid #64748b;
+  cursor: pointer;
+  position: relative;
+  touch-action: manipulation;
+}
+
+.beat-dot.first-beat::after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+}
+
+.beat-dot.first-beat:active {
+  transform: scale(0.88);
 }
 
 /* Beat 1 active: matches circle flasher Beat 1 (Neon Green #00e676) */

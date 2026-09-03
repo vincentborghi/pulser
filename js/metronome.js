@@ -523,6 +523,18 @@ function updateBpm(newBpm, preserveHistory) {
   updateGlobalMetronomeBar();
 }
 
+// Resynchronize metronome on-the-fly to Beat 1
+function resyncMetronomeToBeatOne() {
+  if (typeof isEnginePlaying === "function" && isEnginePlaying()) {
+    if (typeof resyncEngineToBeatOne === "function") {
+      resyncEngineToBeatOne();
+    }
+  } else {
+    // If not playing, start metronome directly on beat 1
+    togglePlayMetronome();
+  }
+}
+
 // Update time signature dots
 function renderBeatDots() {
   const container = document.getElementById("beatDotsContainer");
@@ -533,6 +545,18 @@ function renderBeatDots() {
     const dot = document.createElement("span");
     dot.className = "beat-dot" + (i === 0 ? " first-beat" : "");
     dot.id = "beatDot_" + i;
+
+    if (i === 0) {
+      dot.style.cursor = "pointer";
+      dot.title = "Click to resynchronize Beat 1";
+      dot.setAttribute("role", "button");
+      dot.setAttribute("aria-label", "Resynchronize Beat 1");
+      dot.addEventListener("click", function (e) {
+        e.stopPropagation();
+        resyncMetronomeToBeatOne();
+      });
+    }
+
     container.appendChild(dot);
   }
 }
