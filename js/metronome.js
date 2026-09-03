@@ -421,15 +421,15 @@ function handleBeat(beatNumber, isFirstBeat) {
     let duration = 65;
 
     if (flashMode === "subtle") {
-      flashClass = "flash-subtle";
-      duration = 50;
+      flashClass = isFirstBeat ? "flash-subtle-accent" : "flash-subtle";
+      duration = isFirstBeat ? 80 : 50;
     } else if (flashMode === "vivid") {
-      flashClass = "flash-vivid";
-      duration = isFirstBeat ? 85 : 60;
+      flashClass = isFirstBeat ? "flash-vivid-accent" : "flash-vivid";
+      duration = isFirstBeat ? 95 : 60;
     } else if (flashMode === "strobe") {
       // Strobe mode: pure high-contrast white on normal beats, intense neon green on beat 1
       flashClass = isFirstBeat ? "flash-strobe-accent" : "flash-strobe";
-      duration = isFirstBeat ? 95 : 60;
+      duration = isFirstBeat ? 100 : 60;
     }
 
     screenOverlay.classList.add(flashClass, "flash-active");

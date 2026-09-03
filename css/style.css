@@ -133,19 +133,27 @@ label {
 }
 
 #screenFlashOverlay.flash-subtle {
-  background-color: rgba(0, 230, 118, 0.35);
+  background-color: rgba(0, 210, 255, 0.22); /* Soft Cyan on normal beats */
+}
+
+#screenFlashOverlay.flash-subtle-accent {
+  background-color: rgba(0, 230, 118, 0.5); /* Neon Green on Beat 1 */
 }
 
 #screenFlashOverlay.flash-vivid {
-  background-color: rgba(0, 230, 118, 0.75);
+  background-color: rgba(0, 240, 255, 0.65); /* High-contrast Cyan on normal beats */
+}
+
+#screenFlashOverlay.flash-vivid-accent {
+  background-color: rgba(0, 230, 118, 0.9); /* Intense Neon Green on Beat 1 */
 }
 
 #screenFlashOverlay.flash-strobe {
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: rgba(255, 255, 255, 0.95); /* Pure White on normal beats */
 }
 
 #screenFlashOverlay.flash-strobe-accent {
-  background-color: rgba(0, 230, 118, 1.0);
+  background-color: rgba(0, 230, 118, 1.0); /* Full Neon Green on Beat 1 */
 }
 
 #screenFlashOverlay.flash-active {
