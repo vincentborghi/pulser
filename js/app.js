@@ -78,6 +78,11 @@ function setupTabEvents() {
         stopTuner();
       }
 
+      // Close concert gadget if user switches tab
+      if (typeof closeConcertGadget === "function") {
+        closeConcertGadget();
+      }
+
       // Update global metronome quick stop bar when switching tabs
       if (typeof updateGlobalMetronomeBar === "function") {
         updateGlobalMetronomeBar();
@@ -92,6 +97,9 @@ document.addEventListener("DOMContentLoaded", function () {
   initSetlist();
   initTuner();
   initAutoBpm();
+  if (typeof initGadgets === "function") {
+    initGadgets();
+  }
   setupTabEvents();
   setupInstallPrompt();
   registerServiceWorker();

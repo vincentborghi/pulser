@@ -1,6 +1,6 @@
 // Service Worker for 100% offline usage
 // Cache version identifier
-const CACHE_NAME = "groovepulse-cache-v2";
+const CACHE_NAME = "groovepulse-cache-v3";
 
 const ASSETS_TO_CACHE = [
   "./",
@@ -13,6 +13,7 @@ const ASSETS_TO_CACHE = [
   "./js/metronome.js",
   "./js/setlist.js",
   "./js/tuner.js",
+  "./js/gadgets.js",
   "./js/app.js",
   "./icons/icon.svg"
 ];

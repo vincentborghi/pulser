@@ -51,8 +51,8 @@ label {
   color: #ffffff;
   border-radius: 6px !important;
   font-weight: 700;
-  font-size: 0.95rem;
-  padding: 0.35rem 0.45rem !important;
+  font-size: 0.88rem;
+  padding: 0.35rem 0.25rem !important;
   white-space: nowrap !important;
   transition: all 0.15s ease;
 }
@@ -715,4 +715,269 @@ button {
 #globalMetronomeBar #globalStopMetronomeBtn:active {
   transform: scale(0.95);
   background-color: #b91c1c !important;
+}
+
+/* ==========================================================================
+   CONCERT GADGETS & STAGE BEACONS
+   ========================================================================== */
+
+#concertGadgetOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000000 !important;
+  z-index: 99999;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#gadgetOverlayControls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100000;
+  transition: opacity 0.3s ease;
+}
+
+#gadgetOverlayControls.fade-out {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+#gadgetStageContainer {
+  flex-grow: 1;
+  transition: transform 0.3s ease;
+}
+
+/* 90 degree rotated mode for holding phone upright while text displays in landscape */
+.rotated-stage-90 {
+  transform: rotate(90deg);
+  transform-origin: center center;
+  width: 100vh !important;
+  height: 100vw !important;
+}
+
+/* --- GADGET 1: CONCERT CANDLE / LIGHTER FLAME --- */
+.candle-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.candle-halo {
+  position: absolute;
+  top: -60px;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 170, 0, 0.35) 0%, rgba(255, 100, 0, 0.12) 50%, rgba(0, 0, 0, 0) 70%);
+  animation: haloPulse 2.5s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.candle-flame {
+  position: relative;
+  width: 48px;
+  height: 95px;
+  border-radius: 50% 50% 35% 35% / 70% 70% 30% 30%;
+  background: linear-gradient(to top, #ff3b00 0%, #ff8c00 40%, #ffea00 80%, #ffffff 100%);
+  box-shadow: 0 0 25px #ff7700, 0 0 50px #ff3300, 0 0 85px rgba(255, 120, 0, 0.7);
+  animation: flameFlicker 0.12s ease-in-out infinite alternate, flameSway 3.2s ease-in-out infinite alternate;
+  transform-origin: center bottom;
+}
+
+.flame-inner {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 60px;
+  border-radius: 50% 50% 35% 35% / 70% 70% 30% 30%;
+  background: linear-gradient(to top, #ff8c00 0%, #ffea00 50%, #ffffff 95%);
+  opacity: 0.9;
+}
+
+.flame-core {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 35px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 10px #ffffff;
+}
+
+.flame-base-blue {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #00d2ff 0%, #0044ff 60%, rgba(0, 0, 0, 0) 100%);
+  opacity: 0.85;
+}
+
+.candle-wick {
+  width: 4px;
+  height: 18px;
+  background-color: #222222;
+  border-radius: 2px;
+  margin-top: -6px;
+}
+
+.candle-body {
+  width: 52px;
+  height: 90px;
+  background: linear-gradient(to right, #334155, #64748b 50%, #1e293b);
+  border-radius: 6px 6px 0 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes flameFlicker {
+  0% { transform: scale(1.0, 1.0) rotate(-1deg); }
+  50% { transform: scale(0.97, 1.03) rotate(1.2deg); }
+  100% { transform: scale(1.03, 0.98) rotate(-0.8deg); }
+}
+
+@keyframes flameSway {
+  0% { transform: rotate(-2deg); }
+  50% { transform: rotate(2.5deg); }
+  100% { transform: rotate(-1.5deg); }
+}
+
+@keyframes haloPulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  100% { transform: scale(1.08); opacity: 1.0; }
+}
+
+/* --- GADGET 2: GIANT "BRAVO !" BANNER --- */
+.bravo-neon-text {
+  font-size: clamp(4rem, 16vw, 9rem);
+  font-weight: 900;
+  color: #ffeb3b;
+  text-align: center;
+  letter-spacing: 4px;
+  line-height: 1;
+  text-shadow: 0 0 20px #ffea00, 0 0 50px #ff9800, 0 0 90px #ff5722;
+  animation: neonPulse 1.2s ease-in-out infinite alternate;
+}
+
+.bravo-stars .star-icon {
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  color: #ffcc00;
+  text-shadow: 0 0 15px #ffcc00;
+  animation: starTwinkle 0.8s ease-in-out infinite alternate;
+}
+
+.bravo-stars .star-icon:nth-child(2) { animation-delay: 0.2s; }
+.bravo-stars .star-icon:nth-child(3) { animation-delay: 0.4s; }
+.bravo-stars .star-icon:nth-child(4) { animation-delay: 0.6s; }
+.bravo-stars .star-icon:nth-child(5) { animation-delay: 0.8s; }
+
+@keyframes neonPulse {
+  0% {
+    transform: scale(0.98);
+    text-shadow: 0 0 15px #ffea00, 0 0 35px #ff9800;
+  }
+  100% {
+    transform: scale(1.04);
+    text-shadow: 0 0 25px #ffffff, 0 0 65px #ffea00, 0 0 110px #ff5722;
+  }
+}
+
+@keyframes starTwinkle {
+  0% { opacity: 0.6; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1.25); }
+}
+
+/* --- GADGET 3: CUSTOM TICKER / MARQUEE BANNER --- */
+.giant-static-text {
+  font-size: clamp(3.5rem, 15vw, 8.5rem);
+  font-weight: 900;
+  text-align: center;
+  line-height: 1.05;
+  letter-spacing: 2px;
+  animation: neonPulse 1.3s ease-in-out infinite alternate;
+}
+
+.ticker-wrapper {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.ticker-track {
+  display: flex;
+  white-space: nowrap;
+  animation: marqueeScroll 20s linear infinite;
+}
+
+.ticker-item {
+  font-size: clamp(3.5rem, 13vw, 7.5rem);
+  font-weight: 900;
+  letter-spacing: 3px;
+  padding-right: 2rem;
+  flex-shrink: 0;
+}
+
+@keyframes marqueeScroll {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* --- GADGET 4: GLOWSTICK --- */
+.glowstick-tube {
+  width: 48px;
+  height: 65vh;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 50px #00e676, 0 0 100px #00e676;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  transition: box-shadow 0.3s ease;
+}
+
+.glowstick-liquid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #00e676;
+  opacity: 0.92;
+  transition: background-color 0.3s ease;
+}
+
+/* --- GADGET 5: PULSING HEART --- */
+.pulsing-heart-icon {
+  font-size: clamp(7rem, 28vw, 15rem);
+  line-height: 1;
+  text-shadow: 0 0 40px #ef4444, 0 0 90px #dc2626;
+  animation: heartDoubleBeat 1.2s ease-in-out infinite;
+}
+
+@keyframes heartDoubleBeat {
+  0% { transform: scale(1); }
+  14% { transform: scale(1.22); }
+  28% { transform: scale(1.03); }
+  42% { transform: scale(1.18); }
+  70% { transform: scale(1); }
+  100% { transform: scale(1); }
 }
