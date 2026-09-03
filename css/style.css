@@ -322,8 +322,20 @@ body.ui-size-xlarge .preset-btn {
 .btn-delta {
   font-weight: 800;
   font-size: 1.15rem;
+  color: #ffffff !important;
+  border: 2px solid #cbd5e1 !important;
+  background-color: #1e293b;
   padding: 0.25rem 0.85rem;
   border-radius: 0.5rem;
+  transition: all 0.1s ease;
+}
+
+.btn-delta:hover,
+.btn-delta:active {
+  background-color: var(--color-primary) !important;
+  color: #000000 !important;
+  border-color: var(--color-primary) !important;
+  transform: scale(0.96);
 }
 
 /* Tuner UI */
