@@ -287,28 +287,36 @@ function renderSetlist() {
     const isCurrent = (idx === currentSongIndex);
     const item = document.createElement("div");
     item.className = "setlist-item" + (isCurrent ? " current-song" : "");
+    item.setAttribute("role", "button");
+    item.onclick = function () {
+      selectSong(idx);
+    };
 
     item.innerHTML = `
-      <div class="d-flex align-items-center flex-grow-1 me-2" role="button" onclick="selectSong(${idx})">
-        <span class="badge ${isCurrent ? 'bg-success text-dark fw-bold' : 'bg-secondary'} me-3 fs-6">${idx + 1}</span>
-        <div>
-          <div class="fw-bold ${isCurrent ? 'text-success' : 'text-white'}" style="font-size: 1.1rem;">${escapeHtml(song.title)}</div>
-          <small class="text-white-50">${song.bpm} BPM &bull; ${song.timeSignature || 4}/4 ${song.notes ? '&bull; ' + escapeHtml(song.notes) : ''}</small>
+      <div class="d-flex align-items-center w-100 mb-1">
+        <span class="badge ${isCurrent ? 'bg-success text-dark fw-bold' : 'bg-secondary'} me-2 fs-6">${idx + 1}</span>
+        <div class="fw-bold ${isCurrent ? 'text-success' : 'text-white'} flex-grow-1" style="font-size: 1.15rem; line-height: 1.25;">
+          ${escapeHtml(song.title)}
         </div>
       </div>
-      <div class="btn-group btn-group-sm">
-        <button class="btn btn-outline-info px-2" title="Edit Song (BPM, Signature, Title)" onclick="openEditSongModal(${idx})">
-          <i class="bi bi-pencil-square"></i>
-        </button>
-        <button class="btn btn-outline-light px-2" title="Move Up" onclick="moveSong(${idx}, -1)" ${idx === 0 ? 'disabled' : ''}>
-          <i class="bi bi-chevron-up"></i>
-        </button>
-        <button class="btn btn-outline-light px-2" title="Move Down" onclick="moveSong(${idx}, 1)" ${idx === playlist.length - 1 ? 'disabled' : ''}>
-          <i class="bi bi-chevron-down"></i>
-        </button>
-        <button class="btn btn-outline-danger px-2" title="Delete Song" onclick="deleteSong(${idx})">
-          <i class="bi bi-trash"></i>
-        </button>
+      <div class="d-flex justify-content-between align-items-center w-100 mt-1">
+        <div class="small text-white-50 text-truncate me-2">
+          <strong class="text-white">${song.bpm}</strong> BPM &bull; ${song.timeSignature || 4}/4 ${song.notes ? '&bull; ' + escapeHtml(song.notes) : ''}
+        </div>
+        <div class="btn-group btn-group-sm flex-shrink-0" onclick="event.stopPropagation()">
+          <button class="btn btn-outline-info px-2" title="Edit Song (BPM, Signature, Title)" onclick="openEditSongModal(${idx})">
+            <i class="bi bi-pencil-square"></i>
+          </button>
+          <button class="btn btn-outline-light px-2" title="Move Up" onclick="moveSong(${idx}, -1)" ${idx === 0 ? 'disabled' : ''}>
+            <i class="bi bi-chevron-up"></i>
+          </button>
+          <button class="btn btn-outline-light px-2" title="Move Down" onclick="moveSong(${idx}, 1)" ${idx === playlist.length - 1 ? 'disabled' : ''}>
+            <i class="bi bi-chevron-down"></i>
+          </button>
+          <button class="btn btn-outline-danger px-2" title="Delete Song" onclick="deleteSong(${idx})">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
       </div>
     `;
 
