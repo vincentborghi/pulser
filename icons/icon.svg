@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="96" fill="#121820"/>
+  <circle cx="256" cy="256" r="210" fill="none" stroke="#2a3b50" stroke-width="12"/>
+  
+  <!-- Metronome body -->
+  <polygon points="256,70 170,410 342,410" fill="#1e293b" stroke="#00e676" stroke-width="8" stroke-linejoin="round"/>
+  
+  <!-- Pendulum arm -->
+  <line x1="256" y1="360" x2="310" y2="120" stroke="#f1f5f9" stroke-width="10" stroke-linecap="round"/>
+  
+  <!-- Weight bob -->
+  <rect x="290" y="160" width="36" height="26" rx="4" fill="#00e676"/>
+  
+  <!-- Base pivot -->
+  <circle cx="256" cy="360" r="16" fill="#f1f5f9"/>
+  
+  <!-- Beat pulse wave -->
+  <path d="M 120 256 Q 160 210 200 256 T 280 256" fill="none" stroke="#38bdf8" stroke-width="8" stroke-linecap="round"/>
+  <path d="M 312 256 Q 352 210 392 256" fill="none" stroke="#38bdf8" stroke-width="8" stroke-linecap="round"/>
+</svg>

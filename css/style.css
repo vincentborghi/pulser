@@ -1,0 +1,266 @@
+/* Main styles for Metronome, Tuner, and Setlist PWA */
+
+:root {
+  --bg-dark: #0f172a;
+  --bg-card: #1e293b;
+  --bg-card-border: #334155;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --color-primary: #00e676;
+  --color-accent: #38bdf8;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Header & Tabs */
+.app-header {
+  background-color: #0b1120;
+  border-bottom: 1px solid var(--bg-card-border);
+}
+
+.nav-pills .nav-link {
+  color: var(--text-muted);
+  border-radius: 9999px;
+  font-weight: 600;
+  padding: 0.5rem 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.nav-pills .nav-link.active {
+  background-color: var(--color-primary);
+  color: #000000;
+}
+
+/* Card components */
+.custom-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 1rem;
+}
+
+/* Metronome Screen & Visual Flash */
+.tempo-display {
+  font-size: 5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text-main);
+  letter-spacing: -2px;
+}
+
+.beat-flasher-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem 0;
+}
+
+.beat-flasher {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background-color: #1a2332;
+  border: 6px solid #334155;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  transition: transform 0.05s ease, background-color 0.05s ease, box-shadow 0.05s ease;
+}
+
+/* Beat Flash animation classes */
+.beat-flasher.flash-accent {
+  background-color: var(--color-primary);
+  border-color: #ffffff;
+  color: #000000;
+  transform: scale(1.15);
+  box-shadow: 0 0 35px var(--color-primary);
+}
+
+.beat-flasher.flash-normal {
+  background-color: var(--color-accent);
+  border-color: #ffffff;
+  color: #000000;
+  transform: scale(1.08);
+  box-shadow: 0 0 25px var(--color-accent);
+}
+
+/* Fullscreen silent flash overlay */
+#screenFlashOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  background-color: rgba(0, 230, 118, 0.25);
+  opacity: 0;
+  z-index: 9999;
+  transition: opacity 0.04s ease-out;
+}
+
+#screenFlashOverlay.flash-active {
+  opacity: 1;
+}
+
+/* Beat indicators dots */
+.beat-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #334155;
+  display: inline-block;
+  margin: 0 4px;
+  transition: background-color 0.08s ease;
+}
+
+.beat-dot.active-beat {
+  background-color: var(--color-primary);
+  box-shadow: 0 0 10px var(--color-primary);
+}
+
+/* Big Tap Button */
+.btn-tap {
+  background-color: #334155;
+  color: var(--text-main);
+  border: 2px solid #475569;
+  border-radius: 1rem;
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: 1px;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-tap:active {
+  background-color: var(--color-primary) !important;
+  color: #000 !important;
+  border-color: var(--color-primary) !important;
+  transform: scale(0.98);
+}
+
+/* Big Play/Stop Button */
+.btn-play {
+  font-size: 1.5rem;
+  font-weight: 700;
+  min-height: 70px;
+  border-radius: 1rem;
+}
+
+/* Tuner UI */
+.tuner-note-box {
+  background-color: #0b1120;
+  border: 2px solid var(--bg-card-border);
+  border-radius: 1.25rem;
+  padding: 1.5rem 1rem;
+}
+
+.tuner-note-name {
+  font-size: 5rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--text-main);
+}
+
+.tuner-note-octave {
+  font-size: 2.5rem;
+  color: var(--text-muted);
+  vertical-align: super;
+}
+
+.tuner-frequency {
+  font-size: 1.25rem;
+  color: var(--color-accent);
+  font-family: monospace;
+}
+
+/* Tuner Gauge Meter */
+.tuner-meter {
+  position: relative;
+  height: 36px;
+  background-color: #1e293b;
+  border: 2px solid #334155;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.tuner-meter-center {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 4px;
+  background-color: var(--color-primary);
+  transform: translateX(-50%);
+  z-index: 2;
+  box-shadow: 0 0 6px var(--color-primary);
+}
+
+.tuner-meter-needle {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  width: 14px;
+  border-radius: 7px;
+  background-color: var(--color-warning);
+  transform: translateX(-50%);
+  left: 50%;
+  transition: left 0.08s ease, background-color 0.1s ease;
+  z-index: 3;
+}
+
+.tuner-meter-needle.in-tune {
+  background-color: var(--color-primary);
+  box-shadow: 0 0 12px var(--color-primary);
+}
+
+.string-target-btn {
+  border-radius: 9999px;
+  font-weight: 700;
+  min-width: 50px;
+}
+
+.string-target-btn.active-target {
+  background-color: var(--color-primary);
+  color: #000;
+  border-color: var(--color-primary);
+}
+
+/* Setlist item */
+.setlist-item {
+  background-color: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 0.75rem;
+  margin-bottom: 0.5rem;
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+.setlist-item.current-song {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 12px rgba(0, 230, 118, 0.25);
+  background-color: #162438;
+}
+
+/* Touch helpers */
+button {
+  touch-action: manipulation;
+}

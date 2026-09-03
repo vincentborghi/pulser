@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Precision Metronome, Tuner, and Setlist PWA">
+  
+  <!-- PWA Manifest & Icons -->
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
+  <link rel="apple-touch-icon" href="./icons/icon.svg">
+
+  <title>GroovePulse &bull; Metronome &amp; Tuner</title>
+
+  <!-- Bootstrap 5 CSS & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  
+  <!-- Custom App Styles -->
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body class="d-flex flex-column">
+
+  <!-- Fullscreen Silent Visual Flash Overlay -->
+  <div id="screenFlashOverlay"></div>
+
+  <!-- App Header -->
+  <header class="app-header py-2 px-3">
+    <div class="container-fluid d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center">
+        <img src="./icons/icon.svg" alt="App Logo" width="32" height="32" class="me-2 rounded">
+        <span class="fw-bold fs-5 tracking-tight">GroovePulse</span>
+      </div>
+      <div>
+        <button id="pwaInstallBtn" class="btn btn-sm btn-outline-success d-none">
+          <i class="bi bi-download me-1"></i>Install App
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div class="container-sm my-2">
+    <ul class="nav nav-pills nav-fill bg-dark p-1 rounded-pill border border-secondary" id="pills-tab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="pills-metronome-tab" data-bs-toggle="pill" data-bs-target="#pills-metronome" type="button" role="tab" aria-selected="true">
+          <i class="bi bi-stopwatch me-1"></i>Metronome
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="pills-setlist-tab" data-bs-toggle="pill" data-bs-target="#pills-setlist" type="button" role="tab" aria-selected="false">
+          <i class="bi bi-music-note-list me-1"></i>Setlist
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="pills-tuner-tab" data-bs-toggle="pill" data-bs-target="#pills-tuner" type="button" role="tab" aria-selected="false">
+          <i class="bi bi-tuning me-1"></i>Tuner
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Main Content Areas -->
+  <main class="container-sm flex-grow-1 mb-4">
+    <div class="tab-content" id="pills-tabContent">
+
+      <!-- ================= 1. METRONOME TAB ================= -->
+      <div class="tab-pane fade show active" id="pills-metronome" role="tabpanel">
+
+        <!-- Quick Song Header Bar (Connects to Setlist) -->
+        <div class="custom-card p-2 px-3 mb-3 d-flex align-items-center justify-content-between">
+          <button id="quickPrevSongBtn" class="btn btn-outline-secondary btn-sm" title="Previous Song">
+            <i class="bi bi-skip-start-fill"></i>
+          </button>
+          <div class="text-center overflow-hidden px-2">
+            <div id="activeSongBadge" class="fw-bold text-truncate text-white">No song selected</div>
+            <small id="activeSongSubText" class="text-muted text-truncate d-block">Select in Setlist</small>
+          </div>
+          <button id="quickNextSongBtn" class="btn btn-outline-secondary btn-sm" title="Next Song">
+            <i class="bi bi-skip-end-fill"></i>
+          </button>
+        </div>
+
+        <!-- Main Metronome Display -->
+        <div class="custom-card p-3 mb-3 text-center">
+          
+          <!-- Tempo Number -->
+          <div class="tempo-display mb-1" id="tempoDisplay">120</div>
+          <div class="text-muted small fw-semibold text-uppercase tracking-wider mb-2">BPM</div>
+
+          <!-- Circular Visual Beat Flasher -->
+          <div class="beat-flasher-container">
+            <div id="beatFlasher" class="beat-flasher shadow">
+              <span id="beatFlasherNumber">-</span>
+            </div>
+          </div>
+
+          <!-- Beat Signature Indicator Dots -->
+          <div id="beatDotsContainer" class="mb-3"></div>
+
+          <!-- Quick Delta Buttons (-5, -1, +1, +5) -->
+          <div class="d-flex justify-content-center gap-2 mb-3">
+            <button class="btn btn-outline-secondary px-3" data-bpm-delta="-5">-5</button>
+            <button class="btn btn-outline-secondary px-3" data-bpm-delta="-1">-1</button>
+            <button class="btn btn-outline-secondary px-3" data-bpm-delta="1">+1</button>
+            <button class="btn btn-outline-secondary px-3" data-bpm-delta="5">+5</button>
+          </div>
+
+          <!-- Tempo Slider -->
+          <div class="px-3 mb-3">
+            <input type="range" class="form-range" id="tempoSlider" min="30" max="300" value="120">
+          </div>
+
+          <!-- TAP TEMPO BUTTON -->
+          <button id="tapButton" class="btn btn-tap w-100 mb-3 shadow-sm">
+            <span><i class="bi bi-hand-index-thumb-fill me-2"></i>TAP TEMPO</span>
+            <small id="tapSubtext" class="text-muted fw-normal" style="font-size: 0.8rem;">Tap repeatedly to detect tempo</small>
+          </button>
+
+          <!-- START / STOP BUTTON -->
+          <button id="playButton" class="btn btn-success btn-play w-100 shadow">
+            <i id="playButtonIcon" class="bi bi-play-fill me-2"></i><span id="playButtonText">Start</span>
+          </button>
+        </div>
+
+        <!-- Metronome Settings & Visual Mode -->
+        <div class="custom-card p-3 mb-3">
+          <h6 class="text-muted text-uppercase small fw-bold mb-3">Options &amp; Modes</h6>
+
+          <div class="row g-3">
+            <div class="col-6">
+              <label for="timeSignatureSelect" class="form-label small text-muted">Time Signature</label>
+              <select class="form-select form-select-sm" id="timeSignatureSelect">
+                <option value="1">1/4 (No accent)</option>
+                <option value="2">2/4 (March)</option>
+                <option value="3">3/4 (Waltz)</option>
+                <option value="4" selected>4/4 (Standard)</option>
+                <option value="5">5/4</option>
+                <option value="6">6/8 (Compound)</option>
+              </select>
+            </div>
+
+            <div class="col-6 d-flex flex-column justify-content-end">
+              <div class="form-check form-switch mb-1">
+                <input class="form-check-input" type="checkbox" id="muteAudioCheck">
+                <label class="form-check-label small" for="muteAudioCheck">
+                  <i class="bi bi-volume-mute me-1"></i>Silent Mode
+                </label>
+              </div>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="fullscreenFlashCheck">
+                <label class="form-check-label small" for="fullscreenFlashCheck">
+                  <i class="bi bi-brightness-high me-1"></i>Screen Flash
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+
+      <!-- ================= 2. SETLIST TAB ================= -->
+      <div class="tab-pane fade" id="pills-setlist" role="tabpanel">
+        
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h5 class="mb-0 text-white">Song Presets &amp; Setlist</h5>
+            <small class="text-muted">Ordered playlist with saved tempos</small>
+          </div>
+          <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addSongModal">
+            <i class="bi bi-plus-lg me-1"></i>Add Song
+          </button>
+        </div>
+
+        <div id="setlistItemsContainer">
+          <!-- Dynamically populated from localStorage -->
+        </div>
+
+      </div>
+
+
+      <!-- ================= 3. TUNER TAB ================= -->
+      <div class="tab-pane fade" id="pills-tuner" role="tabpanel">
+
+        <div class="custom-card p-3 mb-3">
+          <div class="mb-3">
+            <label for="tunerInstrumentSelect" class="form-label small text-muted fw-bold">Select Instrument</label>
+            <select class="form-select" id="tunerInstrumentSelect">
+              <option value="guitar" selected>Guitar (Standard E-A-D-G-B-E)</option>
+              <option value="bass">Electric Bass (4-Str E-A-D-G)</option>
+              <option value="ukulele">Ukulele (Standard G-C-E-A)</option>
+              <option value="violin">Violin (Standard G-D-A-E)</option>
+              <option value="banjo">Banjo 5-Strings (Open G: g-D-G-B-D)</option>
+              <option value="chromatic">Chromatic (All Notes)</option>
+            </select>
+          </div>
+
+          <!-- Target string quick filters -->
+          <div class="mb-3">
+            <div class="small text-muted mb-2">Target String (Auto or click to lock):</div>
+            <div id="instrumentStringsContainer" class="d-flex flex-wrap">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Tuner Note Display & Gauge -->
+        <div class="custom-card p-3 mb-3 text-center">
+
+          <div id="tunerErrorAlert" class="alert alert-danger d-none py-2 px-3 small mb-3"></div>
+
+          <div class="tuner-note-box mb-3">
+            <div class="d-inline-flex align-items-start">
+              <span id="tunerNoteName" class="tuner-note-name">-</span>
+              <span id="tunerNoteOctave" class="tuner-note-octave ms-1"></span>
+            </div>
+            <div id="tunerFrequency" class="tuner-frequency">-- Hz</div>
+            <div id="tunerCents" class="small fw-semibold text-muted mt-1">0 cents</div>
+          </div>
+
+          <!-- Gauge Needle Meter -->
+          <div class="tuner-meter mb-3">
+            <div class="tuner-meter-center"></div>
+            <div id="tunerNeedle" class="tuner-meter-needle"></div>
+          </div>
+
+          <div class="d-flex justify-content-between text-muted small px-1 mb-4">
+            <span>-50¢ (Flat)</span>
+            <span class="text-success fw-bold">IN TUNE</span>
+            <span>+50¢ (Sharp)</span>
+          </div>
+
+          <div id="tunerStatusMessage" class="text-muted small mb-3">Click Start to listen</div>
+
+          <!-- Start / Stop Tuner Mic -->
+          <button id="toggleTunerBtn" class="btn btn-primary w-100 py-3 fw-bold fs-5 shadow">
+            <i class="bi bi-mic-fill me-2"></i>Start Tuner
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Add Song Modal -->
+  <div class="modal fade" id="addSongModal" tabindex="-1" aria-labelledby="addSongModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content custom-card border-secondary">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title" id="addSongModalLabel">Add Song to Setlist</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="addSongForm">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="newSongTitle" class="form-label small text-muted">Song Title</label>
+              <input type="text" class="form-control" id="newSongTitle" required placeholder="e.g. Come As You Are">
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label for="newSongBpm" class="form-label small text-muted">Tempo (BPM)</label>
+                <input type="number" class="form-control" id="newSongBpm" min="30" max="300" value="120" required>
+              </div>
+              <div class="col-6">
+                <label for="newSongSig" class="form-label small text-muted">Signature</label>
+                <select class="form-select" id="newSongSig">
+                  <option value="4" selected>4/4</option>
+                  <option value="3">3/4</option>
+                  <option value="2">2/4</option>
+                  <option value="6">6/8</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="newSongNotes" class="form-label small text-muted">Notes (Optional)</label>
+              <input type="text" class="form-control" id="newSongNotes" placeholder="e.g. Intro on bass, muted verse">
+            </div>
+          </div>
+          <div class="modal-footer border-secondary">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-success">Save Song</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Application Logic -->
+  <script src="./js/audio-engine.js"></script>
+  <script src="./js/metronome.js"></script>
+  <script src="./js/setlist.js"></script>
+  <script src="./js/tuner.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
