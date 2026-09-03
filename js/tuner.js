@@ -399,19 +399,29 @@ function renderInstrumentStringsButtons() {
   preset.strings.forEach(function (s, idx) {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "btn btn-outline-light string-target-btn me-2 mb-2 text-white fw-bold d-inline-flex align-items-center";
+    btn.className = "btn string-target-btn";
     btn.setAttribute("data-string-id", s.note + s.octave);
 
     const french = getFrenchNoteName(s.note);
-    let label = s.note + s.octave;
+    let topText = s.note;
+    let bottomText = s.octave;
+
     if (tunerNotation === "french") {
-      label = french + '<span class="ms-1 fs-6 opacity-75">' + s.octave + '</span>';
+      topText = french;
+      bottomText = s.octave;
     } else if (tunerNotation === "both") {
-      label = s.note + s.octave + '<span class="badge bg-dark border border-secondary text-white ms-2 px-2 py-1 fs-6">' + french + '</span>';
+      topText = s.note + s.octave;
+      bottomText = french;
     } else {
-      label = s.note + '<span class="ms-1 fs-6 opacity-75">' + s.octave + '</span>';
+      // anglo
+      topText = s.note;
+      bottomText = s.octave;
     }
-    btn.innerHTML = label;
+
+    btn.innerHTML = `
+      <span class="string-note-name">${topText}</span>
+      <span class="string-sub-name">${bottomText}</span>
+    `;
 
     btn.addEventListener("click", function () {
       if (lockedTargetStringIndex === idx) {
