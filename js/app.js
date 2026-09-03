@@ -11,6 +11,20 @@ function registerServiceWorker() {
         .register("./sw.js")
         .then(function (reg) {
           console.log("Service Worker registered successfully, scope:", reg.scope);
+          // Check for updates on every load
+          reg.update();
+
+          reg.addEventListener("updatefound", function () {
+            const newWorker = reg.installing;
+            if (newWorker) {
+              newWorker.addEventListener("statechange", function () {
+                if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                  console.log("New version detected, auto-reloading...");
+                  window.location.reload();
+                }
+              });
+            }
+          });
         })
         .catch(function (err) {
           console.warn("Service Worker registration failed:", err);
