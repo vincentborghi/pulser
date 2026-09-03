@@ -5,7 +5,7 @@ let activeGadgetType = null;
 let gadgetAnimFrameId = null;
 let gadgetWakeLockSentinel = null;
 let isGadgetRotated90 = false;
-let customTickerText = "BRAVO !";
+let customTickerText = "ONE MORE !";
 let customTickerColor = "#ffcc00"; // Golden amber
 let customTickerSpeed = 40; // Pixels per frame
 
@@ -71,7 +71,7 @@ function initGadgets() {
       if (input && input.value.trim()) {
         customTickerText = input.value.trim();
       } else {
-        customTickerText = "BRAVO !";
+        customTickerText = "ONE MORE !";
       }
 
       if (colorSelect) customTickerColor = colorSelect.value;
@@ -302,7 +302,7 @@ function startCandleFlame(container) {
   };
 }
 
-// --- GADGET 2: GRAND "BRAVO" ANIMÉ (PAYSAGE) ---
+// --- GADGET 2: GIANT "BRAVO" BANNER (LANDSCAPE) ---
 function startBravoBanner(container) {
   container.innerHTML = `
     <div class="banner-wrapper w-100 h-100 d-flex flex-column justify-content-center align-items-center">
@@ -318,9 +318,9 @@ function startBravoBanner(container) {
   `;
 }
 
-// --- GADGET 3: CHENILLARD / MARQUEE TEXTE PERSONNALISÉ ---
+// --- GADGET 3: CUSTOM TEXT MARQUEE TICKER (LANDSCAPE) ---
 function startCustomTextMarquee(container, text, colorHex, speedLevel) {
-  const cleanText = (text || "BRAVO !").toUpperCase();
+  const cleanText = (text || "ONE MORE !").toUpperCase();
   const isShortWord = cleanText.length <= 8;
 
   if (isShortWord) {
@@ -348,29 +348,31 @@ function startCustomTextMarquee(container, text, colorHex, speedLevel) {
   }
 }
 
-// --- GADGET 4: BÂTON LUMINEUX FLUO (GLOWSTICK) ---
+// --- GADGET 4: NEON GLOWSTICK (PORTRAIT) ---
 function startGlowstick(container) {
   container.innerHTML = `
-    <div class="glowstick-wrapper w-100 h-100 d-flex flex-column justify-content-center align-items-center">
+    <div class="glowstick-wrapper w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="--glow-color: #00e676;">
+      <div class="glowstick-halo"></div>
       <div class="glowstick-tube">
-        <div class="glowstick-liquid"></div>
+        <div class="glowstick-liquid">
+          <div class="glowstick-core"></div>
+          <div class="glowstick-glass-shine"></div>
+        </div>
       </div>
-      <div class="glowstick-controls mt-4 d-flex gap-2">
-        <button class="btn btn-sm rounded-circle p-3 bg-success border border-white" onclick="event.stopPropagation(); setGlowstickColor('#00e676')"></button>
-        <button class="btn btn-sm rounded-circle p-3 bg-info border border-white" onclick="event.stopPropagation(); setGlowstickColor('#00d2ff')"></button>
-        <button class="btn btn-sm rounded-circle p-3 bg-danger border border-white" onclick="event.stopPropagation(); setGlowstickColor('#ff007f')"></button>
-        <button class="btn btn-sm rounded-circle p-3 bg-warning border border-white" onclick="event.stopPropagation(); setGlowstickColor('#ffeb3b')"></button>
+      <div class="glowstick-controls mt-4 d-flex gap-3">
+        <button class="btn btn-sm rounded-circle p-3 bg-success border border-white shadow" title="Neon Green" onclick="event.stopPropagation(); setGlowstickColor('#00e676')"></button>
+        <button class="btn btn-sm rounded-circle p-3 bg-info border border-white shadow" title="Electric Cyan" onclick="event.stopPropagation(); setGlowstickColor('#00d2ff')"></button>
+        <button class="btn btn-sm rounded-circle p-3 bg-danger border border-white shadow" title="Magenta Pink" onclick="event.stopPropagation(); setGlowstickColor('#ff007f')"></button>
+        <button class="btn btn-sm rounded-circle p-3 bg-warning border border-white shadow" title="Amber Yellow" onclick="event.stopPropagation(); setGlowstickColor('#ffeb3b')"></button>
       </div>
     </div>
   `;
 }
 
 function setGlowstickColor(colorHex) {
-  const liquid = document.querySelector(".glowstick-liquid");
-  const tube = document.querySelector(".glowstick-tube");
-  if (liquid && tube) {
-    liquid.style.backgroundColor = colorHex;
-    tube.style.boxShadow = "0 0 50px " + colorHex + ", 0 0 100px " + colorHex;
+  const wrapper = document.querySelector(".glowstick-wrapper");
+  if (wrapper) {
+    wrapper.style.setProperty("--glow-color", colorHex);
   }
 }
 

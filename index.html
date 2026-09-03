@@ -363,128 +363,128 @@
             <h5 class="mb-0 fw-bold text-white">Concert Beacons &amp; Gadgets</h5>
           </div>
           <small class="text-white-50" style="font-size: 0.88rem;">
-            Affichages lumineux plein écran (fond noir) à brandir vers la scène en concert. Touchez l'écran pour quitter.
+            Full screen light displays (black background) to hold up towards the stage at concerts. Tap screen to exit.
           </small>
         </div>
 
         <div class="d-flex flex-column gap-3">
           
-          <!-- Gadget 1: Flamme de Bougie / Briquet (Portrait) -->
+          <!-- Gadget 1: Lighter / Candle Flame (Portrait) -->
           <div class="custom-card p-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <div class="d-flex align-items-center gap-2">
                 <span class="fs-3">🕯️</span>
                 <div>
-                  <h6 class="mb-0 fw-bold text-white">Flamme de Briquet / Bougie</h6>
-                  <small class="text-white-50" style="font-size: 0.82rem;">Pour les slows et ballades &bull; Sens portrait</small>
+                  <h6 class="mb-0 fw-bold text-white">Lighter / Candle Flame</h6>
+                  <small class="text-white-50" style="font-size: 0.82rem;">For ballads and slow songs &bull; Portrait mode</small>
                 </div>
               </div>
               <span class="badge bg-warning text-dark fw-bold">Portrait</span>
             </div>
             <button id="launchCandleBtn" class="btn btn-warning w-100 py-2 fw-bold shadow text-dark" style="min-height: 48px;">
-              <i class="bi bi-fire me-2 fs-5"></i>Allumer la flamme
+              <i class="bi bi-fire me-2 fs-5"></i>Light Flame
             </button>
           </div>
 
-          <!-- Gadget 2: Grand BRAVO Animé (Paysage) -->
+          <!-- Gadget 2: Giant BRAVO Banner (Landscape) -->
           <div class="custom-card p-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <div class="d-flex align-items-center gap-2">
                 <span class="fs-3">👏</span>
                 <div>
-                  <h6 class="mb-0 fw-bold text-white">Grand "BRAVO !" Animé</h6>
-                  <small class="text-white-50" style="font-size: 0.82rem;">Lettres géantes visibles depuis la fosse &bull; Sens paysage</small>
+                  <h6 class="mb-0 fw-bold text-white">Giant "BRAVO !" Banner</h6>
+                  <small class="text-white-50" style="font-size: 0.82rem;">Giant letters visible from the crowd &bull; Landscape mode</small>
                 </div>
               </div>
-              <span class="badge bg-info text-dark fw-bold">Paysage</span>
+              <span class="badge bg-info text-dark fw-bold">Landscape</span>
             </div>
             <button id="launchBravoBtn" class="btn btn-info w-100 py-2 fw-bold shadow text-dark" style="min-height: 48px;">
-              <i class="bi bi-megaphone-fill me-2 fs-5"></i>Afficher BRAVO !
+              <i class="bi bi-megaphone-fill me-2 fs-5"></i>Display BRAVO !
             </button>
           </div>
 
-          <!-- Gadget 3: Chenillard / Ticker Texte Libre (Paysage) -->
+          <!-- Gadget 3: Custom Text Marquee Ticker (Landscape) -->
           <div class="custom-card p-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <div class="d-flex align-items-center gap-2">
                 <span class="fs-3">💬</span>
                 <div>
-                  <h6 class="mb-0 fw-bold text-white">Chenillard Texte Personnalisé</h6>
-                  <small class="text-white-50" style="font-size: 0.82rem;">Défilement LED fluide vers la scène &bull; Sens paysage</small>
+                  <h6 class="mb-0 fw-bold text-white">Custom Text Marquee Ticker</h6>
+                  <small class="text-white-50" style="font-size: 0.82rem;">Smooth LED marquee scroll to the stage &bull; Landscape mode</small>
                 </div>
               </div>
-              <span class="badge bg-primary text-white fw-bold">Paysage</span>
+              <span class="badge bg-primary text-white fw-bold">Landscape</span>
             </div>
 
             <!-- Quick Preset Chips -->
             <div class="d-flex gap-1 flex-wrap mb-2">
-              <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 quick-text-preset text-white" data-text="UNE AUTRE !">UNE AUTRE !</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 quick-text-preset text-white" data-text="ONE MORE !">ONE MORE !</button>
               <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 quick-text-preset text-white" data-text="SOLO !">SOLO !</button>
               <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 quick-text-preset text-white" data-text="ENCORE !">ENCORE !</button>
-              <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 quick-text-preset text-white" data-text="MERCI !">MERCI !</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 quick-text-preset text-white" data-text="THANK YOU !">THANK YOU !</button>
             </div>
 
             <div class="mb-2">
-              <input type="text" id="customTextInput" class="form-control bg-dark text-white border-secondary" placeholder="Tapez votre message..." value="UNE AUTRE !" maxlength="60">
+              <input type="text" id="customTextInput" class="form-control bg-dark text-white border-secondary" placeholder="Type your message..." value="ONE MORE !" maxlength="60">
             </div>
 
             <div class="row g-2 mb-3">
               <div class="col-6">
-                <label class="form-label small text-white-50 mb-1">Couleur</label>
+                <label class="form-label small text-white-50 mb-1">Color</label>
                 <select id="customTextColorSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
-                  <option value="#ffcc00" selected>Or Ambré</option>
-                  <option value="#00e676">Vert Néon</option>
-                  <option value="#00d2ff">Cyan Électrique</option>
-                  <option value="#ff007f">Rose Magenta</option>
-                  <option value="#ffffff">Blanc Pur</option>
+                  <option value="#ffcc00" selected>Amber Gold</option>
+                  <option value="#00e676">Neon Green</option>
+                  <option value="#00d2ff">Electric Cyan</option>
+                  <option value="#ff007f">Magenta Pink</option>
+                  <option value="#ffffff">Pure White</option>
                 </select>
               </div>
               <div class="col-6">
-                <label class="form-label small text-white-50 mb-1">Vitesse</label>
+                <label class="form-label small text-white-50 mb-1">Speed</label>
                 <select id="customTextSpeedSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
-                  <option value="25">Lente</option>
-                  <option value="40" selected>Normale</option>
-                  <option value="60">Rapide</option>
+                  <option value="25">Slow</option>
+                  <option value="40" selected>Normal</option>
+                  <option value="60">Fast</option>
                 </select>
               </div>
             </div>
 
             <button id="launchCustomTextBtn" class="btn btn-primary w-100 py-2 fw-bold shadow" style="min-height: 48px;">
-              <i class="bi bi-play-circle-fill me-2 fs-5"></i>Lancer le message
+              <i class="bi bi-play-circle-fill me-2 fs-5"></i>Launch Message
             </button>
           </div>
 
-          <!-- Gadget 4: Bâton Lumineux Fluo (Glowstick) -->
+          <!-- Gadget 4: Neon Glowstick (Portrait) -->
           <div class="custom-card p-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <div class="d-flex align-items-center gap-2">
                 <span class="fs-3">🪄</span>
                 <div>
-                  <h6 class="mb-0 fw-bold text-white">Bâton Lumineux Fluo (Glowstick)</h6>
-                  <small class="text-white-50" style="font-size: 0.82rem;">Tube néon éclatant multi-couleurs &bull; Sens portrait</small>
+                  <h6 class="mb-0 fw-bold text-white">Neon Glowstick</h6>
+                  <small class="text-white-50" style="font-size: 0.82rem;">Radiant multi-color neon beacon &bull; Portrait mode</small>
                 </div>
               </div>
               <span class="badge bg-success text-dark fw-bold">Portrait</span>
             </div>
             <button id="launchGlowstickBtn" class="btn btn-success w-100 py-2 fw-bold shadow text-white" style="min-height: 48px;">
-              <i class="bi bi-lightning-charge-fill me-2 fs-5"></i>Allumer le bâton fluo
+              <i class="bi bi-lightning-charge-fill me-2 fs-5"></i>Light Up Glowstick
             </button>
           </div>
 
-          <!-- Gadget 5: Cœur Battant (Slow / Ballade) -->
+          <!-- Gadget 5: Pulsing Heart Beacon (Ballad / Slow) -->
           <div class="custom-card p-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <div class="d-flex align-items-center gap-2">
                 <span class="fs-3">❤️</span>
                 <div>
-                  <h6 class="mb-0 fw-bold text-white">Cœur Battant Pulsé</h6>
-                  <small class="text-white-50" style="font-size: 0.82rem;">Pulsation lumineuse sur fond noir &bull; Pour les slows</small>
+                  <h6 class="mb-0 fw-bold text-white">Pulsing Heart Beacon</h6>
+                  <small class="text-white-50" style="font-size: 0.82rem;">Pulsing red glow on black background &bull; For ballads</small>
                 </div>
               </div>
-              <span class="badge bg-danger text-white fw-bold">Ambiance</span>
+              <span class="badge bg-danger text-white fw-bold">Atmosphere</span>
             </div>
             <button id="launchHeartBtn" class="btn btn-danger w-100 py-2 fw-bold shadow text-white" style="min-height: 48px;">
-              <i class="bi bi-heart-fill me-2 fs-5"></i>Lancer le cœur
+              <i class="bi bi-heart-fill me-2 fs-5"></i>Launch Pulsing Heart
             </button>
           </div>
 
@@ -719,16 +719,16 @@
   <!-- Fullscreen Concert Gadget Stage Overlay -->
   <div id="concertGadgetOverlay" class="d-none">
     <div id="gadgetOverlayControls" class="d-flex justify-content-between align-items-center p-3">
-      <button type="button" id="rotateGadgetOverlayBtn" class="btn btn-outline-light btn-sm rounded-pill px-3 py-1 bg-dark bg-opacity-75" title="Toggle 90 Landscape Rotation">
-        <i id="rotateGadgetIcon" class="bi bi-phone-landscape me-1 text-white"></i><span>Rotation 90</span>
+      <button type="button" id="rotateGadgetOverlayBtn" class="btn btn-outline-light btn-sm rounded-pill px-3 py-1 bg-dark bg-opacity-75" title="Toggle 90 degree landscape rotation">
+        <i id="rotateGadgetIcon" class="bi bi-phone-landscape me-1 text-white"></i><span>Rotate 90</span>
       </button>
       <div id="gadgetOverlayHint" class="text-center px-2">
         <span class="badge bg-dark bg-opacity-75 text-white-50 px-3 py-2 rounded-pill fw-normal" style="font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.15);">
-          Toucher pour masquer / quitter
+          Tap screen to hide or close
         </span>
       </div>
-      <button type="button" id="closeGadgetOverlayBtn" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1 bg-dark bg-opacity-75 text-danger fw-bold" title="Exit Fullscreen">
-        <i class="bi bi-x-lg me-1"></i><span>Fermer</span>
+      <button type="button" id="closeGadgetOverlayBtn" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1 bg-dark bg-opacity-75 text-danger fw-bold" title="Exit full screen">
+        <i class="bi bi-x-lg me-1"></i><span>Close</span>
       </button>
     </div>
     <div id="gadgetStageContainer" class="w-100 h-100 d-flex justify-content-center align-items-center"></div>
