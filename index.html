@@ -209,12 +209,40 @@
       <!-- ================= 2. SETLIST TAB ================= -->
       <div class="tab-pane fade" id="pills-setlist" role="tabpanel">
         
+        <!-- Multi-Setlist Selector & Actions Card -->
+        <div class="custom-card p-3 mb-3 border border-secondary">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-white fw-bold" style="font-size: 1.05rem;">
+              <i class="bi bi-collection-play me-2 text-primary"></i>Active Setlist
+            </span>
+            <div class="d-flex gap-2">
+              <button type="button" id="newSetlistBtn" class="btn btn-sm btn-outline-success fw-bold px-2 py-1" data-bs-toggle="modal" data-bs-target="#setlistModal" data-action="new" title="Create a new setlist (e.g. for another band)">
+                <i class="bi bi-folder-plus me-1"></i>New Setlist
+              </button>
+              <button type="button" id="renameSetlistBtn" class="btn btn-sm btn-outline-light fw-bold px-2 py-1" data-bs-toggle="modal" data-bs-target="#setlistModal" data-action="rename" title="Rename this setlist">
+                <i class="bi bi-pencil-square me-1"></i>Rename
+              </button>
+              <button type="button" id="deleteSetlistBtn" class="btn btn-sm btn-outline-danger fw-bold px-2 py-1" title="Delete this setlist">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Dropdown to select setlist -->
+          <div>
+            <select id="setlistSelect" class="form-select form-select-lg bg-dark text-white fw-bold border-secondary">
+              <!-- Dynamically populated options -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Songs Header & Add Song Button -->
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
-            <h5 class="mb-0 text-white">Song Presets &amp; Setlist</h5>
-            <small class="text-muted">Ordered playlist with saved tempos</small>
+            <h5 class="mb-0 text-white fw-bold" id="currentSetlistHeaderTitle">Songs in Setlist</h5>
+            <small class="text-white-50" id="currentSetlistHeaderCount">0 songs &bull; Tap to load into metronome</small>
           </div>
-          <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addSongModal">
+          <button class="btn btn-primary fw-bold px-3 py-2" data-bs-toggle="modal" data-bs-target="#addSongModal">
             <i class="bi bi-plus-lg me-1"></i>Add Song
           </button>
         </div>
@@ -346,6 +374,29 @@
           <div class="modal-footer border-secondary">
             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
             <button type="submit" class="btn btn-success">Save Song</button>
+          </div>
+        </form>
+      </div>
+  </div>
+
+  <!-- New / Rename Setlist Modal -->
+  <div class="modal fade" id="setlistModal" tabindex="-1" aria-labelledby="setlistModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content custom-card border-secondary">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title text-white fw-bold" id="setlistModalLabel">New Setlist</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="setlistForm">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="setlistNameInput" class="form-label text-white-50 small">Setlist Name (e.g. Band or Project)</label>
+              <input type="text" class="form-control form-control-lg bg-dark text-white border-secondary fw-bold" id="setlistNameInput" required placeholder="e.g. Rock Band, Acoustic Gig, Jazz Trio">
+            </div>
+          </div>
+          <div class="modal-footer border-secondary">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" id="saveSetlistBtn" class="btn btn-success fw-bold px-3">Save Setlist</button>
           </div>
         </form>
       </div>
