@@ -400,24 +400,46 @@ function initSetlist() {
   const setlistModalLabel = document.getElementById("setlistModalLabel");
   const setlistNameInput = document.getElementById("setlistNameInput");
 
-  if (newSetlistBtn) {
-    newSetlistBtn.addEventListener("click", function () {
-      setlistModalMode = "new";
+  const saveSetlistBtn = document.getElementById("saveSetlistBtn");
+
+  function configureSetlistModal(mode) {
+    setlistModalMode = mode;
+    if (mode === "rename") {
+      if (setlistModalLabel) setlistModalLabel.textContent = "Rename Setlist";
+      if (saveSetlistBtn) saveSetlistBtn.textContent = "Rename Setlist";
+      const active = getActiveSetlist();
+      if (setlistNameInput && active) {
+        setlistNameInput.value = active.name;
+      }
+    } else {
       if (setlistModalLabel) setlistModalLabel.textContent = "New Setlist";
+      if (saveSetlistBtn) saveSetlistBtn.textContent = "Create Setlist";
       if (setlistNameInput) {
         setlistNameInput.value = "";
         setlistNameInput.placeholder = "e.g. Rock Band, Acoustic Gig, Jazz Trio";
       }
+    }
+  }
+
+  if (newSetlistBtn) {
+    newSetlistBtn.addEventListener("click", function () {
+      configureSetlistModal("new");
     });
   }
 
   if (renameSetlistBtn) {
     renameSetlistBtn.addEventListener("click", function () {
-      setlistModalMode = "rename";
-      if (setlistModalLabel) setlistModalLabel.textContent = "Rename Setlist";
-      const active = getActiveSetlist();
-      if (setlistNameInput && active) {
-        setlistNameInput.value = active.name;
+      configureSetlistModal("rename");
+    });
+  }
+
+  if (setlistModalEl) {
+    setlistModalEl.addEventListener("show.bs.modal", function (e) {
+      const btn = e.relatedTarget;
+      if (btn && btn.getAttribute("data-action") === "rename") {
+        configureSetlistModal("rename");
+      } else if (btn && btn.getAttribute("data-action") === "new") {
+        configureSetlistModal("new");
       }
     });
   }
