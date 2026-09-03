@@ -21,14 +21,16 @@ function showUndoTapButton() {
     if (undoBpmEl) {
       undoBpmEl.textContent = bpmBeforeTap;
     }
-    undoBtn.classList.remove("d-none");
+    undoBtn.classList.remove("invisible");
+    undoBtn.disabled = false;
   }
 }
 
 function hideUndoTapButton() {
   const undoBtn = document.getElementById("undoTapBtn");
   if (undoBtn) {
-    undoBtn.classList.add("d-none");
+    undoBtn.classList.add("invisible");
+    undoBtn.disabled = true;
   }
   bpmBeforeTap = null;
 }

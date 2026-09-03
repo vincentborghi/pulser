@@ -323,11 +323,11 @@ body.ui-size-xlarge .preset-btn .preset-bpm {
   box-shadow: 0 0 10px var(--color-primary);
 }
 
-/* Drum Pad Tap Button */
+/* Drum Pad Tap Button - Lighter Grey Silicone Finish */
 .btn-tap {
-  background: radial-gradient(circle at 50% 30%, #334155, #1e293b 85%);
+  background: radial-gradient(circle at 50% 30%, #526377, #354354 85%);
   color: #ffffff;
-  border: 3px solid #475569;
+  border: 3px solid #7b8e9f;
   border-radius: 1rem;
   font-weight: 800;
   font-size: 1.35rem;
@@ -339,8 +339,8 @@ body.ui-size-xlarge .preset-btn .preset-bpm {
   position: relative;
   overflow: hidden;
   box-shadow: 
-    inset 0 2px 3px rgba(255, 255, 255, 0.15),
-    inset 0 -3px 4px rgba(0, 0, 0, 0.6),
+    inset 0 2px 4px rgba(255, 255, 255, 0.25),
+    inset 0 -3px 4px rgba(0, 0, 0, 0.5),
     0 4px 10px rgba(0, 0, 0, 0.5);
   transition: all 0.08s ease;
   user-select: none;
@@ -355,7 +355,7 @@ body.ui-size-xlarge .preset-btn .preset-bpm {
   left: 4px;
   right: 4px;
   bottom: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 0.75rem;
   pointer-events: none;
 }
@@ -380,25 +380,55 @@ body.ui-size-xlarge .preset-btn .preset-bpm {
 }
 
 .btn-tap .pad-label {
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.85);
   transition: color 0.08s ease;
 }
 
-/* Undo Tap Button */
-#undoTapBtn {
-  background-color: rgba(245, 158, 11, 0.15);
-  border-color: #f59e0b !important;
+/* Undo Tap Button - Permanently Reserved Slot */
+.btn-undo-tap {
+  background-color: rgba(245, 158, 11, 0.18);
+  border: 2px solid #f59e0b !important;
   color: #fef08a !important;
+  font-weight: 800;
+  font-size: 0.95rem;
   border-radius: 0.65rem;
-  transition: all 0.15s ease;
+  min-height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
 }
 
-#undoTapBtn:hover,
-#undoTapBtn:active {
+.btn-undo-tap:hover:not(:disabled),
+.btn-undo-tap:active:not(:disabled) {
   background-color: #f59e0b !important;
   color: #000000 !important;
   border-color: #f59e0b !important;
   transform: scale(0.98);
+}
+
+/* High-Visibility Non-Grey Sound & Flash Switches */
+.form-check.form-switch .form-check-input {
+  width: 2.35em !important;
+  height: 1.25em !important;
+  cursor: pointer;
+  background-color: #7f1d1d !important; /* Vivid dark crimson when OFF (no washed out grey!) */
+  border: 2px solid #ef4444 !important; /* Bright red border when OFF */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e") !important;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+}
+
+.form-check.form-switch .form-check-input:checked {
+  background-color: #00e676 !important; /* Luminous emerald neon green when ON */
+  border-color: #00e676 !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23000000'/%3e%3c/svg%3e") !important;
+  box-shadow: 0 0 12px rgba(0, 230, 118, 0.85) !important;
+}
+
+.form-check.form-switch .form-check-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.4) !important;
 }
 
 /* Play/Stop Button */

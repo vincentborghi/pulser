@@ -90,17 +90,19 @@
 
             <!-- Right: Drum Pad Tap, Undo Button, and Start/Stop -->
             <div class="col-7 d-flex flex-column justify-content-between gap-2">
-              <!-- TAP TEMPO DRUMPAD BUTTON -->
+              <!-- TAP TEMPO DRUMPAD BUTTON (Fixed layout height, no layout shift) -->
               <button id="tapButton" class="btn btn-tap w-100 flex-grow-1 shadow">
                 <span class="pad-label text-white fw-bolder fs-4"><i class="bi bi-grid-fill me-2 opacity-75"></i>Tap Tempo</span>
               </button>
 
-              <!-- UNDO TAP BUTTON (Appears when tempo is modified by tap) -->
-              <button id="undoTapBtn" class="btn btn-sm text-white fw-bold w-100 py-1 d-none shadow-sm" style="min-height: 38px; border-width: 2px; font-size: 0.95rem;" title="Forget tapped tempo and restore previous tempo">
-                <i class="bi bi-arrow-counterclockwise me-1 text-warning"></i>Undo Tap (<span id="undoTapBpm">120</span> BPM)
-              </button>
+              <!-- UNDO TAP BUTTON (Permanently occupies its dedicated row so Tap never shrinks or shifts) -->
+              <div class="undo-tap-slot w-100" style="min-height: 38px;">
+                <button id="undoTapBtn" class="btn btn-undo-tap w-100 py-1 shadow-sm invisible" disabled title="Forget tapped tempo and restore previous tempo">
+                  <i class="bi bi-arrow-counterclockwise me-1 text-warning"></i>Undo Tap (<span id="undoTapBpm">120</span> BPM)
+                </button>
+              </div>
 
-              <!-- START / STOP BUTTON -->
+              <!-- START / STOP BUTTON (Fixed layout height) -->
               <button id="playButton" class="btn btn-success btn-play w-100 flex-grow-1 shadow">
                 <i id="playButtonIcon" class="bi bi-play-fill me-1 fs-2"></i><span id="playButtonText" class="fs-3">Start</span>
               </button>
