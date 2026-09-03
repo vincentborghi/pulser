@@ -1,24 +1,24 @@
 // Ambient Auto-BPM Detector using Web Audio API
-// Captures microphone input, applies low-pass beat filtering, computes onsets, and estimates BPM
+// High-precision Multi-Band Spectral Flux (Novelty Curve) + Autocorrelation Beat Tracking
 
 let autoBpmAudioCtx = null;
 let autoBpmStream = null;
 let autoBpmSourceNode = null;
-let autoBpmFilterNode = null;
 let autoBpmAnalyser = null;
-let autoBpmAnimFrameId = null;
+let autoBpmTimerId = null;
 
 let isAutoBpmListening = false;
 let autoBpmDetectedValue = null;
 let autoBpmLastBeatTime = 0;
-let autoBpmIntervalHistory = [];
-let autoBpmEnergyHistory = [];
 let autoBpmBeatCounter = 0;
 
-const AUTO_BPM_MIN_TEMPO = 40;
-const AUTO_BPM_MAX_TEMPO = 240;
-const AUTO_BPM_MIN_INTERVAL = 60.0 / AUTO_BPM_MAX_TEMPO; // ~0.25s
-const AUTO_BPM_MAX_INTERVAL = 60.0 / AUTO_BPM_MIN_TEMPO; // ~1.5s
+// Algorithm parameters
+const AUTO_BPM_SAMPLE_RATE_HZ = 50; // 50 Hz frame rate (20ms)
+const AUTO_BPM_BUFFER_FRAMES = 250;  // 5 seconds circular history
+const autoBpmFluxHistory = [];
+const autoBpmRecentEstimates = [];
+let autoBpmPrevFreqData = null;
+let autoBpmAnalysisTick = 0;
 
 function renderAutoBpmBeatDots() {
   const container = document.getElementById("autoBpmBeatDots");
@@ -157,29 +157,19 @@ async function startAutoBpmListening() {
 
     autoBpmSourceNode = autoBpmAudioCtx.createMediaStreamSource(stream);
 
-    // Low-pass filter to isolate rhythmic bass drums / percussion transients (60Hz to 160Hz)
-    autoBpmFilterNode = autoBpmAudioCtx.createBiquadFilter();
-    autoBpmFilterNode.type = "lowpass";
-    autoBpmFilterNode.frequency.setValueAtTime(160, autoBpmAudioCtx.currentTime);
-    autoBpmFilterNode.Q.setValueAtTime(1.5, autoBpmAudioCtx.currentTime);
-
-    // Highpass to eliminate mic handling rumble below 40Hz
-    const highpass = autoBpmAudioCtx.createBiquadFilter();
-    highpass.type = "highpass";
-    highpass.frequency.setValueAtTime(40, autoBpmAudioCtx.currentTime);
-
+    // Multi-band frequency analyser (256 frequency bins from 0Hz to ~22kHz)
     autoBpmAnalyser = autoBpmAudioCtx.createAnalyser();
-    autoBpmAnalyser.fftSize = 1024;
-    autoBpmAnalyser.smoothingTimeConstant = 0.2;
+    autoBpmAnalyser.fftSize = 512;
+    autoBpmAnalyser.smoothingTimeConstant = 0.25;
 
-    autoBpmSourceNode.connect(highpass);
-    highpass.connect(autoBpmFilterNode);
-    autoBpmFilterNode.connect(autoBpmAnalyser);
+    autoBpmSourceNode.connect(autoBpmAnalyser);
 
     isAutoBpmListening = true;
     autoBpmLastBeatTime = 0;
-    autoBpmIntervalHistory = [];
-    autoBpmEnergyHistory = [];
+    autoBpmFluxHistory.length = 0;
+    autoBpmRecentEstimates.length = 0;
+    autoBpmPrevFreqData = new Uint8Array(autoBpmAnalyser.frequencyBinCount);
+    autoBpmAnalysisTick = 0;
 
     if (listenBtn) {
       listenBtn.classList.remove("btn-primary");
@@ -190,9 +180,11 @@ async function startAutoBpmListening() {
     }
     if (statusText) {
       statusText.textContent = "Listening to ambient music... Hold device near sound source";
+      statusText.className = "text-white-50 fw-semibold mt-1";
     }
 
-    processAutoBpmAudio();
+    // 50Hz accurate audio sampling timer (20ms interval)
+    autoBpmTimerId = setInterval(processAutoBpmFrame, 20);
   } catch (err) {
     console.error("Auto-BPM mic access error:", err);
     if (statusText) {
@@ -205,9 +197,9 @@ async function startAutoBpmListening() {
 function stopAutoBpmListening() {
   isAutoBpmListening = false;
 
-  if (autoBpmAnimFrameId !== null) {
-    cancelAnimationFrame(autoBpmAnimFrameId);
-    autoBpmAnimFrameId = null;
+  if (autoBpmTimerId !== null) {
+    clearInterval(autoBpmTimerId);
+    autoBpmTimerId = null;
   }
 
   if (autoBpmStream) {
@@ -260,7 +252,7 @@ function resetAutoBpmUI() {
   if (valDisplay) valDisplay.textContent = "---";
   if (statusText) {
     statusText.textContent = 'Click "Start Listening" near speakers or playing instruments';
-    statusText.className = "text-white-50 fw-semibold mt-2";
+    statusText.className = "text-white-50 fw-semibold mt-1";
   }
   if (applyBtn) applyBtn.disabled = true;
   if (halveBtn) halveBtn.disabled = true;
@@ -269,54 +261,79 @@ function resetAutoBpmUI() {
   if (doubleVal) doubleVal.textContent = "--";
 }
 
-function processAutoBpmAudio() {
+function processAutoBpmFrame() {
   if (!isAutoBpmListening || !autoBpmAnalyser) return;
 
-  const bufferLength = autoBpmAnalyser.fftSize;
-  const timeData = new Float32Array(bufferLength);
-  autoBpmAnalyser.getFloatTimeDomainData(timeData);
+  const binCount = autoBpmAnalyser.frequencyBinCount;
+  const freqData = new Uint8Array(binCount);
+  autoBpmAnalyser.getByteFrequencyData(freqData);
 
-  // Compute root-mean-square (RMS) energy
-  let sumSquares = 0;
-  for (let i = 0; i < bufferLength; i++) {
-    sumSquares += timeData[i] * timeData[i];
+  // 1. Calculate Multi-Band Spectral Flux (Novelty)
+  // Evaluates sudden positive bursts of energy across bass, snare, and percussion bands
+  let flux = 0;
+  let totalEnergy = 0;
+  const maxAnalyzedBin = Math.min(75, binCount);
+
+  for (let k = 1; k < maxAnalyzedBin; k++) {
+    let weight = 1.0;
+    if (k <= 4) {
+      weight = 2.6; // Bass drum / sub transients (~50 - 350 Hz)
+    } else if (k <= 20) {
+      weight = 1.8; // Snare, guitar, vocals, keys (~350 - 1700 Hz)
+    } else {
+      weight = 1.2; // Hi-hats, tambourines, cymbal transients (~1700 - 6500 Hz)
+    }
+
+    const diff = freqData[k] - (autoBpmPrevFreqData ? autoBpmPrevFreqData[k] : 0);
+    if (diff > 0) {
+      flux += diff * weight;
+    }
+    totalEnergy += freqData[k];
+    if (autoBpmPrevFreqData) {
+      autoBpmPrevFreqData[k] = freqData[k];
+    }
   }
-  const rms = Math.sqrt(sumSquares / bufferLength);
 
-  // Update visual audio level bar
-  const levelPercent = Math.min(100, Math.round(rms * 450));
+  // Update visual mic level meter
+  const levelPercent = Math.min(100, Math.round((totalEnergy / (maxAnalyzedBin * 128)) * 100 * 2.5));
   const levelBar = document.getElementById("autoBpmLevelBar");
   if (levelBar) {
     levelBar.style.width = levelPercent + "%";
   }
 
-  // Sliding energy history to compute dynamic threshold
-  autoBpmEnergyHistory.push(rms);
-  if (autoBpmEnergyHistory.length > 35) {
-    autoBpmEnergyHistory.shift();
+  // Push flux to history buffer (up to 5 seconds of continuous frames)
+  autoBpmFluxHistory.push(flux);
+  if (autoBpmFluxHistory.length > AUTO_BPM_BUFFER_FRAMES) {
+    autoBpmFluxHistory.shift();
   }
 
-  let avgEnergy = 0;
-  for (let i = 0; i < autoBpmEnergyHistory.length; i++) {
-    avgEnergy += autoBpmEnergyHistory[i];
+  // 2. Onset & Beat Dots Trigger
+  // Adaptive local moving average over past 35 frames (~0.7s)
+  const windowSize = Math.min(35, autoBpmFluxHistory.length);
+  let localSum = 0;
+  for (let i = autoBpmFluxHistory.length - windowSize; i < autoBpmFluxHistory.length; i++) {
+    localSum += autoBpmFluxHistory[i];
   }
-  avgEnergy /= autoBpmEnergyHistory.length;
+  const localMean = localSum / windowSize;
+  const onsetThreshold = localMean * 1.55 + 18.0;
 
-  const dynamicThreshold = avgEnergy * 1.5 + 0.006;
   const now = performance.now();
-
-  // Peak detection with refractory lockout (min interval between beats = 220ms -> ~270 BPM)
-  if (rms > dynamicThreshold && (now - autoBpmLastBeatTime) > 220) {
+  // Refractory lockout of 220ms prevents double-triggering on the same drum hit
+  if (flux > onsetThreshold && (now - autoBpmLastBeatTime) > 220) {
     handleDetectedBeatOnset(now);
   }
 
-  autoBpmAnimFrameId = requestAnimationFrame(processAutoBpmAudio);
+  // 3. Periodic Autocorrelation Tempo Estimation (runs every 20 frames = ~400ms)
+  autoBpmAnalysisTick++;
+  if (autoBpmAnalysisTick % 20 === 0 && autoBpmFluxHistory.length >= 75) {
+    computeAutocorrelationTempo();
+  }
 }
 
 function handleDetectedBeatOnset(timestamp) {
   advanceAutoBpmBeatDot();
-  const beatIndicator = document.getElementById("autoBpmBeatIndicator");
 
+  const beatIndicator = document.getElementById("autoBpmBeatIndicator");
   if (beatIndicator) {
     beatIndicator.className = "badge bg-info text-dark px-2 py-1 fw-bold";
     beatIndicator.textContent = "Beat! 🥁";
@@ -329,81 +346,95 @@ function handleDetectedBeatOnset(timestamp) {
     }, 110);
   }
 
-  if (autoBpmLastBeatTime > 0) {
-    const intervalSec = (timestamp - autoBpmLastBeatTime) / 1000.0;
-
-    if (intervalSec >= AUTO_BPM_MIN_INTERVAL && intervalSec <= AUTO_BPM_MAX_INTERVAL) {
-      autoBpmIntervalHistory.push(intervalSec);
-      if (autoBpmIntervalHistory.length > 16) {
-        autoBpmIntervalHistory.shift();
-      }
-
-      if (autoBpmIntervalHistory.length >= 4) {
-        estimateBpmFromIntervals(autoBpmIntervalHistory);
-      }
-    }
-  }
-
   autoBpmLastBeatTime = timestamp;
 }
 
-function estimateBpmFromIntervals(intervals) {
-  // Convert intervals to BPM candidates
-  const bpmCandidates = [];
+function computeAutocorrelationTempo() {
+  const numFrames = autoBpmFluxHistory.length;
+  if (numFrames < 75) return;
 
-  for (let i = 0; i < intervals.length; i++) {
-    const rawBpm = 60.0 / intervals[i];
-    bpmCandidates.push(rawBpm);
+  // Zero-mean highpass novelty curve
+  let sumFlux = 0;
+  for (let i = 0; i < numFrames; i++) sumFlux += autoBpmFluxHistory[i];
+  const meanFlux = sumFlux / numFrames;
 
-    // Also consider half and double times
-    if (rawBpm * 2 <= AUTO_BPM_MAX_TEMPO) {
-      bpmCandidates.push(rawBpm * 2);
+  const cleanFlux = new Float32Array(numFrames);
+  for (let i = 0; i < numFrames; i++) {
+    cleanFlux[i] = Math.max(0, autoBpmFluxHistory[i] - meanFlux);
+  }
+
+  // Lags corresponding to 45 BPM to 220 BPM at 50Hz
+  const minLag = Math.round(AUTO_BPM_SAMPLE_RATE_HZ * (60.0 / 220.0)); // ~14 frames
+  const maxLag = Math.round(AUTO_BPM_SAMPLE_RATE_HZ * (60.0 / 45.0));  // ~67 frames
+  const priorLag = AUTO_BPM_SAMPLE_RATE_HZ * (60.0 / 115.0);          // 25 frames (~115 BPM)
+
+  let bestLag = minLag;
+  let maxCorr = -1;
+  const corrValues = new Float32Array(maxLag + 2);
+
+  for (let lag = minLag; lag <= maxLag; lag++) {
+    let sum = 0;
+    let count = 0;
+    for (let i = 0; i < numFrames - lag; i++) {
+      sum += cleanFlux[i] * cleanFlux[i + lag];
+      count++;
     }
-    if (rawBpm / 2 >= AUTO_BPM_MIN_TEMPO) {
-      bpmCandidates.push(rawBpm / 2);
+    const rawCorr = count > 0 ? (sum / count) : 0;
+    corrValues[lag] = rawCorr;
+
+    // Log-normal perceptual tempo prior (favors natural musical tempo 80-150 BPM)
+    const logRatio = Math.log2(lag / priorLag);
+    const priorWeight = Math.exp(-0.5 * logRatio * logRatio * 1.5);
+    const weightedCorr = rawCorr * priorWeight;
+
+    if (weightedCorr > maxCorr) {
+      maxCorr = weightedCorr;
+      bestLag = lag;
     }
   }
 
-  // Normalize candidates into primary musical listening window (70 - 165 BPM)
-  const normalized = bpmCandidates.map(function (bpm) {
-    let b = bpm;
-    while (b < 70) b *= 2;
-    while (b > 165) b /= 2;
-    return b;
-  });
-
-  // Cluster candidates using bin tolerance (within +/- 3.5 BPM)
-  const clusters = [];
-
-  normalized.forEach(function (val) {
-    let foundCluster = false;
-    for (let c = 0; c < clusters.length; c++) {
-      if (Math.abs(clusters[c].center - val) <= 3.5) {
-        clusters[c].items.push(val);
-        // Recalculate cluster center
-        let sum = 0;
-        for (let k = 0; k < clusters[c].items.length; k++) sum += clusters[c].items[k];
-        clusters[c].center = sum / clusters[c].items.length;
-        foundCluster = true;
-        break;
+  // Parabolic interpolation for sub-sample accuracy
+  let refinedLag = bestLag;
+  if (bestLag > minLag && bestLag < maxLag) {
+    const y0 = corrValues[bestLag - 1];
+    const y1 = corrValues[bestLag];
+    const y2 = corrValues[bestLag + 1];
+    const denom = (y0 - 2 * y1 + y2);
+    if (Math.abs(denom) > 1e-6) {
+      const delta = (0.5 * (y0 - y2)) / denom;
+      if (Math.abs(delta) < 1.0) {
+        refinedLag = bestLag + delta;
       }
     }
-    if (!foundCluster) {
-      clusters.push({ center: val, items: [val] });
-    }
-  });
+  }
 
-  // Find cluster with the highest density
-  let bestCluster = null;
-  for (let c = 0; c < clusters.length; c++) {
-    if (!bestCluster || clusters[c].items.length > bestCluster.items.length) {
-      bestCluster = clusters[c];
+  const rawBpm = Math.round((AUTO_BPM_SAMPLE_RATE_HZ * 60.0) / refinedLag);
+  if (rawBpm >= 40 && rawBpm <= 240) {
+    evaluateTempoStability(rawBpm);
+  }
+}
+
+function evaluateTempoStability(candidateBpm) {
+  autoBpmRecentEstimates.push(candidateBpm);
+  if (autoBpmRecentEstimates.length > 6) {
+    autoBpmRecentEstimates.shift();
+  }
+
+  // Find median of recent estimates
+  const sorted = autoBpmRecentEstimates.slice().sort(function (a, b) { return a - b; });
+  const median = sorted[Math.floor(sorted.length / 2)];
+
+  // Count how many recent estimates are within +/- 2 BPM of the median
+  let closeCount = 0;
+  for (let i = 0; i < autoBpmRecentEstimates.length; i++) {
+    if (Math.abs(autoBpmRecentEstimates[i] - median) <= 2) {
+      closeCount++;
     }
   }
 
-  if (bestCluster && bestCluster.items.length >= 4) {
-    const estimatedBpm = Math.round(bestCluster.center);
-    updateDetectedBpm(estimatedBpm);
+  // When at least 3 estimates agree closely, we have a reliable stable BPM
+  if (closeCount >= 3) {
+    updateDetectedBpm(median);
   }
 }
 
