@@ -119,19 +119,19 @@
 
           <!-- Customizable BPM Quick Presets -->
           <div class="mb-3 px-1 text-start">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <small class="text-white fw-bold text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">Quick BPM Presets</small>
-              <div>
-                <button type="button" id="toggleSavePresetBtn" class="btn btn-link btn-sm text-decoration-none text-warning p-0 me-3" style="font-size: 0.8rem; font-weight: 600;">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+              <span class="text-white fw-bolder text-uppercase fs-6" style="letter-spacing: 0.5px;">Quick BPM Presets</span>
+              <div class="d-flex gap-2">
+                <button type="button" id="toggleSavePresetBtn" class="btn btn-sm btn-outline-warning fw-bold px-3 py-1" style="font-size: 0.95rem;">
                   <i class="bi bi-pencil-square me-1"></i><span id="toggleSavePresetText">Save to Preset</span>
                 </button>
-                <button type="button" id="resetPresetsBtn" class="btn btn-link btn-sm text-decoration-none text-white p-0" style="font-size: 0.8rem; font-weight: 600;">
+                <button type="button" id="resetPresetsBtn" class="btn btn-sm btn-outline-light fw-bold px-3 py-1" style="font-size: 0.95rem;">
                   <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
                 </button>
               </div>
             </div>
-            <div id="savePresetHint" class="alert alert-warning py-1 px-2 small mb-2 d-none" style="font-size: 0.8rem;">
-              <i class="bi bi-info-circle me-1"></i>Tap a preset box to store current BPM (<strong id="saveCurrentBpmValue">120</strong>).
+            <div id="savePresetHint" class="alert alert-warning py-2 px-3 fw-bold mb-3 d-none" style="font-size: 0.95rem;">
+              <i class="bi bi-info-circle-fill me-1"></i>Tap a preset box to store current BPM (<strong id="saveCurrentBpmValue" class="fs-5">120</strong>).
             </div>
             <div class="row g-2" id="quickPresetsContainer">
               <!-- 6 preset slots rendered by metronome.js -->
@@ -139,25 +139,25 @@
           </div>
 
           <!-- TAP TEMPO BUTTON -->
-          <button id="tapButton" class="btn btn-tap w-100 mb-3 shadow-sm">
-            <span class="text-white"><i class="bi bi-hand-index-thumb-fill me-2"></i>TAP TEMPO</span>
-            <small id="tapSubtext" class="text-white fw-semibold" style="font-size: 0.85rem; opacity: 0.95;">Tap repeatedly to detect tempo</small>
+          <button id="tapButton" class="btn btn-tap w-100 mb-3 shadow-sm py-3">
+            <span class="text-white fs-4 fw-bold"><i class="bi bi-hand-index-thumb-fill me-2"></i>TAP TEMPO</span>
+            <span id="tapSubtext" class="text-white fw-semibold mt-1" style="font-size: 1rem; opacity: 0.95;">Tap repeatedly to detect tempo</span>
           </button>
 
           <!-- START / STOP BUTTON -->
-          <button id="playButton" class="btn btn-success btn-play w-100 shadow">
+          <button id="playButton" class="btn btn-success btn-play w-100 shadow py-3 fs-3">
             <i id="playButtonIcon" class="bi bi-play-fill me-2"></i><span id="playButtonText">Start</span>
           </button>
         </div>
 
         <!-- Metronome Settings & Visual Mode -->
         <div class="custom-card p-3 mb-3">
-          <h6 class="text-white text-uppercase small fw-bold mb-3" style="letter-spacing: 0.5px;">Options &amp; Modes</h6>
+          <h5 class="text-white text-uppercase fw-bolder mb-3" style="letter-spacing: 0.5px;">Options &amp; Preferences</h5>
 
           <div class="row g-3">
-            <div class="col-6">
-              <label for="timeSignatureSelect" class="form-label small text-white fw-bold">Time Signature</label>
-              <select class="form-select form-select-sm text-white" id="timeSignatureSelect">
+            <div class="col-12 col-sm-4">
+              <label for="timeSignatureSelect" class="form-label text-white fw-bold fs-6">Time Signature</label>
+              <select class="form-select text-white fw-bold" id="timeSignatureSelect">
                 <option value="1">1/4 (No accent)</option>
                 <option value="2">2/4 (March)</option>
                 <option value="3">3/4 (Waltz)</option>
@@ -167,9 +167,9 @@
               </select>
             </div>
 
-            <div class="col-6">
-              <label for="flashModeSelect" class="form-label small text-white fw-bold">Screen Flash</label>
-              <select class="form-select form-select-sm text-white" id="flashModeSelect">
+            <div class="col-12 col-sm-4">
+              <label for="flashModeSelect" class="form-label text-white fw-bold fs-6">Screen Flash</label>
+              <select class="form-select text-white fw-bold" id="flashModeSelect">
                 <option value="off">Off (Disabled)</option>
                 <option value="subtle">Subtle (Soft Neon)</option>
                 <option value="vivid" selected>Vivid (Bright Neon)</option>
@@ -177,10 +177,21 @@
               </select>
             </div>
 
+            <div class="col-12 col-sm-4">
+              <label for="uiSizeSelect" class="form-label text-white fw-bold fs-6">
+                <i class="bi bi-zoom-in me-1"></i>Text &amp; UI Size
+              </label>
+              <select class="form-select text-white fw-bold" id="uiSizeSelect">
+                <option value="large" selected>Large (Senior / Stage)</option>
+                <option value="xlarge">Extra Large (Maximum)</option>
+                <option value="normal">Standard</option>
+              </select>
+            </div>
+
             <div class="col-12">
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="muteAudioCheck">
-                <label class="form-check-label small text-white fw-semibold" for="muteAudioCheck">
+              <div class="form-check form-switch pt-1">
+                <input class="form-check-input" type="checkbox" id="muteAudioCheck" style="width: 2.5em; height: 1.25em;">
+                <label class="form-check-label text-white fw-bold fs-6 ms-2" for="muteAudioCheck">
                   <i class="bi bi-volume-mute me-1"></i>Silent Mode (Visual metronome only, no click sound)
                 </label>
               </div>

@@ -153,16 +153,17 @@ label {
   opacity: 1;
 }
 
-/* Quick BPM Presets Grid */
+/* Quick BPM Presets Grid - Senior & Stage Optimized */
 .preset-btn {
-  font-weight: 700;
-  font-size: 1.1rem;
-  padding: 0.5rem 0.25rem;
-  border-radius: 0.75rem;
+  font-weight: 800;
+  font-size: 1.35rem;
+  padding: 0.65rem 0.25rem;
+  min-height: 72px;
+  border-radius: 0.85rem;
   transition: all 0.15s ease;
   position: relative;
   cursor: grab;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
 }
 
 .preset-btn:active {
@@ -208,13 +209,13 @@ label {
 
 /* Active Preset (Bright Neon Outline & Scale) */
 .preset-btn.active-preset {
-  box-shadow: 0 0 0 4px #00e676, 0 0 15px rgba(0, 230, 118, 0.7) !important;
-  transform: scale(1.05);
+  box-shadow: 0 0 0 4px #00e676, 0 0 18px rgba(0, 230, 118, 0.9) !important;
+  transform: scale(1.06);
   z-index: 5;
 }
 
 .preset-btn.saving-mode {
-  border: 2px dashed #ffffff !important;
+  border: 3px dashed #ffffff !important;
   animation: pulse-border 0.8s infinite;
 }
 
@@ -225,9 +226,40 @@ label {
 }
 
 .preset-col.drag-over {
-  background-color: rgba(0, 230, 118, 0.15);
-  outline: 2px dashed #00e676;
-  border-radius: 0.75rem;
+  background-color: rgba(0, 230, 118, 0.2);
+  outline: 3px dashed #00e676;
+  border-radius: 0.85rem;
+}
+
+/* Accessibility & Display Size Scaling Modes */
+body.ui-size-normal {
+  font-size: 1rem;
+}
+
+body.ui-size-large {
+  font-size: 1.15rem;
+}
+
+body.ui-size-large .tempo-display {
+  font-size: 5.6rem;
+}
+
+body.ui-size-large .preset-btn {
+  min-height: 80px;
+  font-size: 1.45rem;
+}
+
+body.ui-size-xlarge {
+  font-size: 1.3rem;
+}
+
+body.ui-size-xlarge .tempo-display {
+  font-size: 6.2rem;
+}
+
+body.ui-size-xlarge .preset-btn {
+  min-height: 90px;
+  font-size: 1.6rem;
 }
 
 @keyframes pulse-border {
@@ -292,39 +324,40 @@ label {
 }
 
 .tuner-note-name {
-  font-size: 5rem;
+  font-size: 5.5rem;
   font-weight: 900;
   line-height: 1;
-  color: var(--text-main);
+  color: #ffffff;
 }
 
 .tuner-note-octave {
-  font-size: 2.5rem;
-  color: var(--text-muted);
+  font-size: 3rem;
+  color: #ffffff;
   vertical-align: super;
 }
 
 .tuner-frequency {
-  font-size: 1.25rem;
+  font-size: 1.6rem;
   color: var(--color-accent);
   font-family: monospace;
+  font-weight: 700;
 }
 
 .tuner-note-french {
-  font-size: 1.6rem;
-  font-weight: 700;
+  font-size: 2.3rem;
+  font-weight: 900;
   color: var(--color-accent);
-  letter-spacing: 0.5px;
-  min-height: 2.2rem;
+  letter-spacing: 1px;
+  min-height: 2.8rem;
 }
 
 /* Tuner Gauge Meter */
 .tuner-meter {
   position: relative;
-  height: 36px;
-  background-color: #1e293b;
-  border: 2px solid #334155;
-  border-radius: 18px;
+  height: 44px;
+  background-color: #0b1120;
+  border: 3px solid #475569;
+  border-radius: 22px;
   overflow: hidden;
 }
 
@@ -333,19 +366,19 @@ label {
   top: 0;
   bottom: 0;
   left: 50%;
-  width: 4px;
+  width: 5px;
   background-color: var(--color-primary);
   transform: translateX(-50%);
   z-index: 2;
-  box-shadow: 0 0 6px var(--color-primary);
+  box-shadow: 0 0 8px var(--color-primary);
 }
 
 .tuner-meter-needle {
   position: absolute;
-  top: 2px;
-  bottom: 2px;
-  width: 14px;
-  border-radius: 7px;
+  top: 3px;
+  bottom: 3px;
+  width: 18px;
+  border-radius: 9px;
   background-color: var(--color-warning);
   transform: translateX(-50%);
   left: 50%;
@@ -355,19 +388,26 @@ label {
 
 .tuner-meter-needle.in-tune {
   background-color: var(--color-primary);
-  box-shadow: 0 0 12px var(--color-primary);
+  box-shadow: 0 0 16px var(--color-primary);
 }
 
 .string-target-btn {
   border-radius: 9999px;
-  font-weight: 700;
-  min-width: 50px;
+  font-weight: 800;
+  font-size: 1.25rem !important;
+  min-width: 75px;
+  min-height: 52px;
+  padding: 0.5rem 1rem !important;
+  border-width: 2px !important;
+  transition: transform 0.15s ease, background-color 0.15s ease;
 }
 
 .string-target-btn.active-target {
-  background-color: var(--color-primary);
-  color: #000;
-  border-color: var(--color-primary);
+  background-color: var(--color-primary) !important;
+  color: #000000 !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 16px rgba(0, 230, 118, 0.9) !important;
+  transform: scale(1.08);
 }
 
 /* Setlist item */

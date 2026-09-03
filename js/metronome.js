@@ -147,7 +147,10 @@ function renderQuickPresets() {
     btn.id = "presetBtn_" + idx;
     btn.dataset.index = idx;
     btn.setAttribute("draggable", isSavingPresetMode ? "false" : "true");
-    btn.innerHTML = `<span class="small opacity-75 d-block" style="font-size:0.65rem; pointer-events:none;">${presetItem.name || ('P' + (idx + 1))}</span><span style="pointer-events:none;">${presetItem.bpm}</span>`;
+    btn.innerHTML = `
+      <div class="fw-bold text-white mb-1" style="font-size: 1.05rem; letter-spacing: 0.5px; pointer-events:none;">${presetItem.name || ('P' + (idx + 1))}</div>
+      <div class="fw-bolder text-white" style="font-size: 1.55rem; line-height: 1; pointer-events:none;">${presetItem.bpm}</div>
+    `;
 
     // Click handler (Desktop and standard taps)
     btn.addEventListener("click", function (e) {
@@ -577,7 +580,6 @@ function initMetronome() {
   // Flash mode select
   const flashSelect = document.getElementById("flashModeSelect");
   if (flashSelect) {
-    // Restore saved preference if any
     const savedFlash = localStorage.getItem("metronome_flash_mode");
     if (savedFlash) {
       flashMode = savedFlash;
@@ -588,5 +590,43 @@ function initMetronome() {
       localStorage.setItem("metronome_flash_mode", flashMode);
     });
   }
+
+  // Accessibility Display Size scaling
+  loadUiSizePreference();
+
+  const uiSizeSelect = document.getElementById("uiSizeSelect");
+  if (uiSizeSelect) {
+    uiSizeSelect.value = currentUiSize;
+    uiSizeSelect.addEventListener("change", function () {
+      setUiSize(this.value);
+    });
+  }
 }
+
+// Display size accessibility management
+const UI_SIZE_STORAGE_KEY = "groovepulse_ui_size_v1";
+let currentUiSize = "large"; // Default to "large" for senior readability
+
+function setUiSize(size) {
+  currentUiSize = size || "large";
+  document.body.classList.remove("ui-size-normal", "ui-size-large", "ui-size-xlarge");
+  document.body.classList.add("ui-size-" + currentUiSize);
+  try {
+    localStorage.setItem(UI_SIZE_STORAGE_KEY, currentUiSize);
+  } catch (e) {}
+
+  const select = document.getElementById("uiSizeSelect");
+  if (select && select.value !== currentUiSize) {
+    select.value = currentUiSize;
+  }
+}
+
+function loadUiSizePreference() {
+  let saved = "large";
+  try {
+    saved = localStorage.getItem(UI_SIZE_STORAGE_KEY) || "large";
+  } catch (e) {}
+  setUiSize(saved);
+}
+
 

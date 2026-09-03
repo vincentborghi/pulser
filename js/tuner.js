@@ -399,15 +399,17 @@ function renderInstrumentStringsButtons() {
   preset.strings.forEach(function (s, idx) {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "btn btn-sm btn-outline-light string-target-btn me-2 mb-2 text-white fw-bold";
+    btn.className = "btn btn-outline-light string-target-btn me-2 mb-2 text-white fw-bold d-inline-flex align-items-center";
     btn.setAttribute("data-string-id", s.note + s.octave);
 
     const french = getFrenchNoteName(s.note);
-    let label = s.note + '<small class="text-white ms-1">' + s.octave + '</small>';
+    let label = s.note + s.octave;
     if (tunerNotation === "french") {
-      label = french + '<small class="text-white ms-1">' + s.octave + '</small>';
+      label = french + '<span class="ms-1 fs-6 opacity-75">' + s.octave + '</span>';
     } else if (tunerNotation === "both") {
-      label = s.note + '<small class="text-white ms-1">' + s.octave + ' (' + french + ')</small>';
+      label = s.note + s.octave + '<span class="badge bg-dark border border-secondary text-white ms-2 px-2 py-1 fs-6">' + french + '</span>';
+    } else {
+      label = s.note + '<span class="ms-1 fs-6 opacity-75">' + s.octave + '</span>';
     }
     btn.innerHTML = label;
 
