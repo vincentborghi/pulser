@@ -148,8 +148,8 @@ function renderQuickPresets() {
     btn.dataset.index = idx;
     btn.setAttribute("draggable", isSavingPresetMode ? "false" : "true");
     btn.innerHTML = `
-      <div class="fw-bold text-white mb-1" style="font-size: 1.05rem; letter-spacing: 0.5px; pointer-events:none;">${presetItem.name || ('P' + (idx + 1))}</div>
-      <div class="fw-bolder text-white" style="font-size: 1.55rem; line-height: 1; pointer-events:none;">${presetItem.bpm}</div>
+      <div class="fw-bold text-white" style="font-size: 0.95rem; line-height: 1.1; pointer-events:none;">${presetItem.name || ('P' + (idx + 1))}</div>
+      <div class="fw-bolder text-white" style="font-size: 1.4rem; line-height: 1.1; pointer-events:none;">${presetItem.bpm}</div>
     `;
 
     // Click handler (Desktop and standard taps)
