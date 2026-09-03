@@ -169,20 +169,249 @@ function scheduleElectronicBeep(ctx, time, isFirstBeat) {
   osc.stop(time + 0.045);
 }
 
+// Sound 4: Human Voice Counting ("One, Two, Three, Four, Five, Six...")
+function scheduleVoiceCount(ctx, time, beatNumber) {
+  // Rhythmic sync transient (crisp 6ms acoustic tick for razor-sharp beat definition)
+  const clickOsc = ctx.createOscillator();
+  const clickGain = ctx.createGain();
+  clickOsc.type = "triangle";
+  clickOsc.frequency.setValueAtTime(1400, time);
+  clickGain.gain.setValueAtTime(0.25, time);
+  clickGain.gain.exponentialRampToValueAtTime(0.001, time + 0.008);
+  clickOsc.connect(clickGain);
+  clickGain.connect(ctx.destination);
+  clickOsc.start(time);
+  clickOsc.stop(time + 0.01);
+
+  // Synthesize spoken count based on beat index (0 to 5)
+  const wordIndex = ((beatNumber || 0) % 6);
+
+  if (wordIndex === 0) {
+    // "ONE" (w - uh - n)
+    scheduleVoicedFormants(ctx, time, 160, 110, 0.16, 460, 960, 2400, 0.85);
+  } else if (wordIndex === 1) {
+    // "TWO" (t - oo)
+    scheduleConsonantNoise(ctx, time, 0.02, 4000, 2.0, 0.45);
+    scheduleVoicedFormants(ctx, time + 0.012, 145, 115, 0.14, 340, 850, 2200, 0.75);
+  } else if (wordIndex === 2) {
+    // "THREE" (th - r - ee)
+    scheduleConsonantNoise(ctx, time, 0.025, 2800, 1.5, 0.35);
+    scheduleVoicedFormants(ctx, time + 0.015, 150, 120, 0.16, 300, 2300, 2800, 0.75);
+  } else if (wordIndex === 3) {
+    // "FOUR" (f - or)
+    scheduleConsonantNoise(ctx, time, 0.03, 3000, 1.2, 0.35);
+    scheduleVoicedFormants(ctx, time + 0.018, 145, 105, 0.17, 560, 920, 2450, 0.8);
+  } else if (wordIndex === 4) {
+    // "FIVE" (f - eye - v)
+    scheduleConsonantNoise(ctx, time, 0.025, 3200, 1.2, 0.35);
+    scheduleVoicedFormants(ctx, time + 0.015, 150, 112, 0.17, 650, 1500, 2600, 0.8);
+  } else {
+    // "SIX" (s - ih - ks)
+    scheduleConsonantNoise(ctx, time, 0.03, 6500, 2.0, 0.5);
+    scheduleVoicedFormants(ctx, time + 0.015, 145, 125, 0.08, 420, 1950, 2600, 0.7);
+    scheduleConsonantNoise(ctx, time + 0.09, 0.035, 6500, 2.0, 0.4);
+  }
+}
+
+function scheduleVoicedFormants(ctx, time, startPitch, endPitch, duration, f1, f2, f3, gainLevel) {
+  const osc = ctx.createOscillator();
+  osc.type = "sawtooth";
+  osc.frequency.setValueAtTime(startPitch, time);
+  osc.frequency.exponentialRampToValueAtTime(endPitch, time + duration);
+
+  const masterGain = ctx.createGain();
+  masterGain.gain.setValueAtTime(gainLevel, time);
+  masterGain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+
+  // Formant F1 (Throat/Mouth openness)
+  const bp1 = ctx.createBiquadFilter();
+  bp1.type = "bandpass";
+  bp1.frequency.setValueAtTime(f1, time);
+  bp1.Q.setValueAtTime(4.0, time);
+
+  // Formant F2 (Tongue placement)
+  const bp2 = ctx.createBiquadFilter();
+  bp2.type = "bandpass";
+  bp2.frequency.setValueAtTime(f2, time);
+  bp2.Q.setValueAtTime(5.0, time);
+
+  // Formant F3 (Brightness)
+  const bp3 = ctx.createBiquadFilter();
+  bp3.type = "bandpass";
+  bp3.frequency.setValueAtTime(f3, time);
+  bp3.Q.setValueAtTime(5.0, time);
+
+  const g1 = ctx.createGain();
+  g1.gain.value = 1.0;
+  const g2 = ctx.createGain();
+  g2.gain.value = 0.7;
+  const g3 = ctx.createGain();
+  g3.gain.value = 0.4;
+
+  osc.connect(bp1);
+  bp1.connect(g1);
+  g1.connect(masterGain);
+
+  osc.connect(bp2);
+  bp2.connect(g2);
+  g2.connect(masterGain);
+
+  osc.connect(bp3);
+  bp3.connect(g3);
+  g3.connect(masterGain);
+
+  masterGain.connect(ctx.destination);
+
+  osc.start(time);
+  osc.stop(time + duration + 0.01);
+}
+
+function scheduleConsonantNoise(ctx, time, duration, filterFreq, filterQ, gainLevel) {
+  const noiseSource = ctx.createBufferSource();
+  noiseSource.buffer = getNoiseBuffer(ctx);
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = "bandpass";
+  filter.frequency.setValueAtTime(filterFreq, time);
+  filter.Q.setValueAtTime(filterQ, time);
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(gainLevel, time);
+  gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+
+  noiseSource.connect(filter);
+  filter.connect(gain);
+  gain.connect(ctx.destination);
+
+  noiseSource.start(time);
+  noiseSource.stop(time + duration + 0.01);
+}
+
+// Sound 5: Cowbell (Roland TR-808 style dual resonant bell)
+function scheduleCowbell(ctx, time, isFirstBeat) {
+  const freq1 = isFirstBeat ? 587 : 540;
+  const freq2 = isFirstBeat ? 845 : 790;
+
+  const osc1 = ctx.createOscillator();
+  const osc2 = ctx.createOscillator();
+  osc1.type = "square";
+  osc2.type = "square";
+  osc1.frequency.setValueAtTime(freq1, time);
+  osc2.frequency.setValueAtTime(freq2, time);
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = "bandpass";
+  filter.frequency.setValueAtTime(isFirstBeat ? 820 : 760, time);
+  filter.Q.setValueAtTime(2.5, time);
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(isFirstBeat ? 0.9 : 0.7, time);
+  gain.gain.exponentialRampToValueAtTime(0.001, time + (isFirstBeat ? 0.09 : 0.065));
+
+  osc1.connect(filter);
+  osc2.connect(filter);
+  filter.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc1.start(time);
+  osc2.start(time);
+  osc1.stop(time + 0.1);
+  osc2.stop(time + 0.1);
+}
+
+// Sound 6: Mechanical Clockwork Click (Traditional Maelzel / Wittner Pendulum Metronome)
+function scheduleMechanicalClick(ctx, time, isFirstBeat) {
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = "sine";
+  const startF = isFirstBeat ? 420 : 290;
+  osc.frequency.setValueAtTime(startF, time);
+  osc.frequency.exponentialRampToValueAtTime(90, time + 0.025);
+
+  gain.gain.setValueAtTime(isFirstBeat ? 0.85 : 0.6, time);
+  gain.gain.exponentialRampToValueAtTime(0.001, time + 0.03);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(time);
+  osc.stop(time + 0.035);
+
+  const noiseSource = ctx.createBufferSource();
+  noiseSource.buffer = getNoiseBuffer(ctx);
+  const filter = ctx.createBiquadFilter();
+  filter.type = "bandpass";
+  filter.frequency.setValueAtTime(isFirstBeat ? 2400 : 1900, time);
+  filter.Q.setValueAtTime(3.5, time);
+
+  const clickGain = ctx.createGain();
+  clickGain.gain.setValueAtTime(isFirstBeat ? 0.5 : 0.35, time);
+  clickGain.gain.exponentialRampToValueAtTime(0.001, time + 0.012);
+
+  noiseSource.connect(filter);
+  filter.connect(clickGain);
+  clickGain.connect(ctx.destination);
+
+  noiseSource.start(time);
+  noiseSource.stop(time + 0.015);
+}
+
+// Sound 7: Acoustic Cross-Stick (Snare rim cross-stick)
+function scheduleCrossStick(ctx, time, isFirstBeat) {
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = "triangle";
+  osc.frequency.setValueAtTime(isFirstBeat ? 1680 : 1520, time);
+  osc.frequency.exponentialRampToValueAtTime(320, time + 0.035);
+
+  gain.gain.setValueAtTime(isFirstBeat ? 0.9 : 0.65, time);
+  gain.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(time);
+  osc.stop(time + 0.045);
+
+  const noiseSource = ctx.createBufferSource();
+  noiseSource.buffer = getNoiseBuffer(ctx);
+  const filter = ctx.createBiquadFilter();
+  filter.type = "bandpass";
+  filter.frequency.setValueAtTime(3800, time);
+  filter.Q.setValueAtTime(2.0, time);
+
+  const noiseGain = ctx.createGain();
+  noiseGain.gain.setValueAtTime(isFirstBeat ? 0.35 : 0.22, time);
+  noiseGain.gain.exponentialRampToValueAtTime(0.001, time + 0.02);
+
+  noiseSource.connect(filter);
+  filter.connect(noiseGain);
+  noiseGain.connect(ctx.destination);
+
+  noiseSource.start(time);
+  noiseSource.stop(time + 0.025);
+}
+
 // Synthesize tick based on selected sound type
-function scheduleTick(time, isFirstBeat) {
+function scheduleTick(time, isFirstBeat, beatNumber) {
   if (isAudioMuted || currentSoundType === "silent") {
     return;
   }
 
   const ctx = getAudioContext();
 
-  if (currentSoundType === "drumkit") {
+  if (currentSoundType === "voice") {
+    scheduleVoiceCount(ctx, time, beatNumber);
+  } else if (currentSoundType === "drumkit") {
     if (isFirstBeat) {
       scheduleDampedKick(ctx, time);
     } else {
       scheduleClosedHiHat(ctx, time);
     }
+  } else if (currentSoundType === "cowbell") {
+    scheduleCowbell(ctx, time, isFirstBeat);
+  } else if (currentSoundType === "mechanical") {
+    scheduleMechanicalClick(ctx, time, isFirstBeat);
+  } else if (currentSoundType === "rimshot") {
+    scheduleCrossStick(ctx, time, isFirstBeat);
   } else if (currentSoundType === "beep") {
     scheduleElectronicBeep(ctx, time, isFirstBeat);
   } else {
@@ -212,7 +441,7 @@ function scheduler() {
       isFirstBeat: isFirstBeat
     });
 
-    scheduleTick(nextNoteTime, isFirstBeat);
+    scheduleTick(nextNoteTime, isFirstBeat, currentBeatInMeasure);
     advanceNextNote();
   }
 
