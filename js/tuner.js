@@ -392,22 +392,22 @@ function renderInstrumentStringsButtons() {
   const preset = INSTRUMENT_PRESETS[currentInstrument];
 
   if (!preset || preset.strings.length === 0) {
-    container.innerHTML = '<span class="text-muted small">Chromatic mode: listens to any note</span>';
+    container.innerHTML = '<span class="text-white small fw-semibold">Chromatic mode: listens to any note</span>';
     return;
   }
 
   preset.strings.forEach(function (s, idx) {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "btn btn-sm btn-outline-secondary string-target-btn me-2 mb-2";
+    btn.className = "btn btn-sm btn-outline-light string-target-btn me-2 mb-2 text-white fw-bold";
     btn.setAttribute("data-string-id", s.note + s.octave);
 
     const french = getFrenchNoteName(s.note);
-    let label = s.note + '<small class="text-muted">' + s.octave + '</small>';
+    let label = s.note + '<small class="text-white ms-1">' + s.octave + '</small>';
     if (tunerNotation === "french") {
-      label = french + '<small class="text-muted">' + s.octave + '</small>';
+      label = french + '<small class="text-white ms-1">' + s.octave + '</small>';
     } else if (tunerNotation === "both") {
-      label = s.note + '<small class="text-muted">' + s.octave + ' (' + french + ')</small>';
+      label = s.note + '<small class="text-white ms-1">' + s.octave + ' (' + french + ')</small>';
     }
     btn.innerHTML = label;
 

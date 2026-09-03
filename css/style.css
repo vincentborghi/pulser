@@ -1,14 +1,15 @@
 /* Main styles for Metronome, Tuner, and Setlist PWA */
 
 :root {
-  --bg-dark: #0f172a;
-  --bg-card: #1e293b;
+  --bg-dark: #0b1120;
+  --bg-card: #162235;
   --bg-card-border: #334155;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
+  --text-main: #ffffff;
+  --text-muted: #f8fafc; /* Crisp bright white for optimal contrast */
+  --text-dim: #e2e8f0;
   --color-primary: #00e676;
   --color-accent: #38bdf8;
-  --color-warning: #f59e0b;
+  --color-warning: #fbbf24;
   --color-danger: #ef4444;
 }
 
@@ -23,18 +24,40 @@ body {
   min-height: 100vh;
 }
 
+/* Global high-contrast overrides: make all labels and muted texts crisp bright white */
+.text-muted,
+.small.text-muted,
+small.text-muted,
+span.text-muted,
+div.text-muted,
+p.text-muted {
+  color: #f8fafc !important;
+}
+
+.form-label,
+label {
+  color: #ffffff !important;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
 /* Header & Tabs */
 .app-header {
-  background-color: #0b1120;
+  background-color: #060a12;
   border-bottom: 1px solid var(--bg-card-border);
 }
 
 .nav-pills .nav-link {
-  color: var(--text-muted);
+  color: #ffffff;
   border-radius: 9999px;
-  font-weight: 600;
+  font-weight: 700;
   padding: 0.5rem 1.25rem;
   transition: all 0.2s ease;
+}
+
+.nav-pills .nav-link:not(.active) {
+  color: #f1f5f9;
+  opacity: 0.9;
 }
 
 .nav-pills .nav-link.active {

@@ -80,7 +80,7 @@
                 <i class="bi bi-x-circle-fill"></i>
               </button>
             </div>
-            <small id="activeSongSubText" class="text-muted text-truncate d-block">Manual Tempo</small>
+            <small id="activeSongSubText" class="text-white text-truncate d-block fw-semibold" style="opacity: 0.9;">Manual Tempo</small>
           </div>
           <button id="quickNextSongBtn" class="btn btn-outline-secondary btn-sm" title="Next Song">
             <i class="bi bi-skip-end-fill"></i>
@@ -92,7 +92,7 @@
           
           <!-- Tempo Number -->
           <div class="tempo-display mb-1" id="tempoDisplay">120</div>
-          <div class="text-muted small fw-semibold text-uppercase tracking-wider mb-2">BPM</div>
+          <div class="text-white small fw-bold text-uppercase tracking-wider mb-2">BPM</div>
 
           <!-- Circular Visual Beat Flasher -->
           <div class="beat-flasher-container">
@@ -120,17 +120,17 @@
           <!-- Customizable BPM Quick Presets -->
           <div class="mb-3 px-1 text-start">
             <div class="d-flex justify-content-between align-items-center mb-2">
-              <small class="text-muted fw-bold text-uppercase" style="font-size: 0.75rem;">Quick BPM Presets</small>
+              <small class="text-white fw-bold text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">Quick BPM Presets</small>
               <div>
-                <button type="button" id="toggleSavePresetBtn" class="btn btn-link btn-sm text-decoration-none text-warning p-0 me-2" style="font-size: 0.75rem;">
+                <button type="button" id="toggleSavePresetBtn" class="btn btn-link btn-sm text-decoration-none text-warning p-0 me-3" style="font-size: 0.8rem; font-weight: 600;">
                   <i class="bi bi-pencil-square me-1"></i><span id="toggleSavePresetText">Save to Preset</span>
                 </button>
-                <button type="button" id="resetPresetsBtn" class="btn btn-link btn-sm text-decoration-none text-muted p-0" style="font-size: 0.75rem;">
+                <button type="button" id="resetPresetsBtn" class="btn btn-link btn-sm text-decoration-none text-white p-0" style="font-size: 0.8rem; font-weight: 600;">
                   <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
                 </button>
               </div>
             </div>
-            <div id="savePresetHint" class="alert alert-warning py-1 px-2 small mb-2 d-none" style="font-size: 0.78rem;">
+            <div id="savePresetHint" class="alert alert-warning py-1 px-2 small mb-2 d-none" style="font-size: 0.8rem;">
               <i class="bi bi-info-circle me-1"></i>Tap a preset box to store current BPM (<strong id="saveCurrentBpmValue">120</strong>).
             </div>
             <div class="row g-2" id="quickPresetsContainer">
@@ -140,8 +140,8 @@
 
           <!-- TAP TEMPO BUTTON -->
           <button id="tapButton" class="btn btn-tap w-100 mb-3 shadow-sm">
-            <span><i class="bi bi-hand-index-thumb-fill me-2"></i>TAP TEMPO</span>
-            <small id="tapSubtext" class="text-muted fw-normal" style="font-size: 0.8rem;">Tap repeatedly to detect tempo</small>
+            <span class="text-white"><i class="bi bi-hand-index-thumb-fill me-2"></i>TAP TEMPO</span>
+            <small id="tapSubtext" class="text-white fw-semibold" style="font-size: 0.85rem; opacity: 0.95;">Tap repeatedly to detect tempo</small>
           </button>
 
           <!-- START / STOP BUTTON -->
@@ -152,12 +152,12 @@
 
         <!-- Metronome Settings & Visual Mode -->
         <div class="custom-card p-3 mb-3">
-          <h6 class="text-muted text-uppercase small fw-bold mb-3">Options &amp; Modes</h6>
+          <h6 class="text-white text-uppercase small fw-bold mb-3" style="letter-spacing: 0.5px;">Options &amp; Modes</h6>
 
           <div class="row g-3">
             <div class="col-6">
-              <label for="timeSignatureSelect" class="form-label small text-muted">Time Signature</label>
-              <select class="form-select form-select-sm" id="timeSignatureSelect">
+              <label for="timeSignatureSelect" class="form-label small text-white fw-bold">Time Signature</label>
+              <select class="form-select form-select-sm text-white" id="timeSignatureSelect">
                 <option value="1">1/4 (No accent)</option>
                 <option value="2">2/4 (March)</option>
                 <option value="3">3/4 (Waltz)</option>
@@ -168,8 +168,8 @@
             </div>
 
             <div class="col-6">
-              <label for="flashModeSelect" class="form-label small text-muted">Screen Flash</label>
-              <select class="form-select form-select-sm" id="flashModeSelect">
+              <label for="flashModeSelect" class="form-label small text-white fw-bold">Screen Flash</label>
+              <select class="form-select form-select-sm text-white" id="flashModeSelect">
                 <option value="off">Off (Disabled)</option>
                 <option value="subtle">Subtle (Soft Neon)</option>
                 <option value="vivid" selected>Vivid (Bright Neon)</option>
@@ -180,7 +180,7 @@
             <div class="col-12">
               <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="muteAudioCheck">
-                <label class="form-check-label small text-muted" for="muteAudioCheck">
+                <label class="form-check-label small text-white fw-semibold" for="muteAudioCheck">
                   <i class="bi bi-volume-mute me-1"></i>Silent Mode (Visual metronome only, no click sound)
                 </label>
               </div>
@@ -217,8 +217,8 @@
         <div class="custom-card p-3 mb-3">
           <div class="row g-2 mb-3">
             <div class="col-8">
-              <label for="tunerInstrumentSelect" class="form-label small text-muted fw-bold">Select Instrument</label>
-              <select class="form-select" id="tunerInstrumentSelect">
+              <label for="tunerInstrumentSelect" class="form-label small text-white fw-bold">Select Instrument</label>
+              <select class="form-select text-white" id="tunerInstrumentSelect">
                 <option value="guitar" selected>Guitar (Standard E-A-D-G-B-E)</option>
                 <option value="bass">Electric Bass (4-Str E-A-D-G)</option>
                 <option value="ukulele">Ukulele (Standard G-C-E-A)</option>
@@ -228,8 +228,8 @@
               </select>
             </div>
             <div class="col-4">
-              <label for="tunerNotationSelect" class="form-label small text-muted fw-bold">Notation</label>
-              <select class="form-select" id="tunerNotationSelect">
+              <label for="tunerNotationSelect" class="form-label small text-white fw-bold">Notation</label>
+              <select class="form-select text-white" id="tunerNotationSelect">
                 <option value="both" selected>Both (A / La)</option>
                 <option value="french">French (Do Re Mi)</option>
                 <option value="anglo">Anglo (A B C)</option>
@@ -239,7 +239,7 @@
 
           <!-- Target string quick filters -->
           <div class="mb-2">
-            <div class="small text-muted mb-2">Target String (Auto or click to lock):</div>
+            <div class="small text-white fw-bold mb-2" style="letter-spacing: 0.3px;">Target String (Auto or click to lock):</div>
             <div id="instrumentStringsContainer" class="d-flex flex-wrap">
               <!-- Dynamically populated -->
             </div>
@@ -253,13 +253,13 @@
 
           <div class="tuner-note-box mb-3">
             <div class="d-inline-flex align-items-baseline">
-              <span id="tunerNoteName" class="tuner-note-name">-</span>
-              <span id="tunerNoteOctave" class="tuner-note-octave ms-1"></span>
+              <span id="tunerNoteName" class="tuner-note-name text-white">-</span>
+              <span id="tunerNoteOctave" class="tuner-note-octave ms-1 text-white"></span>
             </div>
             <!-- French Solfege Note Display -->
             <div id="tunerNoteFrench" class="tuner-note-french">-</div>
             <div id="tunerFrequency" class="tuner-frequency">-- Hz</div>
-            <div id="tunerCents" class="small fw-semibold text-muted mt-1">0 cents</div>
+            <div id="tunerCents" class="small fw-bold text-white mt-1">0 cents</div>
           </div>
 
           <!-- Gauge Needle Meter -->
@@ -268,13 +268,13 @@
             <div id="tunerNeedle" class="tuner-meter-needle"></div>
           </div>
 
-          <div class="d-flex justify-content-between text-muted small px-1 mb-4">
-            <span>-50¢ (Flat)</span>
+          <div class="d-flex justify-content-between text-white fw-bold small px-1 mb-4">
+            <span class="text-white">-50¢ (Flat)</span>
             <span class="text-success fw-bold">IN TUNE</span>
-            <span>+50¢ (Sharp)</span>
+            <span class="text-white">+50¢ (Sharp)</span>
           </div>
 
-          <div id="tunerStatusMessage" class="text-muted small mb-3">Click Start to listen</div>
+          <div id="tunerStatusMessage" class="text-white fw-bold small mb-3" style="font-size: 0.95rem;">Click Start to listen</div>
 
           <!-- Start / Stop Tuner Mic -->
           <button id="toggleTunerBtn" class="btn btn-primary w-100 py-3 fw-bold fs-5 shadow">
