@@ -152,17 +152,51 @@ label {
   opacity: 1;
 }
 
-/* Quick BPM Presets Grid - Compact & Highly Legible */
+/* Quick BPM Presets Grid - Compact & Single-Row Legible */
+#quickPresetsContainer {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  justify-content: space-between;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.preset-col {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
 .preset-btn {
+  width: 100%;
   font-weight: 800;
-  font-size: 1.25rem;
-  padding: 0.25rem 0.15rem;
-  min-height: 52px;
-  border-radius: 0.65rem;
+  padding: 0.35rem 0.1rem;
+  min-height: 48px;
+  border-radius: 0.6rem;
   transition: all 0.15s ease;
   position: relative;
   cursor: grab;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.preset-btn .preset-name {
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #ffffff;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.preset-btn .preset-bpm {
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #ffffff;
+  pointer-events: none;
 }
 
 .preset-btn:active {
@@ -244,8 +278,11 @@ body.ui-size-large .tempo-display {
 }
 
 body.ui-size-large .preset-btn {
-  min-height: 56px;
-  font-size: 1.35rem;
+  min-height: 48px;
+}
+
+body.ui-size-large .preset-btn .preset-bpm {
+  font-size: 1.2rem;
 }
 
 body.ui-size-xlarge {
@@ -257,8 +294,11 @@ body.ui-size-xlarge .tempo-display {
 }
 
 body.ui-size-xlarge .preset-btn {
-  min-height: 64px;
-  font-size: 1.45rem;
+  min-height: 52px;
+}
+
+body.ui-size-xlarge .preset-btn .preset-bpm {
+  font-size: 1.25rem;
 }
 
 @keyframes pulse-border {

@@ -5,6 +5,8 @@ let bpm = 120;
 let timeSignature = 4;
 let isMuted = false;
 let flashMode = "vivid"; // "off", "subtle", "vivid", "strobe"
+let lastActiveSoundType = "drumkit";
+let lastActiveFlashMode = "vivid";
 
 // Tap tempo state
 const tapTimestamps = [];
@@ -138,18 +140,18 @@ function renderQuickPresets() {
 
   quickPresets.forEach(function (presetItem, idx) {
     const col = document.createElement("div");
-    col.className = "col-4 col-sm-2 preset-col p-1";
+    col.className = "preset-col";
     col.dataset.index = idx;
 
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "btn preset-btn w-100 " + presetItem.colorClass + (presetItem.bpm === bpm ? " active-preset" : "") + (isSavingPresetMode ? " saving-mode" : "");
+    btn.className = "btn preset-btn " + presetItem.colorClass + (presetItem.bpm === bpm ? " active-preset" : "") + (isSavingPresetMode ? " saving-mode" : "");
     btn.id = "presetBtn_" + idx;
     btn.dataset.index = idx;
     btn.setAttribute("draggable", isSavingPresetMode ? "false" : "true");
     btn.innerHTML = `
-      <div class="fw-bold text-white" style="font-size: 0.95rem; line-height: 1.1; pointer-events:none;">${presetItem.name || ('P' + (idx + 1))}</div>
-      <div class="fw-bolder text-white" style="font-size: 1.4rem; line-height: 1.1; pointer-events:none;">${presetItem.bpm}</div>
+      <div class="preset-name">${presetItem.name || ('P' + (idx + 1))}</div>
+      <div class="preset-bpm">${presetItem.bpm}</div>
     `;
 
     // Click handler (Desktop and standard taps)
@@ -548,17 +550,48 @@ function initMetronome() {
     });
   }
 
-  // Sound type select (Drum Kit, Woodblock, Beep, Silent)
+  // Sound type select (Drum Kit, Woodblock, Beep, Off) & On/Off switch
   const soundSelect = document.getElementById("soundTypeSelect");
-  if (soundSelect) {
-    const savedSound = localStorage.getItem("metronome_sound_type") || "drumkit";
-    soundSelect.value = savedSound;
-    setEngineSoundType(savedSound);
+  const soundSwitch = document.getElementById("soundToggleSwitch");
 
+  const savedSound = localStorage.getItem("metronome_sound_type") || "drumkit";
+  if (savedSound !== "silent") {
+    lastActiveSoundType = savedSound;
+  }
+  if (soundSelect) {
+    soundSelect.value = savedSound;
+  }
+  if (soundSwitch) {
+    soundSwitch.checked = (savedSound !== "silent");
+  }
+  setEngineSoundType(savedSound);
+
+  if (soundSelect) {
     soundSelect.addEventListener("change", function () {
       const selectedSound = this.value;
+      if (selectedSound !== "silent") {
+        lastActiveSoundType = selectedSound;
+      }
+      if (soundSwitch) {
+        soundSwitch.checked = (selectedSound !== "silent");
+      }
       setEngineSoundType(selectedSound);
       localStorage.setItem("metronome_sound_type", selectedSound);
+    });
+  }
+
+  if (soundSwitch) {
+    soundSwitch.addEventListener("change", function () {
+      const isSoundOn = this.checked;
+      let targetSound = "silent";
+      if (isSoundOn) {
+        targetSound = (lastActiveSoundType && lastActiveSoundType !== "silent") ? lastActiveSoundType : "drumkit";
+      }
+      if (soundSelect) {
+        soundSelect.value = targetSound;
+      }
+      setEngineSoundType(targetSound);
+      localStorage.setItem("metronome_sound_type", targetSound);
     });
   }
 
@@ -582,16 +615,47 @@ function initMetronome() {
     });
   }
 
-  // Flash mode select
+  // Flash mode select & On/Off switch
   const flashSelect = document.getElementById("flashModeSelect");
+  const flashSwitch = document.getElementById("flashToggleSwitch");
+
+  const savedFlash = localStorage.getItem("metronome_flash_mode") || "vivid";
+  flashMode = savedFlash;
+  if (savedFlash !== "off") {
+    lastActiveFlashMode = savedFlash;
+  }
   if (flashSelect) {
-    const savedFlash = localStorage.getItem("metronome_flash_mode");
-    if (savedFlash) {
-      flashMode = savedFlash;
-      flashSelect.value = savedFlash;
-    }
+    flashSelect.value = savedFlash;
+  }
+  if (flashSwitch) {
+    flashSwitch.checked = (savedFlash !== "off");
+  }
+
+  if (flashSelect) {
     flashSelect.addEventListener("change", function () {
-      flashMode = this.value;
+      const selectedFlash = this.value;
+      flashMode = selectedFlash;
+      if (selectedFlash !== "off") {
+        lastActiveFlashMode = selectedFlash;
+      }
+      if (flashSwitch) {
+        flashSwitch.checked = (selectedFlash !== "off");
+      }
+      localStorage.setItem("metronome_flash_mode", flashMode);
+    });
+  }
+
+  if (flashSwitch) {
+    flashSwitch.addEventListener("change", function () {
+      const isFlashOn = this.checked;
+      let targetFlash = "off";
+      if (isFlashOn) {
+        targetFlash = (lastActiveFlashMode && lastActiveFlashMode !== "off") ? lastActiveFlashMode : "vivid";
+      }
+      flashMode = targetFlash;
+      if (flashSelect) {
+        flashSelect.value = targetFlash;
+      }
       localStorage.setItem("metronome_flash_mode", flashMode);
     });
   }

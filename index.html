@@ -131,17 +131,19 @@
             <div id="savePresetHint" class="alert alert-warning py-1 px-2 fw-bold mb-1 d-none" style="font-size: 0.85rem;">
               <i class="bi bi-info-circle-fill me-1"></i>Tap a preset slot to store BPM (<strong id="saveCurrentBpmValue">120</strong>).
             </div>
-            <div class="row g-1" id="quickPresetsContainer">
+            <div class="d-flex justify-content-between gap-1 w-100" id="quickPresetsContainer">
               <!-- 6 preset slots rendered by metronome.js -->
             </div>
           </div>
         </div>
 
-        <!-- Metronome Settings: 3 Symmetric Dropdowns (Signature, Sound, Flash) -->
+        <!-- Metronome Settings: 3 Columns with Quick On/Off Switches -->
         <div class="custom-card p-2 px-3 mb-2">
           <div class="row g-2">
             <div class="col-4">
-              <label for="timeSignatureSelect" class="form-label text-white fw-bold small mb-1">Signature</label>
+              <div class="d-flex justify-content-between align-items-center mb-1" style="min-height: 20px;">
+                <label for="timeSignatureSelect" class="form-label text-white fw-bold small mb-0">Signature</label>
+              </div>
               <select class="form-select form-select-sm text-white fw-bold" id="timeSignatureSelect">
                 <option value="1">1/4</option>
                 <option value="2">2/4</option>
@@ -153,22 +155,32 @@
             </div>
 
             <div class="col-4">
-              <label for="soundTypeSelect" class="form-label text-white fw-bold small mb-1">Sound</label>
+              <div class="d-flex justify-content-between align-items-center mb-1" style="min-height: 20px;">
+                <label for="soundTypeSelect" class="form-label text-white fw-bold small mb-0">Sound</label>
+                <div class="form-check form-switch m-0 p-0" style="min-height: auto;">
+                  <input class="form-check-input ms-0" type="checkbox" id="soundToggleSwitch" checked style="cursor: pointer; width: 1.9em; height: 1em;" title="Sound On / Off">
+                </div>
+              </div>
               <select class="form-select form-select-sm text-white fw-bold" id="soundTypeSelect">
                 <option value="drumkit" selected>Drum (Kick/Hat)</option>
                 <option value="woodblock">Woodblock</option>
                 <option value="beep">Beep</option>
-                <option value="silent">Silent (Muted)</option>
+                <option value="silent">Off</option>
               </select>
             </div>
 
             <div class="col-4">
-              <label for="flashModeSelect" class="form-label text-white fw-bold small mb-1">Flash</label>
+              <div class="d-flex justify-content-between align-items-center mb-1" style="min-height: 20px;">
+                <label for="flashModeSelect" class="form-label text-white fw-bold small mb-0">Flash</label>
+                <div class="form-check form-switch m-0 p-0" style="min-height: auto;">
+                  <input class="form-check-input ms-0" type="checkbox" id="flashToggleSwitch" checked style="cursor: pointer; width: 1.9em; height: 1em;" title="Flash On / Off">
+                </div>
+              </div>
               <select class="form-select form-select-sm text-white fw-bold" id="flashModeSelect">
-                <option value="off">Off</option>
-                <option value="subtle">Subtle</option>
                 <option value="vivid" selected>Vivid</option>
+                <option value="subtle">Subtle</option>
                 <option value="strobe">Strobe</option>
+                <option value="off">Off</option>
               </select>
             </div>
           </div>
