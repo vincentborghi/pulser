@@ -74,7 +74,7 @@ label {
 
 /* Metronome Screen & Visual Flash */
 .tempo-display {
-  font-size: 4.2rem;
+  font-size: 3.8rem;
   font-weight: 800;
   line-height: 1;
   color: var(--text-main);
@@ -287,16 +287,16 @@ body.ui-size-xlarge .preset-btn {
 .btn-tap {
   background-color: #1e293b;
   color: var(--text-main);
-  border: 2px solid #475569;
-  border-radius: 0.75rem;
+  border: 2px solid #64748b;
+  border-radius: 0.85rem;
   font-weight: 800;
-  font-size: 1.15rem;
-  min-height: 50px;
+  font-size: 1.35rem;
+  min-height: 72px;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 0.25rem 0.5rem;
+  padding: 0.5rem 0.5rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 }
 
 .btn-tap:active {
@@ -308,14 +308,15 @@ body.ui-size-xlarge .preset-btn {
 
 /* Play/Stop Button */
 .btn-play {
-  font-size: 1.35rem;
+  font-size: 1.45rem;
   font-weight: 800;
-  min-height: 50px;
-  border-radius: 0.75rem;
+  min-height: 72px;
+  border-radius: 0.85rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0.25rem 0.5rem;
+  padding: 0.5rem 0.5rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 }
 
 /* Quick BPM Delta Buttons */

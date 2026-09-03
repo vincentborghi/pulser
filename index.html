@@ -52,54 +52,52 @@
       <div class="tab-pane fade show active" id="pills-metronome" role="tabpanel">
 
         <!-- Quick Song Header Bar (Connects to Setlist) -->
-        <div class="custom-card p-1 px-3 mb-2 d-flex align-items-center justify-content-between">
-          <button id="quickPrevSongBtn" class="btn btn-outline-light btn-sm text-white" title="Previous Song">
-            <i class="bi bi-skip-start-fill"></i>
+        <div class="custom-card p-2 px-3 mb-2 d-flex align-items-center justify-content-between">
+          <button id="quickPrevSongBtn" class="btn btn-outline-light btn-sm text-white px-3" title="Previous Song" style="min-height: 44px; min-width: 48px;">
+            <i class="bi bi-skip-start-fill fs-5"></i>
           </button>
           <div class="text-center overflow-hidden px-2 flex-grow-1">
-            <div class="d-flex align-items-center justify-content-center">
-              <span id="activeSongBadge" class="fw-bold text-truncate text-white" style="font-size: 1.05rem;">Free Mode (No Song)</span>
-              <button id="clearActiveSongBtn" class="btn btn-sm btn-link text-warning p-0 ms-2 d-none" title="Return to Free Mode (clear song)">
-                <i class="bi bi-x-circle-fill"></i>
-              </button>
-            </div>
-            <small id="activeSongSubText" class="text-white text-truncate d-block fw-semibold" style="opacity: 0.9; font-size: 0.8rem;">Manual Tempo</small>
+            <span id="activeSongBadge" class="fw-bold text-truncate text-white d-block" style="font-size: 1.15rem;">Free Mode (No Song)</span>
+            <small id="activeSongSubText" class="text-white text-truncate d-block fw-semibold" style="opacity: 0.9; font-size: 0.85rem;">Manual Tempo</small>
           </div>
-          <button id="quickNextSongBtn" class="btn btn-outline-light btn-sm text-white" title="Next Song">
-            <i class="bi bi-skip-end-fill"></i>
+          <button id="clearActiveSongBtn" class="btn btn-outline-warning btn-sm fw-bold px-3 me-2 d-none" title="Return to Free Mode" style="min-height: 44px; font-size: 0.95rem;">
+            <i class="bi bi-box-arrow-left me-1"></i>Free Mode
+          </button>
+          <button id="quickNextSongBtn" class="btn btn-outline-light btn-sm text-white px-3" title="Next Song" style="min-height: 44px; min-width: 48px;">
+            <i class="bi bi-skip-end-fill fs-5"></i>
           </button>
         </div>
 
         <!-- Main Metronome Display - Vertically Compact & Optimized -->
         <div class="custom-card p-2 px-3 mb-2 text-center">
-          
-          <!-- Tempo Number + BPM on same line -->
-          <div class="d-flex align-items-baseline justify-content-center gap-2 mb-1">
-            <span class="tempo-display" id="tempoDisplay">120</span>
-            <span class="text-white fw-bold fs-5 text-uppercase">BPM</span>
-          </div>
 
-          <!-- Circular Visual Beat Flasher (LEFT) + TAP & PLAY Stacked (RIGHT) -->
-          <div class="row g-2 align-items-center mb-2">
-            <!-- Left: Beat Flasher + Signature Dots -->
-            <div class="col-5 d-flex flex-column justify-content-center align-items-center">
+          <!-- Row: Left (BPM + Circle + Dots) / Right (Tall Tap Tempo + Start) -->
+          <div class="row g-2 align-items-stretch mb-2">
+            <!-- Left: Current BPM centered over Beat Flasher & Dots -->
+            <div class="col-5 d-flex flex-column justify-content-between align-items-center">
+              <!-- Tempo Number centered directly over the circle -->
+              <div class="d-flex align-items-baseline justify-content-center gap-1 mb-1">
+                <span class="tempo-display" id="tempoDisplay">120</span>
+                <span class="text-white fw-bold fs-6 text-uppercase">BPM</span>
+              </div>
+
               <div id="beatFlasher" class="beat-flasher shadow">
                 <span id="beatFlasherNumber">-</span>
               </div>
+
               <div id="beatDotsContainer" class="mt-2"></div>
             </div>
 
-            <!-- Right: TAP and START/STOP stacked -->
-            <div class="col-7 d-flex flex-column gap-2 justify-content-center">
+            <!-- Right: Expanded Tap and Start/Stop buttons -->
+            <div class="col-7 d-flex flex-column justify-content-between gap-2">
               <!-- TAP TEMPO BUTTON -->
-              <button id="tapButton" class="btn btn-tap w-100 shadow-sm">
-                <span class="text-white fw-bolder fs-5"><i class="bi bi-hand-index-thumb-fill me-1"></i>TAP TEMPO</span>
-                <span id="tapSubtext" class="text-white small fw-semibold" style="font-size: 0.85rem; opacity: 0.95;">Detect tempo</span>
+              <button id="tapButton" class="btn btn-tap w-100 flex-grow-1 shadow-sm">
+                <span class="text-white fw-bolder fs-4"><i class="bi bi-hand-index-thumb-fill me-2"></i>Tap Tempo</span>
               </button>
 
               <!-- START / STOP BUTTON -->
-              <button id="playButton" class="btn btn-success btn-play w-100 shadow">
-                <i id="playButtonIcon" class="bi bi-play-fill me-1 fs-3"></i><span id="playButtonText" class="fs-4">Start</span>
+              <button id="playButton" class="btn btn-success btn-play w-100 flex-grow-1 shadow">
+                <i id="playButtonIcon" class="bi bi-play-fill me-1 fs-2"></i><span id="playButtonText" class="fs-3">Start</span>
               </button>
             </div>
           </div>

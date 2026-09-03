@@ -69,20 +69,26 @@ function clearActiveSong() {
 function nextSong() {
   if (playlist.length === 0) return;
   if (currentSongIndex === -1) {
+    // From Free Mode, next goes to the first song
     selectSong(0);
+  } else if (currentSongIndex === playlist.length - 1) {
+    // After the last song, next transitions to Manual Tempo / Free Mode
+    clearActiveSong();
   } else {
-    const nextIdx = (currentSongIndex + 1) % playlist.length;
-    selectSong(nextIdx);
+    selectSong(currentSongIndex + 1);
   }
 }
 
 function prevSong() {
   if (playlist.length === 0) return;
   if (currentSongIndex === -1) {
+    // From Free Mode, prev goes to the last song
     selectSong(playlist.length - 1);
+  } else if (currentSongIndex === 0) {
+    // Before the first song, prev transitions to Manual Tempo / Free Mode
+    clearActiveSong();
   } else {
-    const prevIdx = (currentSongIndex - 1 + playlist.length) % playlist.length;
-    selectSong(prevIdx);
+    selectSong(currentSongIndex - 1);
   }
 }
 
