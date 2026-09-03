@@ -17,8 +17,9 @@ let isAudioMuted = false;
 let currentSoundType = "beep"; // "beep" (default), "voice", "drumkit", "woodblock", "cowbell", "mechanical", "rimshot", "silent"
 let noiseBuffer = null;
 
-// Preloaded studio AudioBuffers for human voice count
-const voiceAudioBuffers = [];
+// Preloaded studio AudioBuffers for human voice count (Female & Male)
+const voiceFemaleAudioBuffers = [];
+const voiceMaleAudioBuffers = [];
 let isVoicePreloading = false;
 
 function base64ToArrayBuffer(base64DataUri) {
@@ -33,28 +34,46 @@ function base64ToArrayBuffer(base64DataUri) {
   return bytes.buffer;
 }
 
+async function decodeSingleVoiceSample(ctx, uri) {
+  const arrayBuf = base64ToArrayBuffer(uri);
+  return new Promise(function (resolve, reject) {
+    const res = ctx.decodeAudioData(arrayBuf, resolve, reject);
+    if (res && typeof res.then === "function") {
+      res.then(resolve).catch(reject);
+    }
+  });
+}
+
 async function preloadVoiceBuffers(ctx) {
-  if (isVoicePreloading || voiceAudioBuffers.length > 0 || typeof VOICE_SAMPLE_URIS === "undefined") {
+  if (isVoicePreloading || !ctx || typeof ctx.decodeAudioData !== "function") {
     return;
   }
   isVoicePreloading = true;
-  for (let i = 0; i < VOICE_SAMPLE_URIS.length; i++) {
-    try {
-      const arrayBuf = base64ToArrayBuffer(VOICE_SAMPLE_URIS[i]);
-      if (ctx && typeof ctx.decodeAudioData === "function") {
-        const promise = new Promise(function (resolve, reject) {
-          const res = ctx.decodeAudioData(arrayBuf, resolve, reject);
-          if (res && typeof res.then === "function") {
-            res.then(resolve).catch(reject);
-          }
-        });
-        const audioBuf = await promise;
-        voiceAudioBuffers[i] = audioBuf;
+
+  // 1. Preload Female voice samples (Microsoft Zira Desktop)
+  if (typeof VOICE_FEMALE_SAMPLE_URIS !== "undefined" && voiceFemaleAudioBuffers.length === 0) {
+    for (let i = 0; i < VOICE_FEMALE_SAMPLE_URIS.length; i++) {
+      try {
+        const audioBuf = await decodeSingleVoiceSample(ctx, VOICE_FEMALE_SAMPLE_URIS[i]);
+        voiceFemaleAudioBuffers[i] = audioBuf;
+      } catch (err) {
+        console.warn("Could not decode female voice sample", i, err);
       }
-    } catch (err) {
-      console.warn("Could not decode voice sample", i, err);
     }
   }
+
+  // 2. Preload Male voice samples (Microsoft David Desktop)
+  if (typeof VOICE_MALE_SAMPLE_URIS !== "undefined" && voiceMaleAudioBuffers.length === 0) {
+    for (let i = 0; i < VOICE_MALE_SAMPLE_URIS.length; i++) {
+      try {
+        const audioBuf = await decodeSingleVoiceSample(ctx, VOICE_MALE_SAMPLE_URIS[i]);
+        voiceMaleAudioBuffers[i] = audioBuf;
+      } catch (err) {
+        console.warn("Could not decode male voice sample", i, err);
+      }
+    }
+  }
+
   isVoicePreloading = false;
 }
 
@@ -212,10 +231,11 @@ function scheduleElectronicBeep(ctx, time, isFirstBeat) {
 }
 
 // Sound 4: Real Human Voice Counting ("One, Two, Three, Four, Five, Six...")
-function scheduleVoiceCount(ctx, time, beatNumber) {
-  const totalBuffers = (voiceAudioBuffers && voiceAudioBuffers.length > 0) ? voiceAudioBuffers.length : 8;
+function scheduleVoiceCount(ctx, time, beatNumber, gender = "female") {
+  const buffers = (gender === "male") ? voiceMaleAudioBuffers : voiceFemaleAudioBuffers;
+  const totalBuffers = (buffers && buffers.length > 0) ? buffers.length : 8;
   const wordIndex = ((beatNumber || 0) % totalBuffers);
-  const buffer = (voiceAudioBuffers && voiceAudioBuffers.length > wordIndex) ? voiceAudioBuffers[wordIndex] : null;
+  const buffer = (buffers && buffers.length > wordIndex) ? buffers[wordIndex] : null;
 
   if (buffer) {
     const source = ctx.createBufferSource();
@@ -463,8 +483,10 @@ function scheduleTick(time, isFirstBeat, beatNumber) {
 
   const ctx = getAudioContext();
 
-  if (currentSoundType === "voice") {
-    scheduleVoiceCount(ctx, time, beatNumber);
+  if (currentSoundType === "voice_female") {
+    scheduleVoiceCount(ctx, time, beatNumber, "female");
+  } else if (currentSoundType === "voice_male" || currentSoundType === "voice") {
+    scheduleVoiceCount(ctx, time, beatNumber, "male");
   } else if (currentSoundType === "drumkit") {
     if (isFirstBeat) {
       scheduleDampedKick(ctx, time);
@@ -580,7 +602,7 @@ function setEngineMuted(muted) {
 function setEngineSoundType(type) {
   currentSoundType = type || "beep";
   isAudioMuted = (currentSoundType === "silent");
-  if (currentSoundType === "voice" && audioCtx) {
+  if ((currentSoundType === "voice_female" || currentSoundType === "voice_male" || currentSoundType === "voice") && audioCtx) {
     preloadVoiceBuffers(audioCtx);
   }
 }
