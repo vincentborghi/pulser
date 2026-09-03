@@ -93,7 +93,7 @@
               <!-- UNDO TAP BUTTON (At the top of the column, fixed reserved slot) -->
               <div class="undo-tap-slot w-100" style="min-height: 38px;">
                 <button id="undoTapBtn" class="btn btn-undo-tap w-100 py-1 shadow-sm invisible" disabled title="Forget tapped tempo and restore previous tempo">
-                  <i class="bi bi-arrow-counterclockwise me-1 text-warning"></i>Undo Tap (<span id="undoTapBpm">120</span> BPM)
+                  <i class="bi bi-arrow-counterclockwise me-1 text-warning"></i>Undo Tap (<span id="undoTapBpm" class="fw-bold">120</span>&thinsp;BPM)
                 </button>
               </div>
 
@@ -374,6 +374,52 @@
           <div class="modal-footer border-secondary">
             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
             <button type="submit" class="btn btn-success">Save Song</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Song Modal -->
+  <div class="modal fade" id="editSongModal" tabindex="-1" aria-labelledby="editSongModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content custom-card border-secondary">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title text-white fw-bold" id="editSongModalLabel">
+            <i class="bi bi-pencil-square me-2 text-info"></i>Edit Song
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="editSongForm">
+          <input type="hidden" id="editSongIndex" value="-1">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="editSongTitle" class="form-label text-white-50 small">Song Title</label>
+              <input type="text" class="form-control form-control-lg bg-dark text-white border-secondary fw-bold" id="editSongTitle" required placeholder="e.g. Come As You Are">
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label for="editSongBpm" class="form-label text-white-50 small">Tempo (BPM)</label>
+                <input type="number" class="form-control form-control-lg bg-dark text-white border-secondary fw-bold" id="editSongBpm" min="30" max="300" required>
+              </div>
+              <div class="col-6">
+                <label for="editSongSig" class="form-label text-white-50 small">Signature (Pattern)</label>
+                <select class="form-select form-select-lg bg-dark text-white border-secondary fw-bold" id="editSongSig">
+                  <option value="4">4/4</option>
+                  <option value="3">3/4</option>
+                  <option value="2">2/4</option>
+                  <option value="6">6/8</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="editSongNotes" class="form-label text-white-50 small">Notes (Optional)</label>
+              <input type="text" class="form-control bg-dark text-white border-secondary" id="editSongNotes" placeholder="e.g. Intro on bass, muted verse">
+            </div>
+          </div>
+          <div class="modal-footer border-secondary">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-info text-dark fw-bold px-3">Save Changes</button>
           </div>
         </form>
       </div>

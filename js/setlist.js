@@ -297,6 +297,9 @@ function renderSetlist() {
         </div>
       </div>
       <div class="btn-group btn-group-sm">
+        <button class="btn btn-outline-info px-2" title="Edit Song (BPM, Signature, Title)" onclick="openEditSongModal(${idx})">
+          <i class="bi bi-pencil-square"></i>
+        </button>
         <button class="btn btn-outline-light px-2" title="Move Up" onclick="moveSong(${idx}, -1)" ${idx === 0 ? 'disabled' : ''}>
           <i class="bi bi-chevron-up"></i>
         </button>
@@ -345,6 +348,57 @@ function addSong(title, songBpm, timeSig, notes) {
   };
 
   active.songs.push(newSong);
+  saveSetlists();
+  renderSetlistUI();
+}
+
+let editingSongIndex = -1;
+
+function openEditSongModal(index) {
+  const playlist = getActivePlaylist();
+  if (index < 0 || index >= playlist.length) return;
+
+  editingSongIndex = index;
+  const song = playlist[index];
+
+  const titleInput = document.getElementById("editSongTitle");
+  const bpmInput = document.getElementById("editSongBpm");
+  const sigInput = document.getElementById("editSongSig");
+  const notesInput = document.getElementById("editSongNotes");
+  const indexInput = document.getElementById("editSongIndex");
+
+  if (titleInput) titleInput.value = song.title;
+  if (bpmInput) bpmInput.value = song.bpm;
+  if (sigInput) sigInput.value = song.timeSignature || 4;
+  if (notesInput) notesInput.value = song.notes || "";
+  if (indexInput) indexInput.value = index;
+
+  const modalEl = document.getElementById("editSongModal");
+  if (modalEl && window.bootstrap && window.bootstrap.Modal) {
+    const modalInstance = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+    modalInstance.show();
+  }
+}
+
+function updateSong(index, title, songBpm, timeSig, notes) {
+  const playlist = getActivePlaylist();
+  if (index < 0 || index >= playlist.length) return;
+
+  playlist[index].title = (title || "").trim() || playlist[index].title;
+  playlist[index].bpm = parseInt(songBpm, 10) || playlist[index].bpm;
+  playlist[index].timeSignature = parseInt(timeSig, 10) || 4;
+  playlist[index].notes = (notes || "").trim();
+
+  // If this song is currently active in the metronome, update metronome live
+  if (currentSongIndex === index) {
+    updateBpm(playlist[index].bpm);
+    const sigSelect = document.getElementById("timeSignatureSelect");
+    if (sigSelect) {
+      sigSelect.value = playlist[index].timeSignature;
+      sigSelect.dispatchEvent(new Event("change"));
+    }
+  }
+
   saveSetlists();
   renderSetlistUI();
 }
@@ -518,6 +572,31 @@ function initSetlist() {
 
       // Close modal if using Bootstrap modal
       const modalEl = document.getElementById("addSongModal");
+      if (modalEl && window.bootstrap && window.bootstrap.Modal) {
+        const modalInstance = window.bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) modalInstance.hide();
+      }
+    });
+  }
+
+  // Edit song form
+  const editForm = document.getElementById("editSongForm");
+  if (editForm) {
+    editForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const titleInput = document.getElementById("editSongTitle");
+      const bpmInput = document.getElementById("editSongBpm");
+      const sigInput = document.getElementById("editSongSig");
+      const notesInput = document.getElementById("editSongNotes");
+      const indexInput = document.getElementById("editSongIndex");
+
+      const idx = indexInput ? parseInt(indexInput.value, 10) : editingSongIndex;
+      if (idx >= 0) {
+        updateSong(idx, titleInput.value, bpmInput.value, sigInput.value, notesInput.value);
+      }
+
+      // Close modal if using Bootstrap modal
+      const modalEl = document.getElementById("editSongModal");
       if (modalEl && window.bootstrap && window.bootstrap.Modal) {
         const modalInstance = window.bootstrap.Modal.getInstance(modalEl);
         if (modalInstance) modalInstance.hide();
