@@ -14,8 +14,49 @@ const SCHEDULE_AHEAD_TIME_SEC = 0.1; // How far ahead to schedule audio
 let nextNoteTime = 0.0;
 let timerId = null;
 let isAudioMuted = false;
-let currentSoundType = "drumkit"; // "drumkit", "woodblock", "beep", "silent"
+let currentSoundType = "beep"; // "beep" (default), "voice", "drumkit", "woodblock", "cowbell", "mechanical", "rimshot", "silent"
 let noiseBuffer = null;
+
+// Preloaded studio AudioBuffers for human voice count
+const voiceAudioBuffers = [];
+let isVoicePreloading = false;
+
+function base64ToArrayBuffer(base64DataUri) {
+  const parts = base64DataUri.split(",");
+  const base64 = parts.length > 1 ? parts[1] : parts[0];
+  const binaryString = (typeof window !== "undefined" && window.atob) ? window.atob(base64) : (typeof Buffer !== "undefined" ? Buffer.from(base64, "base64").toString("binary") : "");
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
+async function preloadVoiceBuffers(ctx) {
+  if (isVoicePreloading || voiceAudioBuffers.length > 0 || typeof VOICE_SAMPLE_URIS === "undefined") {
+    return;
+  }
+  isVoicePreloading = true;
+  for (let i = 0; i < VOICE_SAMPLE_URIS.length; i++) {
+    try {
+      const arrayBuf = base64ToArrayBuffer(VOICE_SAMPLE_URIS[i]);
+      if (ctx && typeof ctx.decodeAudioData === "function") {
+        const promise = new Promise(function (resolve, reject) {
+          const res = ctx.decodeAudioData(arrayBuf, resolve, reject);
+          if (res && typeof res.then === "function") {
+            res.then(resolve).catch(reject);
+          }
+        });
+        const audioBuf = await promise;
+        voiceAudioBuffers[i] = audioBuf;
+      }
+    } catch (err) {
+      console.warn("Could not decode voice sample", i, err);
+    }
+  }
+  isVoicePreloading = false;
+}
 
 // Queue of notes scheduled for visual sync
 const notesInQueue = [];
@@ -36,6 +77,7 @@ function getAudioContext() {
   if (audioCtx.state === "suspended") {
     audioCtx.resume();
   }
+  preloadVoiceBuffers(audioCtx);
   return audioCtx;
 }
 
@@ -169,9 +211,32 @@ function scheduleElectronicBeep(ctx, time, isFirstBeat) {
   osc.stop(time + 0.045);
 }
 
-// Sound 4: Human Voice Counting ("One, Two, Three, Four, Five, Six...")
+// Sound 4: Real Human Voice Counting ("One, Two, Three, Four, Five, Six...")
 function scheduleVoiceCount(ctx, time, beatNumber) {
-  // Rhythmic sync transient (crisp 6ms acoustic tick for razor-sharp beat definition)
+  const totalBuffers = (voiceAudioBuffers && voiceAudioBuffers.length > 0) ? voiceAudioBuffers.length : 8;
+  const wordIndex = ((beatNumber || 0) % totalBuffers);
+  const buffer = (voiceAudioBuffers && voiceAudioBuffers.length > wordIndex) ? voiceAudioBuffers[wordIndex] : null;
+
+  if (buffer) {
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+
+    const gain = ctx.createGain();
+    // Subtle volume accent on beat 1
+    gain.gain.setValueAtTime(beatNumber === 0 ? 1.0 : 0.88, time);
+
+    source.connect(gain);
+    gain.connect(ctx.destination);
+
+    source.start(time);
+  } else {
+    // If buffers not ready yet, trigger preload and play fallback
+    preloadVoiceBuffers(ctx);
+    scheduleSynthesizedVoiceCount(ctx, time, beatNumber);
+  }
+}
+
+function scheduleSynthesizedVoiceCount(ctx, time, beatNumber) {
   const clickOsc = ctx.createOscillator();
   const clickGain = ctx.createGain();
   clickOsc.type = "triangle";
@@ -513,8 +578,11 @@ function setEngineMuted(muted) {
 }
 
 function setEngineSoundType(type) {
-  currentSoundType = type || "drumkit";
+  currentSoundType = type || "beep";
   isAudioMuted = (currentSoundType === "silent");
+  if (currentSoundType === "voice" && audioCtx) {
+    preloadVoiceBuffers(audioCtx);
+  }
 }
 
 function getEngineSoundType() {

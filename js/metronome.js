@@ -842,11 +842,11 @@ function initMetronome() {
     });
   }
 
-  // Sound type select (Drum Kit, Woodblock, Beep, Off) & On/Off switch
+  // Sound type select (Beep, Voice, Drum Kit, Woodblock, Cowbell, Mechanical, Rimshot, Off) & On/Off switch
   const soundSelect = document.getElementById("soundTypeSelect");
   const soundSwitch = document.getElementById("soundToggleSwitch");
 
-  const savedSound = localStorage.getItem("metronome_sound_type") || "drumkit";
+  const savedSound = localStorage.getItem("metronome_sound_type") || "beep";
   if (savedSound !== "silent") {
     lastActiveSoundType = savedSound;
   }
@@ -877,7 +877,7 @@ function initMetronome() {
       const isSoundOn = this.checked;
       let targetSound = "silent";
       if (isSoundOn) {
-        targetSound = (lastActiveSoundType && lastActiveSoundType !== "silent") ? lastActiveSoundType : "drumkit";
+        targetSound = (lastActiveSoundType && lastActiveSoundType !== "silent") ? lastActiveSoundType : "beep";
       }
       if (soundSelect) {
         soundSelect.value = targetSound;
