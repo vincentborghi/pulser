@@ -123,11 +123,19 @@ function initGadgets() {
       toggleGadgetControlsHint();
     });
   }
+
+  // Keyboard shortcut: Escape key closes active gadget
+  window.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && activeGadgetType !== null) {
+      closeConcertGadget();
+    }
+  });
 }
 
 function openConcertGadget(type) {
   const overlay = document.getElementById("concertGadgetOverlay");
   const stage = document.getElementById("gadgetStageContainer");
+  const controls = document.getElementById("gadgetOverlayControls");
   if (!overlay || !stage) return;
 
   activeGadgetType = type;
@@ -137,12 +145,15 @@ function openConcertGadget(type) {
   // Keep screen awake
   requestGadgetWakeLock();
 
-  // Try requesting native browser fullscreen if supported
-  try {
-    if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen().catch(function () {});
-    }
-  } catch (err) {}
+  // Show top controls and temporary hint briefly upon opening, then auto-fade after 1500ms
+  if (controls) {
+    controls.classList.remove("fade-out");
+    controls.style.opacity = "1";
+    clearTimeout(controlsHintTimeout);
+    controlsHintTimeout = setTimeout(function () {
+      controls.classList.add("fade-out");
+    }, 1500);
+  }
 
   if (type === "candle") {
     startCandleFlame(stage);
@@ -158,6 +169,11 @@ function openConcertGadget(type) {
 }
 
 function closeConcertGadget() {
+  if (controlsHintTimeout !== null) {
+    clearTimeout(controlsHintTimeout);
+    controlsHintTimeout = null;
+  }
+
   if (candleInteractiveCleanup !== null) {
     candleInteractiveCleanup();
   }
@@ -175,12 +191,6 @@ function closeConcertGadget() {
 
   activeGadgetType = null;
   releaseGadgetWakeLock();
-
-  try {
-    if (document.fullscreenElement && document.exitFullscreen) {
-      document.exitFullscreen().catch(function () {});
-    }
-  } catch (err) {}
 }
 
 function toggleGadgetRotation() {
@@ -212,9 +222,10 @@ function toggleGadgetControlsHint() {
     clearTimeout(controlsHintTimeout);
     controlsHintTimeout = setTimeout(function () {
       controls.classList.add("fade-out");
-    }, 3000);
+    }, 1500);
   } else {
     controls.classList.add("fade-out");
+    clearTimeout(controlsHintTimeout);
   }
 }
 

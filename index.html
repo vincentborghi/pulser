@@ -719,9 +719,14 @@
   <!-- Fullscreen Concert Gadget Stage Overlay -->
   <div id="concertGadgetOverlay" class="d-none">
     <div id="gadgetOverlayControls" class="d-flex justify-content-between align-items-center p-3">
-      <button type="button" id="rotateGadgetOverlayBtn" class="btn btn-outline-light btn-sm rounded-pill px-3 py-1 bg-dark bg-opacity-75" title="Toggle 90° Landscape Rotation">
-        <i id="rotateGadgetIcon" class="bi bi-phone-landscape me-1 text-white"></i><span>Rotation 90°</span>
+      <button type="button" id="rotateGadgetOverlayBtn" class="btn btn-outline-light btn-sm rounded-pill px-3 py-1 bg-dark bg-opacity-75" title="Toggle 90 Landscape Rotation">
+        <i id="rotateGadgetIcon" class="bi bi-phone-landscape me-1 text-white"></i><span>Rotation 90</span>
       </button>
+      <div id="gadgetOverlayHint" class="text-center px-2">
+        <span class="badge bg-dark bg-opacity-75 text-white-50 px-3 py-2 rounded-pill fw-normal" style="font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.15);">
+          Toucher pour masquer / quitter
+        </span>
+      </div>
       <button type="button" id="closeGadgetOverlayBtn" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1 bg-dark bg-opacity-75 text-danger fw-bold" title="Exit Fullscreen">
         <i class="bi bi-x-lg me-1"></i><span>Fermer</span>
       </button>

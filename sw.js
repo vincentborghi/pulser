@@ -1,6 +1,6 @@
 // Service Worker for 100% offline usage
 // Cache version identifier
-const CACHE_NAME = "groovepulse-cache-v4";
+const CACHE_NAME = "groovepulse-cache-v5";
 
 const ASSETS_TO_CACHE = [
   "./",
