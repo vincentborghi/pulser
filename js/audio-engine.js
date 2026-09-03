@@ -113,25 +113,52 @@ function getNoiseBuffer(ctx) {
   return noiseBuffer;
 }
 
+// Master Dynamics Processor & Output Bus
+// Guarantees strictly constant volume, prevents DAC clipping, and stops mobile hardware ducking
+let masterGainNode = null;
+let masterLimiterNode = null;
+
+function getMasterNode(ctx) {
+  if (!masterGainNode || !masterLimiterNode) {
+    if (typeof ctx.createDynamicsCompressor === "function") {
+      masterLimiterNode = ctx.createDynamicsCompressor();
+      masterLimiterNode.threshold.setValueAtTime(-2.0, ctx.currentTime);
+      masterLimiterNode.knee.setValueAtTime(0.0, ctx.currentTime);
+      masterLimiterNode.ratio.setValueAtTime(20.0, ctx.currentTime);
+      masterLimiterNode.attack.setValueAtTime(0.001, ctx.currentTime);
+      masterLimiterNode.release.setValueAtTime(0.03, ctx.currentTime);
+    }
+
+    masterGainNode = ctx.createGain();
+    masterGainNode.gain.setValueAtTime(0.85, ctx.currentTime);
+
+    if (masterLimiterNode) {
+      masterLimiterNode.connect(masterGainNode);
+    }
+    masterGainNode.connect(ctx.destination);
+  }
+  return masterLimiterNode || masterGainNode;
+}
+
 // Sound 1: Drum Kit - Damped Kick Drum on Beat 1 (Grosse caisse mate)
 function scheduleDampedKick(ctx, time) {
-  // Low-frequency sine pitch drop (punchy attack sliding to sub fundamental)
+  const startTime = Math.max(time, ctx.currentTime);
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
 
   osc.type = "sine";
-  osc.frequency.setValueAtTime(145, time);
-  osc.frequency.exponentialRampToValueAtTime(42, time + 0.075);
+  osc.frequency.setValueAtTime(145, startTime);
+  osc.frequency.exponentialRampToValueAtTime(42, startTime + 0.075);
 
-  // Mate acoustic decay (tight envelope without lingering bass boom)
-  gain.gain.setValueAtTime(1.0, time);
-  gain.gain.exponentialRampToValueAtTime(0.001, time + 0.11);
+  gain.gain.setValueAtTime(0.0001, startTime);
+  gain.gain.linearRampToValueAtTime(0.85, startTime + 0.002);
+  gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.09);
 
   osc.connect(gain);
-  gain.connect(ctx.destination);
+  gain.connect(getMasterNode(ctx));
 
-  osc.start(time);
-  osc.stop(time + 0.12);
+  osc.start(startTime);
+  osc.stop(startTime + 0.1);
 
   // Beater attack transient: short filtered click for realistic skin impact
   const noiseSource = ctx.createBufferSource();
@@ -139,99 +166,105 @@ function scheduleDampedKick(ctx, time) {
 
   const filter = ctx.createBiquadFilter();
   filter.type = "bandpass";
-  filter.frequency.setValueAtTime(1200, time);
-  filter.Q.setValueAtTime(2.0, time);
+  filter.frequency.setValueAtTime(1200, startTime);
+  filter.Q.setValueAtTime(2.0, startTime);
 
   const clickGain = ctx.createGain();
-  clickGain.gain.setValueAtTime(0.4, time);
-  clickGain.gain.exponentialRampToValueAtTime(0.001, time + 0.02);
+  clickGain.gain.setValueAtTime(0.0001, startTime);
+  clickGain.gain.linearRampToValueAtTime(0.35, startTime + 0.001);
+  clickGain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.02);
 
   noiseSource.connect(filter);
   filter.connect(clickGain);
-  clickGain.connect(ctx.destination);
+  clickGain.connect(getMasterNode(ctx));
 
-  noiseSource.start(time);
-  noiseSource.stop(time + 0.025);
+  noiseSource.start(startTime);
+  noiseSource.stop(startTime + 0.025);
 }
 
 // Sound 1: Drum Kit - Closed Hi-Hat on other beats (Charley fermee)
 function scheduleClosedHiHat(ctx, time) {
+  const startTime = Math.max(time, ctx.currentTime);
   const noiseSource = ctx.createBufferSource();
   noiseSource.buffer = getNoiseBuffer(ctx);
 
-  // High-pass + bandpass filtering for crisp metallic sizzle
   const highpass = ctx.createBiquadFilter();
   highpass.type = "highpass";
-  highpass.frequency.setValueAtTime(7500, time);
+  highpass.frequency.setValueAtTime(7500, startTime);
 
   const bandpass = ctx.createBiquadFilter();
   bandpass.type = "bandpass";
-  bandpass.frequency.setValueAtTime(9500, time);
-  bandpass.Q.setValueAtTime(3.0, time);
+  bandpass.frequency.setValueAtTime(9500, startTime);
+  bandpass.Q.setValueAtTime(3.0, startTime);
 
-  // Very snappy, tight exponential decay
   const gain = ctx.createGain();
-  gain.gain.setValueAtTime(0.85, time);
-  gain.gain.exponentialRampToValueAtTime(0.001, time + 0.045);
+  gain.gain.setValueAtTime(0.0001, startTime);
+  gain.gain.linearRampToValueAtTime(0.75, startTime + 0.001);
+  gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.045);
 
   noiseSource.connect(highpass);
   highpass.connect(bandpass);
   bandpass.connect(gain);
-  gain.connect(ctx.destination);
+  gain.connect(getMasterNode(ctx));
 
-  noiseSource.start(time);
-  noiseSource.stop(time + 0.05);
+  noiseSource.start(startTime);
+  noiseSource.stop(startTime + 0.05);
 }
 
 // Sound 2: Classic Woodblock Click
 function scheduleWoodblock(ctx, time, isFirstBeat) {
+  const startTime = Math.max(time, ctx.currentTime);
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
 
   osc.connect(gain);
-  gain.connect(ctx.destination);
+  gain.connect(getMasterNode(ctx));
+
+  const duration = isFirstBeat ? 0.045 : 0.035;
+  const peakGain = isFirstBeat ? 0.85 : 0.55;
 
   if (isFirstBeat) {
-    osc.frequency.setValueAtTime(1400, time);
-    osc.frequency.exponentialRampToValueAtTime(350, time + 0.04);
-    gain.gain.setValueAtTime(1.0, time);
-    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.045);
+    osc.frequency.setValueAtTime(1400, startTime);
+    osc.frequency.exponentialRampToValueAtTime(350, startTime + 0.04);
   } else {
-    osc.frequency.setValueAtTime(800, time);
-    osc.frequency.exponentialRampToValueAtTime(200, time + 0.03);
-    gain.gain.setValueAtTime(0.65, time);
-    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.035);
+    osc.frequency.setValueAtTime(800, startTime);
+    osc.frequency.exponentialRampToValueAtTime(200, startTime + 0.03);
   }
 
-  osc.start(time);
-  osc.stop(time + 0.05);
+  gain.gain.setValueAtTime(0.0001, startTime);
+  gain.gain.linearRampToValueAtTime(peakGain, startTime + 0.0015);
+  gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+  osc.start(startTime);
+  osc.stop(startTime + duration + 0.005);
 }
 
 // Sound 3: Electronic Metronome Beep
 function scheduleElectronicBeep(ctx, time, isFirstBeat) {
+  const startTime = Math.max(time, ctx.currentTime);
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
 
   osc.type = "sine";
   osc.connect(gain);
-  gain.connect(ctx.destination);
+  gain.connect(getMasterNode(ctx));
 
-  if (isFirstBeat) {
-    osc.frequency.setValueAtTime(1760, time); // A6
-    gain.gain.setValueAtTime(0.9, time);
-    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
-  } else {
-    osc.frequency.setValueAtTime(880, time); // A5
-    gain.gain.setValueAtTime(0.6, time);
-    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.03);
-  }
+  const duration = isFirstBeat ? 0.045 : 0.035;
+  const peakGain = isFirstBeat ? 0.85 : 0.55;
 
-  osc.start(time);
-  osc.stop(time + 0.045);
+  osc.frequency.setValueAtTime(isFirstBeat ? 1760 : 880, startTime);
+
+  gain.gain.setValueAtTime(0.0001, startTime);
+  gain.gain.linearRampToValueAtTime(peakGain, startTime + 0.0015);
+  gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+  osc.start(startTime);
+  osc.stop(startTime + duration + 0.005);
 }
 
 // Sound 4: Real Human Voice Counting ("One, Two, Three, Four, Five, Six...")
 function scheduleVoiceCount(ctx, time, beatNumber, gender = "female") {
+  const startTime = Math.max(time, ctx.currentTime);
   const buffers = (gender === "male") ? voiceMaleAudioBuffers : voiceFemaleAudioBuffers;
   const totalBuffers = (buffers && buffers.length > 0) ? buffers.length : 8;
   const wordIndex = ((beatNumber || 0) % totalBuffers);
@@ -242,17 +275,16 @@ function scheduleVoiceCount(ctx, time, beatNumber, gender = "female") {
     source.buffer = buffer;
 
     const gain = ctx.createGain();
-    // Subtle volume accent on beat 1
-    gain.gain.setValueAtTime(beatNumber === 0 ? 1.0 : 0.88, time);
+    const peakGain = (beatNumber === 0 ? 0.95 : 0.82);
+    gain.gain.setValueAtTime(peakGain, startTime);
 
     source.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(getMasterNode(ctx));
 
-    source.start(time);
+    source.start(startTime);
   } else {
-    // If buffers not ready yet, trigger preload and play fallback
     preloadVoiceBuffers(ctx);
-    scheduleSynthesizedVoiceCount(ctx, time, beatNumber);
+    scheduleSynthesizedVoiceCount(ctx, startTime, beatNumber);
   }
 }
 
@@ -374,105 +406,118 @@ function scheduleConsonantNoise(ctx, time, duration, filterFreq, filterQ, gainLe
 
 // Sound 5: Cowbell (Roland TR-808 style dual resonant bell)
 function scheduleCowbell(ctx, time, isFirstBeat) {
+  const startTime = Math.max(time, ctx.currentTime);
   const freq1 = isFirstBeat ? 587 : 540;
   const freq2 = isFirstBeat ? 845 : 790;
+  const peakGain = isFirstBeat ? 0.8 : 0.6;
+  const duration = isFirstBeat ? 0.09 : 0.065;
 
   const osc1 = ctx.createOscillator();
   const osc2 = ctx.createOscillator();
   osc1.type = "square";
   osc2.type = "square";
-  osc1.frequency.setValueAtTime(freq1, time);
-  osc2.frequency.setValueAtTime(freq2, time);
+  osc1.frequency.setValueAtTime(freq1, startTime);
+  osc2.frequency.setValueAtTime(freq2, startTime);
 
   const filter = ctx.createBiquadFilter();
   filter.type = "bandpass";
-  filter.frequency.setValueAtTime(isFirstBeat ? 820 : 760, time);
-  filter.Q.setValueAtTime(2.5, time);
+  filter.frequency.setValueAtTime(isFirstBeat ? 820 : 760, startTime);
+  filter.Q.setValueAtTime(2.5, startTime);
 
   const gain = ctx.createGain();
-  gain.gain.setValueAtTime(isFirstBeat ? 0.9 : 0.7, time);
-  gain.gain.exponentialRampToValueAtTime(0.001, time + (isFirstBeat ? 0.09 : 0.065));
+  gain.gain.setValueAtTime(0.0001, startTime);
+  gain.gain.linearRampToValueAtTime(peakGain, startTime + 0.0015);
+  gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
 
   osc1.connect(filter);
   osc2.connect(filter);
   filter.connect(gain);
-  gain.connect(ctx.destination);
+  gain.connect(getMasterNode(ctx));
 
-  osc1.start(time);
-  osc2.start(time);
-  osc1.stop(time + 0.1);
-  osc2.stop(time + 0.1);
+  osc1.start(startTime);
+  osc2.start(startTime);
+  osc1.stop(startTime + duration + 0.01);
+  osc2.stop(startTime + duration + 0.01);
 }
 
 // Sound 6: Mechanical Clockwork Click (Traditional Maelzel / Wittner Pendulum Metronome)
 function scheduleMechanicalClick(ctx, time, isFirstBeat) {
+  const startTime = Math.max(time, ctx.currentTime);
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
   osc.type = "sine";
   const startF = isFirstBeat ? 420 : 290;
-  osc.frequency.setValueAtTime(startF, time);
-  osc.frequency.exponentialRampToValueAtTime(90, time + 0.025);
+  const peakGain = isFirstBeat ? 0.8 : 0.55;
 
-  gain.gain.setValueAtTime(isFirstBeat ? 0.85 : 0.6, time);
-  gain.gain.exponentialRampToValueAtTime(0.001, time + 0.03);
+  osc.frequency.setValueAtTime(startF, startTime);
+  osc.frequency.exponentialRampToValueAtTime(90, startTime + 0.025);
+
+  gain.gain.setValueAtTime(0.0001, startTime);
+  gain.gain.linearRampToValueAtTime(peakGain, startTime + 0.001);
+  gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.03);
 
   osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.start(time);
-  osc.stop(time + 0.035);
+  gain.connect(getMasterNode(ctx));
+  osc.start(startTime);
+  osc.stop(startTime + 0.035);
 
   const noiseSource = ctx.createBufferSource();
   noiseSource.buffer = getNoiseBuffer(ctx);
   const filter = ctx.createBiquadFilter();
   filter.type = "bandpass";
-  filter.frequency.setValueAtTime(isFirstBeat ? 2400 : 1900, time);
-  filter.Q.setValueAtTime(3.5, time);
+  filter.frequency.setValueAtTime(isFirstBeat ? 2400 : 1900, startTime);
+  filter.Q.setValueAtTime(3.5, startTime);
 
   const clickGain = ctx.createGain();
-  clickGain.gain.setValueAtTime(isFirstBeat ? 0.5 : 0.35, time);
-  clickGain.gain.exponentialRampToValueAtTime(0.001, time + 0.012);
+  clickGain.gain.setValueAtTime(0.0001, startTime);
+  clickGain.gain.linearRampToValueAtTime(isFirstBeat ? 0.45 : 0.3, startTime + 0.001);
+  clickGain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.012);
 
   noiseSource.connect(filter);
   filter.connect(clickGain);
-  clickGain.connect(ctx.destination);
+  clickGain.connect(getMasterNode(ctx));
 
-  noiseSource.start(time);
-  noiseSource.stop(time + 0.015);
+  noiseSource.start(startTime);
+  noiseSource.stop(startTime + 0.015);
 }
 
 // Sound 7: Acoustic Cross-Stick (Snare rim cross-stick)
 function scheduleCrossStick(ctx, time, isFirstBeat) {
+  const startTime = Math.max(time, ctx.currentTime);
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
   osc.type = "triangle";
-  osc.frequency.setValueAtTime(isFirstBeat ? 1680 : 1520, time);
-  osc.frequency.exponentialRampToValueAtTime(320, time + 0.035);
+  osc.frequency.setValueAtTime(isFirstBeat ? 1680 : 1520, startTime);
+  osc.frequency.exponentialRampToValueAtTime(320, startTime + 0.035);
 
-  gain.gain.setValueAtTime(isFirstBeat ? 0.9 : 0.65, time);
-  gain.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
+  const peakGain = isFirstBeat ? 0.8 : 0.55;
+  gain.gain.setValueAtTime(0.0001, startTime);
+  gain.gain.linearRampToValueAtTime(peakGain, startTime + 0.001);
+  gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.04);
 
   osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.start(time);
-  osc.stop(time + 0.045);
+  gain.connect(getMasterNode(ctx));
+  osc.start(startTime);
+  osc.stop(startTime + 0.045);
 
   const noiseSource = ctx.createBufferSource();
   noiseSource.buffer = getNoiseBuffer(ctx);
   const filter = ctx.createBiquadFilter();
   filter.type = "bandpass";
-  filter.frequency.setValueAtTime(3800, time);
-  filter.Q.setValueAtTime(2.0, time);
+  filter.frequency.setValueAtTime(3800, startTime);
+  filter.Q.setValueAtTime(2.0, startTime);
 
   const noiseGain = ctx.createGain();
-  noiseGain.gain.setValueAtTime(isFirstBeat ? 0.35 : 0.22, time);
-  noiseGain.gain.exponentialRampToValueAtTime(0.001, time + 0.02);
+  noiseGain.gain.setValueAtTime(0.0001, startTime);
+  noiseGain.gain.linearRampToValueAtTime(isFirstBeat ? 0.35 : 0.22, startTime + 0.001);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.02);
 
   noiseSource.connect(filter);
   filter.connect(noiseGain);
-  noiseGain.connect(ctx.destination);
+  noiseGain.connect(getMasterNode(ctx));
 
-  noiseSource.start(time);
-  noiseSource.stop(time + 0.025);
+  noiseSource.start(startTime);
+  noiseSource.stop(startTime + 0.025);
 }
 
 // Synthesize tick based on selected sound type
@@ -482,28 +527,29 @@ function scheduleTick(time, isFirstBeat, beatNumber) {
   }
 
   const ctx = getAudioContext();
+  const safeTime = Math.max(time, ctx.currentTime);
 
   if (currentSoundType === "voice_female") {
-    scheduleVoiceCount(ctx, time, beatNumber, "female");
+    scheduleVoiceCount(ctx, safeTime, beatNumber, "female");
   } else if (currentSoundType === "voice_male" || currentSoundType === "voice") {
-    scheduleVoiceCount(ctx, time, beatNumber, "male");
+    scheduleVoiceCount(ctx, safeTime, beatNumber, "male");
   } else if (currentSoundType === "drumkit") {
     if (isFirstBeat) {
-      scheduleDampedKick(ctx, time);
+      scheduleDampedKick(ctx, safeTime);
     } else {
-      scheduleClosedHiHat(ctx, time);
+      scheduleClosedHiHat(ctx, safeTime);
     }
   } else if (currentSoundType === "cowbell") {
-    scheduleCowbell(ctx, time, isFirstBeat);
+    scheduleCowbell(ctx, safeTime, isFirstBeat);
   } else if (currentSoundType === "mechanical") {
-    scheduleMechanicalClick(ctx, time, isFirstBeat);
+    scheduleMechanicalClick(ctx, safeTime, isFirstBeat);
   } else if (currentSoundType === "rimshot") {
-    scheduleCrossStick(ctx, time, isFirstBeat);
+    scheduleCrossStick(ctx, safeTime, isFirstBeat);
   } else if (currentSoundType === "beep") {
-    scheduleElectronicBeep(ctx, time, isFirstBeat);
+    scheduleElectronicBeep(ctx, safeTime, isFirstBeat);
   } else {
     // "woodblock"
-    scheduleWoodblock(ctx, time, isFirstBeat);
+    scheduleWoodblock(ctx, safeTime, isFirstBeat);
   }
 }
 
