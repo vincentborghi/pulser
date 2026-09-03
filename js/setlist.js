@@ -222,8 +222,8 @@ function updateActiveSongBadge() {
     if (subText) subText.textContent = setlistName + " • " + song.bpm + " BPM (" + (song.timeSignature || 4) + "/4)";
     if (clearBtn) clearBtn.classList.remove("d-none");
   } else {
-    if (badge) badge.textContent = "Free Mode (No Song)";
-    if (subText) subText.textContent = setlistName + " • Manual Tempo";
+    if (badge) badge.textContent = "Free Mode";
+    if (subText) subText.textContent = "Setlist: " + setlistName;
     if (clearBtn) clearBtn.classList.add("d-none");
   }
 }
