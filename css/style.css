@@ -1062,14 +1062,99 @@ button {
   100% { opacity: 1; transform: scale(1.25); }
 }
 
-/* --- GADGET 3: CUSTOM TICKER / MARQUEE BANNER --- */
+/* --- GADGET 3: CUSTOM TICKER / MARQUEE BANNER & VISUAL EFFECTS --- */
 .giant-static-text {
-  font-size: clamp(3.5rem, 15vw, 8.5rem);
+  font-size: clamp(2.8rem, 13vw, 7.5rem);
   font-weight: 900;
   text-align: center;
-  line-height: 1.05;
+  line-height: 1.1;
   letter-spacing: 2px;
-  animation: neonPulse 1.3s ease-in-out infinite alternate;
+  max-width: 96vw;
+  word-break: break-word;
+  transition: transform 0.2s ease;
+}
+
+.giant-static-text.ticker-effect-static {
+  animation: neonPulse 1.4s ease-in-out infinite alternate;
+}
+
+/* Effect: Zoom Pulse (grossissement et rediminution successifs) */
+.giant-static-text.ticker-effect-zoom {
+  animation: tickerPumpZoom var(--ticker-anim-speed, 1s) ease-in-out infinite;
+  transform-origin: center center;
+}
+
+@keyframes tickerPumpZoom {
+  0%, 100% {
+    transform: scale(0.82);
+    opacity: 0.88;
+  }
+  50% {
+    transform: scale(1.22);
+    opacity: 1;
+    filter: brightness(1.25);
+  }
+}
+
+/* Effect: Strobe Flash (clignotement visible de loin) */
+.giant-static-text.ticker-effect-blink {
+  animation: tickerStrobeFlash var(--ticker-anim-speed, 0.65s) steps(1, end) infinite;
+}
+
+@keyframes tickerStrobeFlash {
+  0%, 54% {
+    opacity: 1;
+    filter: brightness(1.3);
+  }
+  55%, 100% {
+    opacity: 0.04;
+    filter: brightness(0.2);
+  }
+}
+
+/* Effect: Combined Zoom + Strobe Flash */
+.giant-static-text.ticker-effect-zoom-blink {
+  animation: tickerZoomAndFlash var(--ticker-anim-speed, 1s) ease-in-out infinite;
+  transform-origin: center center;
+}
+
+@keyframes tickerZoomAndFlash {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.2;
+  }
+  45% {
+    transform: scale(1.18);
+    opacity: 1;
+    filter: brightness(1.3);
+  }
+  55% {
+    transform: scale(1.24);
+    opacity: 0.05;
+  }
+  65% {
+    transform: scale(1.18);
+    opacity: 1;
+    filter: brightness(1.4);
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0.2;
+  }
+}
+
+/* Effect: Rainbow Color Cycling */
+.giant-static-text.ticker-effect-rainbow {
+  animation: tickerRainbowGlow var(--ticker-anim-speed, 2.5s) linear infinite, tickerPumpZoom 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes tickerRainbowGlow {
+  0% {
+    filter: hue-rotate(0deg) brightness(1.15);
+  }
+  100% {
+    filter: hue-rotate(360deg) brightness(1.15);
+  }
 }
 
 .ticker-wrapper {
@@ -1084,10 +1169,10 @@ button {
 }
 
 .ticker-item {
-  font-size: clamp(3.5rem, 13vw, 7.5rem);
+  font-size: clamp(3.2rem, 13vw, 7.5rem);
   font-weight: 900;
   letter-spacing: 3px;
-  padding-right: 2rem;
+  padding-right: 2.5rem;
   flex-shrink: 0;
 }
 

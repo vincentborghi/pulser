@@ -18,7 +18,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   
   <!-- Custom App Styles -->
-  <link rel="stylesheet" href="./css/style.css?v=20260905_15">
+  <link rel="stylesheet" href="./css/style.css?v=20260905_16">
 </head>
 <body class="d-flex flex-column ui-size-large">
 
@@ -416,49 +416,128 @@
             </button>
           </div>
 
-          <!-- Gadget 3: Custom Text Marquee Ticker (Landscape) -->
+          <!-- Gadget 3: Custom Text Marquee Ticker & Stage Beacons -->
           <div class="custom-card p-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <div class="d-flex align-items-center gap-2">
                 <span class="fs-3">💬</span>
                 <div>
                   <h6 class="mb-0 fw-bold text-white">Custom Text Marquee Ticker</h6>
-                  <small class="text-white-50" style="font-size: 0.82rem;">Smooth LED marquee scroll to the stage &bull; Landscape mode</small>
+                  <small class="text-white-50" style="font-size: 0.82rem;">Stage beacon messages &bull; Presets, icons &amp; visual effects</small>
                 </div>
               </div>
               <span class="badge bg-primary text-white fw-bold">Landscape</span>
             </div>
 
-            <!-- Quick Preset Chips -->
-            <div class="d-flex gap-1 flex-wrap mb-2">
-              <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 quick-text-preset text-white" data-text="ONE MORE !">ONE MORE !</button>
-              <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 quick-text-preset text-white" data-text="SOLO !">SOLO !</button>
-              <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 quick-text-preset text-white" data-text="ENCORE !">ENCORE !</button>
-              <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 quick-text-preset text-white" data-text="THANK YOU !">THANK YOU !</button>
-            </div>
-
+            <!-- Preset Selection & Actions Header -->
             <div class="mb-2">
-              <input type="text" id="customTextInput" class="form-control bg-dark text-white border-secondary" placeholder="Type your message..." value="ONE MORE !" maxlength="60">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label for="tickerPresetSelect" class="form-label small text-white-50 mb-0">Presets</label>
+                <div class="d-flex gap-1">
+                  <button type="button" id="saveTickerPresetBtn" class="btn btn-sm btn-outline-success py-0 px-2 text-white" title="Save changes to current preset">
+                    <i class="bi bi-floppy me-1"></i>Save
+                  </button>
+                  <button type="button" id="newTickerPresetBtn" class="btn btn-sm btn-outline-primary py-0 px-2 text-white" title="Create a new preset">
+                    <i class="bi bi-plus-lg me-1"></i>New
+                  </button>
+                  <button type="button" id="deleteTickerPresetBtn" class="btn btn-sm btn-outline-danger py-0 px-2" title="Delete current preset">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+              <select id="tickerPresetSelect" class="form-select form-select-sm bg-dark text-white border-secondary fw-semibold"></select>
             </div>
 
-            <div class="row g-2 mb-3">
+            <!-- Quick Preset Chips -->
+            <div id="tickerPresetChips" class="d-flex gap-1 flex-wrap mb-2"></div>
+
+            <!-- Message Text Input -->
+            <div class="mb-2">
+              <label for="customTextInput" class="form-label small text-white-50 mb-1">Message Text</label>
+              <input type="text" id="customTextInput" class="form-control bg-dark text-white border-secondary" placeholder="Type your message..." value="ONE MORE !" maxlength="80">
+            </div>
+
+            <!-- Decorations: Before and After -->
+            <div class="row g-2 mb-2">
               <div class="col-6">
-                <label class="form-label small text-white-50 mb-1">Color</label>
+                <label for="tickerDecorBeforeSelect" class="form-label small text-white-50 mb-1">Decor Before</label>
+                <select id="tickerDecorBeforeSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
+                  <option value="">None</option>
+                  <option value="⭐" selected>⭐ Star</option>
+                  <option value="❤️">❤️ Heart</option>
+                  <option value="👍">👍 Thumbs Up</option>
+                  <option value="🔥">🔥 Fire</option>
+                  <option value="🎵">🎵 Note</option>
+                  <option value="✨">✨ Sparkles</option>
+                  <option value="🤘">🤘 Horns</option>
+                  <option value="🎉">🎉 Party</option>
+                  <option value="👏">👏 Claps</option>
+                  <option value="🎸">🎸 Guitar</option>
+                  <option value="⚡">⚡ Bolt</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="tickerDecorAfterSelect" class="form-label small text-white-50 mb-1">Decor After</label>
+                <select id="tickerDecorAfterSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
+                  <option value="">None</option>
+                  <option value="⭐" selected>⭐ Star</option>
+                  <option value="❤️">❤️ Heart</option>
+                  <option value="👍">👍 Thumbs Up</option>
+                  <option value="🔥">🔥 Fire</option>
+                  <option value="🎵">🎵 Note</option>
+                  <option value="✨">✨ Sparkles</option>
+                  <option value="🤘">🤘 Horns</option>
+                  <option value="🎉">🎉 Party</option>
+                  <option value="👏">👏 Claps</option>
+                  <option value="🎸">🎸 Guitar</option>
+                  <option value="⚡">⚡ Bolt</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Effect, Color & Speed -->
+            <div class="row g-2 mb-2">
+              <div class="col-5">
+                <label for="tickerEffectSelect" class="form-label small text-white-50 mb-1">Visual Effect</label>
+                <select id="tickerEffectSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
+                  <option value="scroll" selected>Scroll Marquee</option>
+                  <option value="static">Giant Static</option>
+                  <option value="zoom">Zoom Pulse</option>
+                  <option value="blink">Strobe Flash</option>
+                  <option value="zoom_blink">Zoom + Flash</option>
+                  <option value="rainbow">Rainbow Glow</option>
+                </select>
+              </div>
+              <div class="col-4">
+                <label for="customTextColorSelect" class="form-label small text-white-50 mb-1">Color</label>
                 <select id="customTextColorSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
                   <option value="#ffcc00" selected>Amber Gold</option>
                   <option value="#00e676">Neon Green</option>
                   <option value="#00d2ff">Electric Cyan</option>
                   <option value="#ff007f">Magenta Pink</option>
                   <option value="#ffffff">Pure White</option>
+                  <option value="#ff3333">Bright Red</option>
+                  <option value="#ffea00">Sun Yellow</option>
                 </select>
               </div>
-              <div class="col-6">
-                <label class="form-label small text-white-50 mb-1">Speed</label>
+              <div class="col-3">
+                <label for="customTextSpeedSelect" class="form-label small text-white-50 mb-1">Speed</label>
                 <select id="customTextSpeedSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
                   <option value="25">Slow</option>
                   <option value="40" selected>Normal</option>
-                  <option value="60">Fast</option>
+                  <option value="65">Fast</option>
                 </select>
+              </div>
+            </div>
+
+            <!-- Live Message Preview Box -->
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="small text-white-50">Live Preview</span>
+                <span id="tickerSavedToast" class="badge bg-success d-none">Saved!</span>
+              </div>
+              <div id="tickerPreviewBar" class="text-center py-2 px-3 rounded bg-black border border-secondary fw-bold text-truncate" style="min-height: 46px; font-size: 1.15rem; color: #ffcc00;">
+                ⭐ ONE MORE ! ⭐
               </div>
             </div>
 
@@ -760,7 +839,7 @@
           <!-- Release Datetimestamp -->
           <div class="p-2 mb-3 bg-dark rounded border border-secondary d-flex justify-content-between align-items-center">
             <span class="text-white-50 small fw-bold text-uppercase">Release Build</span>
-            <span id="appReleaseTimestamp" class="badge bg-primary font-monospace" style="font-size: 0.85rem;">2026-09-05 16:30:00 CEST</span>
+            <span id="appReleaseTimestamp" class="badge bg-primary font-monospace" style="font-size: 0.85rem;">2026-09-05 16:45:00 CEST</span>
           </div>
 
           <!-- Non-trivial features and tips -->
@@ -782,6 +861,15 @@
               </div>
               <div class="small text-white-50">
                 In Gadgets, choose between a romantic Candle or an iconic Bic Lighter (complete with human thumb pressing the gas valve). You can also switch between them directly on stage with the quick toggle button.
+              </div>
+            </li>
+
+            <li class="list-group-item bg-transparent text-white border-secondary px-0 py-2">
+              <div class="fw-bold text-primary mb-1">
+                <i class="bi bi-chat-square-dots-fill me-1"></i>Ticker Presets, Icons &amp; Visual Effects
+              </div>
+              <div class="small text-white-50">
+                Customize audience messages with emoji decorations (stars, hearts, fire, horns, etc.) and high-visibility stage effects: marquee scrolling, zoom pulse pumping, strobe flashing, or rainbow glowing. Save and switch unlimited custom presets.
               </div>
             </li>
 
@@ -865,13 +953,13 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Application Logic -->
-  <script src="./js/voice-data.js?v=20260905_15"></script>
-  <script src="./js/audio-engine.js?v=20260905_15"></script>
-  <script src="./js/auto-bpm.js?v=20260905_15"></script>
-  <script src="./js/metronome.js?v=20260905_15"></script>
-  <script src="./js/setlist.js?v=20260905_15"></script>
-  <script src="./js/tuner.js?v=20260905_15"></script>
-  <script src="./js/gadgets.js?v=20260905_15"></script>
-  <script src="./js/app.js?v=20260905_15"></script>
+  <script src="./js/voice-data.js?v=20260905_16"></script>
+  <script src="./js/audio-engine.js?v=20260905_16"></script>
+  <script src="./js/auto-bpm.js?v=20260905_16"></script>
+  <script src="./js/metronome.js?v=20260905_16"></script>
+  <script src="./js/setlist.js?v=20260905_16"></script>
+  <script src="./js/tuner.js?v=20260905_16"></script>
+  <script src="./js/gadgets.js?v=20260905_16"></script>
+  <script src="./js/app.js?v=20260905_16"></script>
 </body>
 </html>

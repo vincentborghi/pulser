@@ -5,9 +5,75 @@ let activeGadgetType = null;
 let gadgetAnimFrameId = null;
 let gadgetWakeLockSentinel = null;
 let isGadgetRotated90 = false;
-let customTickerText = "ONE MORE !";
+const DEFAULT_TICKER_PRESETS = [
+  {
+    id: "tp_1",
+    name: "One More !",
+    text: "ONE MORE !",
+    decorBefore: "⭐",
+    decorAfter: "⭐",
+    effect: "scroll",
+    color: "#ffcc00",
+    speed: 40
+  },
+  {
+    id: "tp_2",
+    name: "Bravo !",
+    text: "BRAVO !",
+    decorBefore: "👏",
+    decorAfter: "👏",
+    effect: "zoom",
+    color: "#00d2ff",
+    speed: 40
+  },
+  {
+    id: "tp_3",
+    name: "Encore !",
+    text: "ENCORE !",
+    decorBefore: "🔥",
+    decorAfter: "🔥",
+    effect: "blink",
+    color: "#ff007f",
+    speed: 65
+  },
+  {
+    id: "tp_4",
+    name: "Love",
+    text: "WE LOVE YOU",
+    decorBefore: "❤️",
+    decorAfter: "❤️",
+    effect: "rainbow",
+    color: "#00e676",
+    speed: 40
+  },
+  {
+    id: "tp_5",
+    name: "Rock Solo",
+    text: "SOLO !",
+    decorBefore: "🤘",
+    decorAfter: "🤘",
+    effect: "zoom_blink",
+    color: "#ffffff",
+    speed: 65
+  },
+  {
+    id: "tp_6",
+    name: "Awesome",
+    text: "AWESOME !",
+    decorBefore: "👍",
+    decorAfter: "👍",
+    effect: "scroll",
+    color: "#ffea00",
+    speed: 40
+  }
+];
+
+let tickerPresets = [];
+let activeTickerPresetId = localStorage.getItem("pulser_ticker_active_preset_id") || "tp_1";
+let customTickerText = "⭐ ONE MORE ! ⭐";
 let customTickerColor = "#ffcc00"; // Golden amber
-let customTickerSpeed = 40; // Pixels per frame
+let customTickerSpeed = 40; // Speed factor
+let customTickerEffect = "scroll";
 let currentFlameVariant = localStorage.getItem("pulser_flame_variant") || "candle";
 
 // Wake lock to keep smartphone screen on at 100% while held in the air
@@ -35,17 +101,288 @@ async function releaseGadgetWakeLock() {
   }
 }
 
-function initGadgets() {
-  // Wire preset buttons for custom text
-  const quickButtons = document.querySelectorAll(".quick-text-preset");
-  quickButtons.forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      const input = document.getElementById("customTextInput");
-      if (input) {
-        input.value = btn.getAttribute("data-text") || "";
+function loadTickerPresets() {
+  try {
+    const raw = localStorage.getItem("pulser_ticker_presets_v2");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        tickerPresets = parsed;
+        return;
       }
-    });
+    }
+  } catch (err) {
+    console.warn("Could not load ticker presets from storage:", err);
+  }
+  tickerPresets = JSON.parse(JSON.stringify(DEFAULT_TICKER_PRESETS));
+  saveTickerPresets();
+}
+
+function saveTickerPresets() {
+  try {
+    localStorage.setItem("pulser_ticker_presets_v2", JSON.stringify(tickerPresets));
+  } catch (err) {
+    console.warn("Could not save ticker presets to storage:", err);
+  }
+}
+
+function getActiveTickerPreset() {
+  const found = tickerPresets.find(function (p) {
+    return p.id === activeTickerPresetId;
   });
+  return found || tickerPresets[0] || null;
+}
+
+function renderTickerPresetsUI() {
+  const presetSelect = document.getElementById("tickerPresetSelect");
+  const chipsContainer = document.getElementById("tickerPresetChips");
+
+  if (presetSelect) {
+    presetSelect.innerHTML = "";
+    tickerPresets.forEach(function (preset) {
+      const opt = document.createElement("option");
+      opt.value = preset.id;
+      const decor = preset.decorBefore ? preset.decorBefore + " " : "";
+      opt.textContent = decor + preset.name;
+      if (preset.id === activeTickerPresetId) {
+        opt.selected = true;
+      }
+      presetSelect.appendChild(opt);
+    });
+  }
+
+  if (chipsContainer) {
+    chipsContainer.innerHTML = "";
+    tickerPresets.forEach(function (preset) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "btn btn-sm py-0 px-2 text-nowrap " + (preset.id === activeTickerPresetId ? "btn-primary text-white fw-bold" : "btn-outline-secondary text-white");
+      const decor = preset.decorBefore ? preset.decorBefore + " " : "";
+      btn.textContent = decor + preset.name;
+      btn.addEventListener("click", function () {
+        applyTickerPreset(preset.id);
+      });
+      chipsContainer.appendChild(btn);
+    });
+  }
+
+  const activePreset = getActiveTickerPreset();
+  if (activePreset) {
+    populateTickerInputs(activePreset);
+  }
+}
+
+function populateTickerInputs(preset) {
+  const textInput = document.getElementById("customTextInput");
+  const decorBeforeSelect = document.getElementById("tickerDecorBeforeSelect");
+  const decorAfterSelect = document.getElementById("tickerDecorAfterSelect");
+  const effectSelect = document.getElementById("tickerEffectSelect");
+  const colorSelect = document.getElementById("customTextColorSelect");
+  const speedSelect = document.getElementById("customTextSpeedSelect");
+
+  if (textInput) textInput.value = preset.text || "";
+  if (decorBeforeSelect) decorBeforeSelect.value = preset.decorBefore !== undefined ? preset.decorBefore : "";
+  if (decorAfterSelect) decorAfterSelect.value = preset.decorAfter !== undefined ? preset.decorAfter : "";
+  if (effectSelect) effectSelect.value = preset.effect || "scroll";
+  if (colorSelect) colorSelect.value = preset.color || "#ffcc00";
+  if (speedSelect) speedSelect.value = String(preset.speed || 40);
+
+  updateTickerPreview();
+}
+
+function applyTickerPreset(presetId) {
+  activeTickerPresetId = presetId;
+  try {
+    localStorage.setItem("pulser_ticker_active_preset_id", presetId);
+  } catch (e) {}
+  renderTickerPresetsUI();
+}
+
+function updateTickerPreview() {
+  const textInput = document.getElementById("customTextInput");
+  const decorBeforeSelect = document.getElementById("tickerDecorBeforeSelect");
+  const decorAfterSelect = document.getElementById("tickerDecorAfterSelect");
+  const effectSelect = document.getElementById("tickerEffectSelect");
+  const colorSelect = document.getElementById("customTextColorSelect");
+  const previewBar = document.getElementById("tickerPreviewBar");
+
+  const rawText = textInput ? textInput.value.trim() : "";
+  const decorBefore = decorBeforeSelect ? decorBeforeSelect.value : "";
+  const decorAfter = decorAfterSelect ? decorAfterSelect.value : "";
+  const color = colorSelect ? colorSelect.value : "#ffcc00";
+
+  const messageText = rawText || "ONE MORE !";
+  const fullText = [decorBefore, messageText, decorAfter].filter(Boolean).join(" ");
+
+  if (previewBar) {
+    previewBar.textContent = fullText;
+    previewBar.style.color = color;
+    previewBar.style.textShadow = "0 0 10px " + color;
+  }
+}
+
+function saveCurrentAsActivePreset() {
+  const textInput = document.getElementById("customTextInput");
+  const decorBeforeSelect = document.getElementById("tickerDecorBeforeSelect");
+  const decorAfterSelect = document.getElementById("tickerDecorAfterSelect");
+  const effectSelect = document.getElementById("tickerEffectSelect");
+  const colorSelect = document.getElementById("customTextColorSelect");
+  const speedSelect = document.getElementById("customTextSpeedSelect");
+  const toast = document.getElementById("tickerSavedToast");
+
+  const activePreset = getActiveTickerPreset();
+  if (!activePreset) return;
+
+  activePreset.text = textInput ? textInput.value.trim() || "ONE MORE !" : "ONE MORE !";
+  activePreset.decorBefore = decorBeforeSelect ? decorBeforeSelect.value : "";
+  activePreset.decorAfter = decorAfterSelect ? decorAfterSelect.value : "";
+  activePreset.effect = effectSelect ? effectSelect.value : "scroll";
+  activePreset.color = colorSelect ? colorSelect.value : "#ffcc00";
+  activePreset.speed = speedSelect ? parseInt(speedSelect.value, 10) || 40 : 40;
+
+  saveTickerPresets();
+  renderTickerPresetsUI();
+
+  if (toast) {
+    toast.classList.remove("d-none");
+    setTimeout(function () {
+      toast.classList.add("d-none");
+    }, 1200);
+  }
+}
+
+function createNewTickerPreset() {
+  const name = prompt("Enter a name for the new preset:", "My Message");
+  if (!name || !name.trim()) return;
+
+  const textInput = document.getElementById("customTextInput");
+  const decorBeforeSelect = document.getElementById("tickerDecorBeforeSelect");
+  const decorAfterSelect = document.getElementById("tickerDecorAfterSelect");
+  const effectSelect = document.getElementById("tickerEffectSelect");
+  const colorSelect = document.getElementById("customTextColorSelect");
+  const speedSelect = document.getElementById("customTextSpeedSelect");
+
+  const newId = "tp_" + Date.now();
+  const newPreset = {
+    id: newId,
+    name: name.trim(),
+    text: textInput && textInput.value.trim() ? textInput.value.trim() : name.trim(),
+    decorBefore: decorBeforeSelect ? decorBeforeSelect.value : "⭐",
+    decorAfter: decorAfterSelect ? decorAfterSelect.value : "⭐",
+    effect: effectSelect ? effectSelect.value : "scroll",
+    color: colorSelect ? colorSelect.value : "#ffcc00",
+    speed: speedSelect ? parseInt(speedSelect.value, 10) || 40 : 40
+  };
+
+  tickerPresets.push(newPreset);
+  activeTickerPresetId = newId;
+  saveTickerPresets();
+  try {
+    localStorage.setItem("pulser_ticker_active_preset_id", newId);
+  } catch (e) {}
+
+  renderTickerPresetsUI();
+}
+
+function deleteCurrentTickerPreset() {
+  if (tickerPresets.length <= 1) {
+    alert("Cannot delete the last remaining preset.");
+    return;
+  }
+
+  const activePreset = getActiveTickerPreset();
+  if (!activePreset) return;
+
+  if (confirm("Delete preset '" + activePreset.name + "'?")) {
+    tickerPresets = tickerPresets.filter(function (p) {
+      return p.id !== activePreset.id;
+    });
+    activeTickerPresetId = tickerPresets[0].id;
+    saveTickerPresets();
+    try {
+      localStorage.setItem("pulser_ticker_active_preset_id", activeTickerPresetId);
+    } catch (e) {}
+    renderTickerPresetsUI();
+  }
+}
+
+function initGadgets() {
+  // Initialize ticker presets
+  loadTickerPresets();
+  renderTickerPresetsUI();
+
+  // Wire preset selector
+  const presetSelect = document.getElementById("tickerPresetSelect");
+  if (presetSelect) {
+    presetSelect.addEventListener("change", function () {
+      applyTickerPreset(presetSelect.value);
+    });
+  }
+
+  // Wire Save, New, Delete preset buttons
+  const savePresetBtn = document.getElementById("saveTickerPresetBtn");
+  if (savePresetBtn) {
+    savePresetBtn.addEventListener("click", function () {
+      saveCurrentAsActivePreset();
+    });
+  }
+
+  const newPresetBtn = document.getElementById("newTickerPresetBtn");
+  if (newPresetBtn) {
+    newPresetBtn.addEventListener("click", function () {
+      createNewTickerPreset();
+    });
+  }
+
+  const deletePresetBtn = document.getElementById("deleteTickerPresetBtn");
+  if (deletePresetBtn) {
+    deletePresetBtn.addEventListener("click", function () {
+      deleteCurrentTickerPreset();
+    });
+  }
+
+  // Wire live preview input listeners
+  const customTextInput = document.getElementById("customTextInput");
+  if (customTextInput) {
+    customTextInput.addEventListener("input", function () {
+      updateTickerPreview();
+    });
+  }
+
+  const decorBeforeSelect = document.getElementById("tickerDecorBeforeSelect");
+  if (decorBeforeSelect) {
+    decorBeforeSelect.addEventListener("change", function () {
+      updateTickerPreview();
+    });
+  }
+
+  const decorAfterSelect = document.getElementById("tickerDecorAfterSelect");
+  if (decorAfterSelect) {
+    decorAfterSelect.addEventListener("change", function () {
+      updateTickerPreview();
+    });
+  }
+
+  const effectSelect = document.getElementById("tickerEffectSelect");
+  if (effectSelect) {
+    effectSelect.addEventListener("change", function () {
+      updateTickerPreview();
+    });
+  }
+
+  const colorSelect = document.getElementById("customTextColorSelect");
+  if (colorSelect) {
+    colorSelect.addEventListener("change", function () {
+      updateTickerPreview();
+    });
+  }
+
+  const speedSelect = document.getElementById("customTextSpeedSelect");
+  if (speedSelect) {
+    speedSelect.addEventListener("change", function () {
+      updateTickerPreview();
+    });
+  }
 
   // Launch buttons
   const launchCandleBtn = document.getElementById("launchCandleBtn");
@@ -66,17 +403,20 @@ function initGadgets() {
   if (launchCustomTextBtn) {
     launchCustomTextBtn.addEventListener("click", function () {
       const input = document.getElementById("customTextInput");
+      const decorBeforeSelect = document.getElementById("tickerDecorBeforeSelect");
+      const decorAfterSelect = document.getElementById("tickerDecorAfterSelect");
       const colorSelect = document.getElementById("customTextColorSelect");
       const speedSelect = document.getElementById("customTextSpeedSelect");
+      const effectSelect = document.getElementById("tickerEffectSelect");
 
-      if (input && input.value.trim()) {
-        customTickerText = input.value.trim();
-      } else {
-        customTickerText = "ONE MORE !";
-      }
+      const baseText = input && input.value.trim() ? input.value.trim() : "ONE MORE !";
+      const decorBefore = decorBeforeSelect ? decorBeforeSelect.value : "";
+      const decorAfter = decorAfterSelect ? decorAfterSelect.value : "";
 
+      customTickerText = [decorBefore, baseText, decorAfter].filter(Boolean).join(" ");
       if (colorSelect) customTickerColor = colorSelect.value;
       if (speedSelect) customTickerSpeed = parseInt(speedSelect.value, 10) || 40;
+      if (effectSelect) customTickerEffect = effectSelect.value;
 
       openConcertGadget("custom_text");
     });
@@ -236,7 +576,7 @@ function openConcertGadget(type) {
   } else if (type === "bravo") {
     startBravoBanner(stage);
   } else if (type === "custom_text") {
-    startCustomTextMarquee(stage, customTickerText, customTickerColor, customTickerSpeed);
+    startCustomTextMarquee(stage, customTickerText, customTickerColor, customTickerSpeed, customTickerEffect);
   } else if (type === "glowstick") {
     startGlowstick(stage);
   } else if (type === "heart") {
@@ -487,30 +827,43 @@ function startBravoBanner(container) {
   `;
 }
 
-// --- GADGET 3: CUSTOM TEXT MARQUEE TICKER (LANDSCAPE) ---
-function startCustomTextMarquee(container, text, colorHex, speedLevel) {
+// --- GADGET 3: CUSTOM TEXT MARQUEE TICKER & VISUAL EFFECTS (LANDSCAPE) ---
+function startCustomTextMarquee(container, text, colorHex, speedLevel, effect) {
   const cleanText = (text || "ONE MORE !").toUpperCase();
-  const isShortWord = cleanText.length <= 8;
+  const activeEffect = effect || "scroll";
+  const speed = speedLevel || 40;
 
-  if (isShortWord) {
+  // Calculate speed durations for CSS animations
+  let animDuration = "1.0s";
+  if (activeEffect === "zoom" || activeEffect === "zoom_blink") {
+    animDuration = speed >= 60 ? "0.65s" : speed <= 30 ? "1.5s" : "1.0s";
+  } else if (activeEffect === "blink") {
+    animDuration = speed >= 60 ? "0.35s" : speed <= 30 ? "1.1s" : "0.65s";
+  } else if (activeEffect === "rainbow") {
+    animDuration = speed >= 60 ? "1.5s" : speed <= 30 ? "4.0s" : "2.5s";
+  }
+
+  if (activeEffect === "scroll") {
+    const durationSec = Math.max(4, Math.round((cleanText.length * 15) / speed));
     container.innerHTML = `
-      <div class="banner-wrapper w-100 h-100 d-flex justify-content-center align-items-center p-3">
-        <div class="giant-static-text" style="color: ${colorHex}; text-shadow: 0 0 25px ${colorHex}, 0 0 50px ${colorHex};">
-          ${escapeHtml(cleanText)}
+      <div class="ticker-wrapper w-100 h-100 d-flex align-items-center overflow-hidden">
+        <div class="ticker-track" style="animation-duration: ${durationSec}s;">
+          <span class="ticker-item" style="color: ${colorHex}; text-shadow: 0 0 20px ${colorHex}, 0 0 45px ${colorHex};">
+            ${escapeHtml(cleanText)} &nbsp;&bull;&nbsp; ${escapeHtml(cleanText)} &nbsp;&bull;&nbsp; 
+          </span>
+          <span class="ticker-item" style="color: ${colorHex}; text-shadow: 0 0 20px ${colorHex}, 0 0 45px ${colorHex};">
+            ${escapeHtml(cleanText)} &nbsp;&bull;&nbsp; ${escapeHtml(cleanText)} &nbsp;&bull;&nbsp; 
+          </span>
         </div>
       </div>
     `;
   } else {
-    const durationSec = Math.max(5, Math.round((cleanText.length * 15) / (speedLevel || 40)));
+    // Static, Zoom Pulse, Strobe Blink, Zoom+Blink, or Rainbow Glow
+    const effectClass = "ticker-effect-" + activeEffect;
     container.innerHTML = `
-      <div class="ticker-wrapper w-100 h-100 d-flex align-items-center overflow-hidden">
-        <div class="ticker-track" style="animation-duration: ${durationSec}s;">
-          <span class="ticker-item" style="color: ${colorHex}; text-shadow: 0 0 20px ${colorHex};">
-            ${escapeHtml(cleanText)} &nbsp;&bull;&nbsp; ${escapeHtml(cleanText)} &nbsp;&bull;&nbsp; 
-          </span>
-          <span class="ticker-item" style="color: ${colorHex}; text-shadow: 0 0 20px ${colorHex};">
-            ${escapeHtml(cleanText)} &nbsp;&bull;&nbsp; ${escapeHtml(cleanText)} &nbsp;&bull;&nbsp; 
-          </span>
+      <div class="banner-wrapper w-100 h-100 d-flex justify-content-center align-items-center p-3">
+        <div class="giant-static-text ${effectClass}" style="color: ${colorHex}; text-shadow: 0 0 25px ${colorHex}, 0 0 60px ${colorHex}; --ticker-anim-speed: ${animDuration};">
+          ${escapeHtml(cleanText)}
         </div>
       </div>
     `;
