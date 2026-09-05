@@ -52,12 +52,42 @@ const DEFAULT_TICKER_PRESETS = [
     text: "SOLO !",
     decorBefore: "🤘",
     decorAfter: "🤘",
-    effect: "zoom_blink",
+    effect: "glitch_shake",
     color: "#ffffff",
     speed: 65
   },
   {
     id: "tp_6",
+    name: "The Best",
+    text: "THE BEST",
+    decorBefore: "👑",
+    decorAfter: "👑",
+    effect: "neon_flicker",
+    color: "#ffcc00",
+    speed: 40
+  },
+  {
+    id: "tp_7",
+    name: "Boom !",
+    text: "BOOM !",
+    decorBefore: "💥",
+    decorAfter: "💥",
+    effect: "disco_colors",
+    color: "#ff3333",
+    speed: 65
+  },
+  {
+    id: "tp_8",
+    name: "Groove",
+    text: "IN THE GROOVE",
+    decorBefore: "🥁",
+    decorAfter: "🥁",
+    effect: "wave_bounce",
+    color: "#00d2ff",
+    speed: 40
+  },
+  {
+    id: "tp_9",
     name: "Awesome",
     text: "AWESOME !",
     decorBefore: "👍",
@@ -103,7 +133,7 @@ async function releaseGadgetWakeLock() {
 
 function loadTickerPresets() {
   try {
-    const raw = localStorage.getItem("pulser_ticker_presets_v2");
+    const raw = localStorage.getItem("pulser_ticker_presets_v3");
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
@@ -120,7 +150,7 @@ function loadTickerPresets() {
 
 function saveTickerPresets() {
   try {
-    localStorage.setItem("pulser_ticker_presets_v2", JSON.stringify(tickerPresets));
+    localStorage.setItem("pulser_ticker_presets_v3", JSON.stringify(tickerPresets));
   } catch (err) {
     console.warn("Could not save ticker presets to storage:", err);
   }
@@ -392,12 +422,6 @@ function initGadgets() {
     });
   }
 
-  const launchBravoBtn = document.getElementById("launchBravoBtn");
-  if (launchBravoBtn) {
-    launchBravoBtn.addEventListener("click", function () {
-      openConcertGadget("bravo");
-    });
-  }
 
   const launchCustomTextBtn = document.getElementById("launchCustomTextBtn");
   if (launchCustomTextBtn) {
@@ -578,8 +602,6 @@ function openConcertGadget(type) {
 
   if (type === "candle") {
     startCandleFlame(stage);
-  } else if (type === "bravo") {
-    startBravoBanner(stage);
   } else if (type === "custom_text") {
     startCustomTextMarquee(stage, customTickerText, customTickerColor, customTickerSpeed, customTickerEffect);
   } else if (type === "glowstick") {
@@ -825,23 +847,7 @@ function startCandleFlame(container) {
   };
 }
 
-// --- GADGET 2: GIANT "BRAVO" BANNER (LANDSCAPE) ---
-function startBravoBanner(container) {
-  container.innerHTML = `
-    <div class="banner-wrapper w-100 h-100 d-flex flex-column justify-content-center align-items-center">
-      <div class="bravo-neon-text">BRAVO !</div>
-      <div class="bravo-stars d-flex gap-3 mt-3">
-        <span class="star-icon">★</span>
-        <span class="star-icon">★</span>
-        <span class="star-icon">★</span>
-        <span class="star-icon">★</span>
-        <span class="star-icon">★</span>
-      </div>
-    </div>
-  `;
-}
-
-// --- GADGET 3: CUSTOM TEXT MARQUEE TICKER & VISUAL EFFECTS (LANDSCAPE) ---
+// --- GADGET 2: CUSTOM TEXT MARQUEE TICKER & VISUAL EFFECTS (LANDSCAPE) ---
 function startCustomTextMarquee(container, text, colorHex, speedLevel, effect) {
   const cleanText = (text || "ONE MORE !").toUpperCase();
   const activeEffect = effect || "scroll";
@@ -855,6 +861,14 @@ function startCustomTextMarquee(container, text, colorHex, speedLevel, effect) {
     animDuration = speed >= 60 ? "0.35s" : speed <= 30 ? "1.1s" : "0.65s";
   } else if (activeEffect === "rainbow") {
     animDuration = speed >= 60 ? "1.5s" : speed <= 30 ? "4.0s" : "2.5s";
+  } else if (activeEffect === "neon_flicker") {
+    animDuration = speed >= 60 ? "1.1s" : speed <= 30 ? "2.6s" : "1.8s";
+  } else if (activeEffect === "glitch_shake") {
+    animDuration = speed >= 60 ? "0.5s" : speed <= 30 ? "1.2s" : "0.8s";
+  } else if (activeEffect === "wave_bounce") {
+    animDuration = speed >= 60 ? "0.6s" : speed <= 30 ? "1.4s" : "0.9s";
+  } else if (activeEffect === "disco_colors") {
+    animDuration = speed >= 60 ? "0.7s" : speed <= 30 ? "1.8s" : "1.2s";
   }
 
   if (activeEffect === "scroll") {

@@ -1040,29 +1040,7 @@ button {
   }
 }
 
-/* --- GADGET 2: GIANT "BRAVO !" BANNER --- */
-.bravo-neon-text {
-  font-size: clamp(4rem, 16vw, 9rem);
-  font-weight: 900;
-  color: #ffeb3b;
-  text-align: center;
-  letter-spacing: 4px;
-  line-height: 1;
-  text-shadow: 0 0 20px #ffea00, 0 0 50px #ff9800, 0 0 90px #ff5722;
-  animation: neonPulse 1.2s ease-in-out infinite alternate;
-}
 
-.bravo-stars .star-icon {
-  font-size: clamp(2rem, 6vw, 3.5rem);
-  color: #ffcc00;
-  text-shadow: 0 0 15px #ffcc00;
-  animation: starTwinkle 0.8s ease-in-out infinite alternate;
-}
-
-.bravo-stars .star-icon:nth-child(2) { animation-delay: 0.2s; }
-.bravo-stars .star-icon:nth-child(3) { animation-delay: 0.4s; }
-.bravo-stars .star-icon:nth-child(4) { animation-delay: 0.6s; }
-.bravo-stars .star-icon:nth-child(5) { animation-delay: 0.8s; }
 
 @keyframes neonPulse {
   0% {
@@ -1172,6 +1150,92 @@ button {
   }
   100% {
     filter: hue-rotate(360deg) brightness(1.15);
+  }
+}
+
+/* Effect: Vintage Neon Sign Flicker */
+.giant-static-text.ticker-effect-neon_flicker {
+  animation: tickerNeonFlicker var(--ticker-anim-speed, 1.8s) infinite;
+}
+
+@keyframes tickerNeonFlicker {
+  0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% {
+    opacity: 1;
+    filter: brightness(1.3);
+  }
+  20%, 21.999%, 63%, 63.999%, 65%, 69.999% {
+    opacity: 0.12;
+    filter: brightness(0.25);
+  }
+}
+
+/* Effect: Bass Rumble / Impact Shake */
+.giant-static-text.ticker-effect-glitch_shake {
+  animation: tickerBassRumble var(--ticker-anim-speed, 0.8s) ease-in-out infinite;
+  transform-origin: center center;
+}
+
+@keyframes tickerBassRumble {
+  0%, 100% {
+    transform: translate(0, 0) scale(0.96);
+  }
+  20% {
+    transform: translate(-7px, 3px) scale(1.12);
+    filter: brightness(1.2);
+  }
+  40% {
+    transform: translate(7px, -3px) scale(1.18);
+    filter: brightness(1.35);
+  }
+  60% {
+    transform: translate(-5px, -2px) scale(1.14);
+    filter: brightness(1.25);
+  }
+  80% {
+    transform: translate(5px, 2px) scale(1.06);
+  }
+}
+
+/* Effect: Crowd / Wave Bounce */
+.giant-static-text.ticker-effect-wave_bounce {
+  animation: tickerWaveBounce var(--ticker-anim-speed, 0.9s) cubic-bezier(0.28, 0.84, 0.42, 1) infinite;
+}
+
+@keyframes tickerWaveBounce {
+  0%, 100% {
+    transform: translateY(14px) scale(0.95, 0.9);
+  }
+  50% {
+    transform: translateY(-24px) scale(1.08, 1.14);
+    filter: brightness(1.25);
+  }
+}
+
+/* Effect: Disco Stage Colors */
+.giant-static-text.ticker-effect-disco_colors {
+  animation: tickerDiscoColors var(--ticker-anim-speed, 1.2s) steps(1, end) infinite;
+}
+
+@keyframes tickerDiscoColors {
+  0% {
+    color: #ffcc00 !important;
+    text-shadow: 0 0 25px #ffcc00, 0 0 60px #ffcc00 !important;
+  }
+  20% {
+    color: #00d2ff !important;
+    text-shadow: 0 0 25px #00d2ff, 0 0 60px #00d2ff !important;
+  }
+  40% {
+    color: #ff007f !important;
+    text-shadow: 0 0 25px #ff007f, 0 0 60px #ff007f !important;
+  }
+  60% {
+    color: #00e676 !important;
+    text-shadow: 0 0 25px #00e676, 0 0 60px #00e676 !important;
+  }
+  80% {
+    color: #ff3333 !important;
+    text-shadow: 0 0 25px #ff3333, 0 0 60px #ff3333 !important;
   }
 }
 
