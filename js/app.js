@@ -1,6 +1,7 @@
 // Main application bootstrap and tab management
 // Pure procedural implementation
 
+const APP_RELEASE_TIMESTAMP = "2026-09-05 15:55:00 CEST";
 let deferredInstallPrompt = null;
 
 // Register Service Worker for offline PWA functionality
@@ -8,7 +9,7 @@ function registerServiceWorker() {
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
       navigator.serviceWorker
-        .register("./sw.js?v=20260905_12", { updateViaCache: "none" })
+        .register("./sw.js?v=20260905_13", { updateViaCache: "none" })
         .then(function (reg) {
           console.log("Service Worker registered successfully, scope:", reg.scope);
           // Check for updates on every load
@@ -135,6 +136,14 @@ function setupForceReload() {
   });
 }
 
+// Populate About modal release timestamp
+function setupAboutModal() {
+  const tsBadge = document.getElementById("appReleaseTimestamp");
+  if (tsBadge) {
+    tsBadge.textContent = APP_RELEASE_TIMESTAMP;
+  }
+}
+
 // Global initialization when DOM is ready
 document.addEventListener("DOMContentLoaded", function () {
   initMetronome();
@@ -147,5 +156,6 @@ document.addEventListener("DOMContentLoaded", function () {
   setupTabEvents();
   setupInstallPrompt();
   setupForceReload();
+  setupAboutModal();
   registerServiceWorker();
 });
