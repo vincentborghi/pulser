@@ -497,10 +497,13 @@
     </div>
   </main>
 
-  <!-- Install App Bottom Bar (Keeps top clean and saves vertical space) -->
-  <footer class="container-sm text-center py-2 mt-auto">
+  <!-- Install App & Reload Bottom Bar -->
+  <footer class="container-sm text-center py-2 mt-auto d-flex justify-content-center align-items-center gap-2">
     <button id="pwaInstallBtn" class="btn btn-sm btn-outline-success d-none">
       <i class="bi bi-download me-1"></i>Install App
+    </button>
+    <button id="forceReloadBtn" class="btn btn-sm btn-outline-secondary text-white-50" title="Clear cache and reload latest version from github.io">
+      <i class="bi bi-arrow-clockwise me-1"></i>Reload Latest Version
     </button>
   </footer>
 

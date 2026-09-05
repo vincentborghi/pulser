@@ -91,6 +91,41 @@ function setupTabEvents() {
   });
 }
 
+// Force reload and purge all cache to fetch the latest version from network
+function setupForceReload() {
+  const reloadBtn = document.getElementById("forceReloadBtn");
+  if (!reloadBtn) return;
+
+  reloadBtn.addEventListener("click", async function () {
+    reloadBtn.disabled = true;
+    reloadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>Updating...';
+
+    try {
+      // 1. Unregister all service workers so network requests bypass cache
+      if ("serviceWorker" in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const reg of registrations) {
+          await reg.unregister();
+        }
+      }
+
+      // 2. Delete all caches in CacheStorage
+      if ("caches" in window) {
+        const keys = await caches.keys();
+        for (const key of keys) {
+          await caches.delete(key);
+        }
+      }
+    } catch (err) {
+      console.warn("Error clearing cache:", err);
+    }
+
+    // 3. Reload with a timestamp query param to completely bypass browser HTTP cache
+    const cleanUrl = window.location.origin + window.location.pathname + "?t=" + Date.now();
+    window.location.replace(cleanUrl);
+  });
+}
+
 // Global initialization when DOM is ready
 document.addEventListener("DOMContentLoaded", function () {
   initMetronome();
@@ -102,5 +137,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   setupTabEvents();
   setupInstallPrompt();
+  setupForceReload();
   registerServiceWorker();
 });
