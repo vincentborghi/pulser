@@ -18,7 +18,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   
   <!-- Custom App Styles -->
-  <link rel="stylesheet" href="./css/style.css?v=20260905_20">
+  <link rel="stylesheet" href="./css/style.css?v=20260905_21">
 </head>
 <body class="d-flex flex-column ui-size-large">
 
@@ -430,7 +430,7 @@
             <!-- Message Text Input with compact label -->
             <div class="input-group input-group-sm mb-1">
               <span class="input-group-text bg-dark border-secondary text-white-50 px-2 small">Text</span>
-              <input type="text" id="customTextInput" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Type message..." value="ONE MORE !" maxlength="80">
+              <input type="text" id="customTextInput" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Type message..." value="BRAVO !" maxlength="80">
             </div>
 
             <!-- Decorations: Before and After in single row -->
@@ -440,7 +440,7 @@
                   <span class="input-group-text bg-dark border-secondary text-white-50 px-2" style="font-size: 0.78rem;">Pre</span>
                   <select id="tickerDecorBeforeSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
                     <option value="">None</option>
-                    <option value="⭐" selected>⭐ Star</option>
+                    <option value="⭐">⭐ Star</option>
                     <option value="❤️">❤️ Heart</option>
                     <option value="👍">👍 Thumbs Up</option>
                     <option value="🔥">🔥 Fire</option>
@@ -448,7 +448,7 @@
                     <option value="✨">✨ Sparkles</option>
                     <option value="🤘">🤘 Horns</option>
                     <option value="🎉">🎉 Party</option>
-                    <option value="👏">👏 Claps</option>
+                    <option value="👏" selected>👏 Claps</option>
                     <option value="🎸">🎸 Guitar</option>
                     <option value="⚡">⚡ Bolt</option>
                     <option value="👑">👑 Crown</option>
@@ -469,7 +469,7 @@
                   <span class="input-group-text bg-dark border-secondary text-white-50 px-2" style="font-size: 0.78rem;">Post</span>
                   <select id="tickerDecorAfterSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
                     <option value="">None</option>
-                    <option value="⭐" selected>⭐ Star</option>
+                    <option value="⭐">⭐ Star</option>
                     <option value="❤️">❤️ Heart</option>
                     <option value="👍">👍 Thumbs Up</option>
                     <option value="🔥">🔥 Fire</option>
@@ -477,7 +477,7 @@
                     <option value="✨">✨ Sparkles</option>
                     <option value="🤘">🤘 Horns</option>
                     <option value="🎉">🎉 Party</option>
-                    <option value="👏">👏 Claps</option>
+                    <option value="👏" selected>👏 Claps</option>
                     <option value="🎸">🎸 Guitar</option>
                     <option value="⚡">⚡ Bolt</option>
                     <option value="👑">👑 Crown</option>
@@ -499,9 +499,9 @@
             <div class="row g-1 mb-2">
               <div class="col-5">
                 <select id="tickerEffectSelect" class="form-select form-select-sm bg-dark text-white border-secondary" title="Visual Effect">
-                  <option value="scroll" selected>Scroll Marquee</option>
+                  <option value="scroll">Scroll Marquee</option>
                   <option value="static">Giant Static</option>
-                  <option value="zoom">Zoom Pulse</option>
+                  <option value="zoom" selected>Zoom Pulse</option>
                   <option value="blink">Strobe Flash</option>
                   <option value="zoom_blink">Zoom + Flash</option>
                   <option value="rainbow">Rainbow Glow</option>
@@ -513,9 +513,9 @@
               </div>
               <div class="col-4">
                 <select id="customTextColorSelect" class="form-select form-select-sm bg-dark text-white border-secondary" title="Color">
-                  <option value="#ffcc00" selected>Amber Gold</option>
+                  <option value="#ffcc00">Amber Gold</option>
                   <option value="#00e676">Neon Green</option>
-                  <option value="#00d2ff">Electric Cyan</option>
+                  <option value="#00d2ff" selected>Electric Cyan</option>
                   <option value="#ff007f">Magenta Pink</option>
                   <option value="#ffffff">Pure White</option>
                   <option value="#ff3333">Bright Red</option>
@@ -533,8 +533,8 @@
 
             <!-- Live Message Preview & Compact Launch Button in one single row -->
             <div class="d-flex gap-2 align-items-stretch">
-              <div id="tickerPreviewBar" class="flex-grow-1 text-center py-1 px-2 rounded bg-black border border-secondary fw-bold text-truncate d-flex align-items-center justify-content-center" style="min-height: 42px; font-size: 1.05rem; color: #ffcc00; cursor: pointer;" title="Tap to launch fullscreen">
-                ⭐ ONE MORE ! ⭐
+              <div id="tickerPreviewBar" class="flex-grow-1 text-center py-1 px-2 rounded bg-black border border-secondary fw-bold text-truncate d-flex align-items-center justify-content-center" style="min-height: 42px; font-size: 1.05rem; color: #00d2ff; cursor: pointer;" title="Tap to launch fullscreen">
+                👏 BRAVO ! 👏
               </div>
               <button id="launchCustomTextBtn" class="btn btn-primary px-3 fw-bold shadow text-nowrap d-flex align-items-center justify-content-center" style="min-height: 42px;">
                 <i class="bi bi-play-circle-fill me-1 fs-5"></i>Launch
@@ -829,7 +829,7 @@
           <!-- Release Datetimestamp -->
           <div class="p-2 mb-3 bg-dark rounded border border-secondary d-flex justify-content-between align-items-center">
             <span class="text-white-50 small fw-bold text-uppercase">Release Build</span>
-            <span id="appReleaseTimestamp" class="badge bg-primary font-monospace" style="font-size: 0.85rem;">2026-09-05 17:15:00 CEST</span>
+            <span id="appReleaseTimestamp" class="badge bg-primary font-monospace" style="font-size: 0.85rem;">2026-09-05 17:25:00 CEST</span>
           </div>
 
           <!-- Non-trivial features and tips -->
@@ -957,13 +957,13 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Application Logic -->
-  <script src="./js/voice-data.js?v=20260905_20"></script>
-  <script src="./js/audio-engine.js?v=20260905_20"></script>
-  <script src="./js/auto-bpm.js?v=20260905_20"></script>
-  <script src="./js/metronome.js?v=20260905_20"></script>
-  <script src="./js/setlist.js?v=20260905_20"></script>
-  <script src="./js/tuner.js?v=20260905_20"></script>
-  <script src="./js/gadgets.js?v=20260905_20"></script>
-  <script src="./js/app.js?v=20260905_20"></script>
+  <script src="./js/voice-data.js?v=20260905_21"></script>
+  <script src="./js/audio-engine.js?v=20260905_21"></script>
+  <script src="./js/auto-bpm.js?v=20260905_21"></script>
+  <script src="./js/metronome.js?v=20260905_21"></script>
+  <script src="./js/setlist.js?v=20260905_21"></script>
+  <script src="./js/tuner.js?v=20260905_21"></script>
+  <script src="./js/gadgets.js?v=20260905_21"></script>
+  <script src="./js/app.js?v=20260905_21"></script>
 </body>
 </html>

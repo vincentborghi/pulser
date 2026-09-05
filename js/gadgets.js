@@ -7,17 +7,7 @@ let gadgetWakeLockSentinel = null;
 let isGadgetRotated90 = false;
 const DEFAULT_TICKER_PRESETS = [
   {
-    id: "tp_1",
-    name: "One More !",
-    text: "ONE MORE !",
-    decorBefore: "⭐",
-    decorAfter: "⭐",
-    effect: "scroll",
-    color: "#ffcc00",
-    speed: 40
-  },
-  {
-    id: "tp_2",
+    id: "tp_bravo",
     name: "Bravo !",
     text: "BRAVO !",
     decorBefore: "👏",
@@ -27,17 +17,7 @@ const DEFAULT_TICKER_PRESETS = [
     speed: 40
   },
   {
-    id: "tp_3",
-    name: "Encore !",
-    text: "ENCORE !",
-    decorBefore: "🔥",
-    decorAfter: "🔥",
-    effect: "blink",
-    color: "#ff007f",
-    speed: 65
-  },
-  {
-    id: "tp_4",
+    id: "tp_love",
     name: "Love",
     text: "WE LOVE YOU",
     decorBefore: "❤️",
@@ -47,17 +27,37 @@ const DEFAULT_TICKER_PRESETS = [
     speed: 40
   },
   {
-    id: "tp_5",
-    name: "Rock Solo",
-    text: "SOLO !",
-    decorBefore: "🤘",
-    decorAfter: "🤘",
-    effect: "glitch_shake",
-    color: "#ffffff",
+    id: "tp_une_autre",
+    name: "Une autre !",
+    text: "UNE AUTRE !",
+    decorBefore: "🔥",
+    decorAfter: "🔥",
+    effect: "wave_bounce",
+    color: "#ff007f",
+    speed: 50
+  },
+  {
+    id: "tp_one_more",
+    name: "One More !",
+    text: "ONE MORE !",
+    decorBefore: "⭐",
+    decorAfter: "⭐",
+    effect: "scroll",
+    color: "#ffcc00",
+    speed: 40
+  },
+  {
+    id: "tp_encore",
+    name: "Encore !",
+    text: "ENCORE !",
+    decorBefore: "⚡",
+    decorAfter: "⚡",
+    effect: "blink",
+    color: "#ffcc00",
     speed: 65
   },
   {
-    id: "tp_6",
+    id: "tp_the_best",
     name: "The Best",
     text: "THE BEST",
     decorBefore: "👑",
@@ -67,7 +67,17 @@ const DEFAULT_TICKER_PRESETS = [
     speed: 40
   },
   {
-    id: "tp_7",
+    id: "tp_rock_solo",
+    name: "Rock Solo",
+    text: "SOLO !",
+    decorBefore: "🤘",
+    decorAfter: "🤘",
+    effect: "glitch_shake",
+    color: "#ffffff",
+    speed: 65
+  },
+  {
+    id: "tp_boom",
     name: "Boom !",
     text: "BOOM !",
     decorBefore: "💥",
@@ -77,17 +87,7 @@ const DEFAULT_TICKER_PRESETS = [
     speed: 65
   },
   {
-    id: "tp_8",
-    name: "Groove",
-    text: "IN THE GROOVE",
-    decorBefore: "🥁",
-    decorAfter: "🥁",
-    effect: "wave_bounce",
-    color: "#00d2ff",
-    speed: 40
-  },
-  {
-    id: "tp_9",
+    id: "tp_awesome",
     name: "Awesome",
     text: "AWESOME !",
     decorBefore: "👍",
@@ -99,11 +99,11 @@ const DEFAULT_TICKER_PRESETS = [
 ];
 
 let tickerPresets = [];
-let activeTickerPresetId = localStorage.getItem("pulser_ticker_active_preset_id") || "tp_1";
-let customTickerText = "⭐ ONE MORE ! ⭐";
-let customTickerColor = "#ffcc00"; // Golden amber
+let activeTickerPresetId = localStorage.getItem("pulser_ticker_active_preset_id_v4") || "tp_bravo";
+let customTickerText = "👏 BRAVO ! 👏";
+let customTickerColor = "#00d2ff"; // Electric cyan
 let customTickerSpeed = 40; // Speed factor
-let customTickerEffect = "scroll";
+let customTickerEffect = "zoom";
 let currentFlameVariant = localStorage.getItem("pulser_flame_variant") || "candle";
 
 // Wake lock to keep smartphone screen on at 100% while held in the air
@@ -133,7 +133,7 @@ async function releaseGadgetWakeLock() {
 
 function loadTickerPresets() {
   try {
-    const raw = localStorage.getItem("pulser_ticker_presets_v3");
+    const raw = localStorage.getItem("pulser_ticker_presets_v4");
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
@@ -150,7 +150,7 @@ function loadTickerPresets() {
 
 function saveTickerPresets() {
   try {
-    localStorage.setItem("pulser_ticker_presets_v3", JSON.stringify(tickerPresets));
+    localStorage.setItem("pulser_ticker_presets_v4", JSON.stringify(tickerPresets));
   } catch (err) {
     console.warn("Could not save ticker presets to storage:", err);
   }
@@ -224,7 +224,7 @@ function populateTickerInputs(preset) {
 function applyTickerPreset(presetId) {
   activeTickerPresetId = presetId;
   try {
-    localStorage.setItem("pulser_ticker_active_preset_id", presetId);
+    localStorage.setItem("pulser_ticker_active_preset_id_v4", presetId);
   } catch (e) {}
   renderTickerPresetsUI();
 }
@@ -309,7 +309,7 @@ function createNewTickerPreset() {
   activeTickerPresetId = newId;
   saveTickerPresets();
   try {
-    localStorage.setItem("pulser_ticker_active_preset_id", newId);
+    localStorage.setItem("pulser_ticker_active_preset_id_v4", newId);
   } catch (e) {}
 
   renderTickerPresetsUI();
@@ -331,7 +331,7 @@ function deleteCurrentTickerPreset() {
     activeTickerPresetId = tickerPresets[0].id;
     saveTickerPresets();
     try {
-      localStorage.setItem("pulser_ticker_active_preset_id", activeTickerPresetId);
+      localStorage.setItem("pulser_ticker_active_preset_id_v4", activeTickerPresetId);
     } catch (e) {}
     renderTickerPresetsUI();
   }
@@ -629,6 +629,8 @@ function closeConcertGadget(fromHistoryPop) {
     candleInteractiveCleanup();
   }
 
+  stopGlowstickRainbow();
+
   if (gadgetAnimFrameId !== null) {
     cancelAnimationFrame(gadgetAnimFrameId);
     gadgetAnimFrameId = null;
@@ -907,9 +909,60 @@ function startCustomTextMarquee(container, text, colorHex, speedLevel, effect) {
 }
 
 // --- GADGET 4: NEON GLOWSTICK (PORTRAIT) ---
+let glowstickRainbowAnimId = null;
+let glowstickRainbowHue = 0;
+let glowstickCurrentMode = "color";
+let glowstickCurrentColor = "#00e676";
+
+function stopGlowstickRainbow() {
+  if (glowstickRainbowAnimId !== null) {
+    cancelAnimationFrame(glowstickRainbowAnimId);
+    glowstickRainbowAnimId = null;
+  }
+}
+
+function updateGlowstickActiveButton(activeColor) {
+  const btns = document.querySelectorAll(".glow-color-btn");
+  btns.forEach(function (btn) {
+    if (btn.getAttribute("data-color") === activeColor) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
+    }
+  });
+}
+
+function setGlowstickColor(colorHex) {
+  stopGlowstickRainbow();
+  glowstickCurrentMode = "color";
+  glowstickCurrentColor = colorHex;
+  updateGlowstickActiveButton(colorHex);
+  const wrapper = document.querySelector(".glowstick-wrapper");
+  if (wrapper) {
+    wrapper.style.setProperty("--glow-color", colorHex);
+  }
+}
+
+function setGlowstickRainbowMode() {
+  stopGlowstickRainbow();
+  glowstickCurrentMode = "rainbow";
+  updateGlowstickActiveButton("rainbow");
+  const wrapper = document.querySelector(".glowstick-wrapper");
+  if (!wrapper) return;
+
+  function cycleStep() {
+    glowstickRainbowHue = (glowstickRainbowHue + 1.2) % 360;
+    const color = "hsl(" + Math.round(glowstickRainbowHue) + ", 100%, 50%)";
+    wrapper.style.setProperty("--glow-color", color);
+    glowstickRainbowAnimId = requestAnimationFrame(cycleStep);
+  }
+  glowstickRainbowAnimId = requestAnimationFrame(cycleStep);
+}
+
 function startGlowstick(container) {
+  stopGlowstickRainbow();
   container.innerHTML = `
-    <div class="glowstick-wrapper w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="--glow-color: #00e676;">
+    <div class="glowstick-wrapper w-100 h-100 d-flex flex-column justify-content-center align-items-center" style="--glow-color: ${glowstickCurrentColor};">
       <div class="glowstick-halo"></div>
       <div class="glowstick-tube">
         <div class="glowstick-liquid">
@@ -917,20 +970,20 @@ function startGlowstick(container) {
           <div class="glowstick-glass-shine"></div>
         </div>
       </div>
-      <div class="glowstick-controls mt-4 d-flex gap-3">
-        <button class="btn btn-sm rounded-circle p-3 bg-success border border-white shadow" title="Neon Green" onclick="event.stopPropagation(); setGlowstickColor('#00e676')"></button>
-        <button class="btn btn-sm rounded-circle p-3 bg-info border border-white shadow" title="Electric Cyan" onclick="event.stopPropagation(); setGlowstickColor('#00d2ff')"></button>
-        <button class="btn btn-sm rounded-circle p-3 bg-danger border border-white shadow" title="Magenta Pink" onclick="event.stopPropagation(); setGlowstickColor('#ff007f')"></button>
-        <button class="btn btn-sm rounded-circle p-3 bg-warning border border-white shadow" title="Amber Yellow" onclick="event.stopPropagation(); setGlowstickColor('#ffeb3b')"></button>
+      <div class="glowstick-controls d-flex justify-content-center align-items-center gap-3">
+        <button type="button" class="btn rounded-circle glow-color-btn ${glowstickCurrentColor === "#00e676" && glowstickCurrentMode !== "rainbow" ? "active" : ""}" data-color="#00e676" style="background-color: #00e676;" title="Neon Green" onclick="event.stopPropagation(); setGlowstickColor('#00e676');"></button>
+        <button type="button" class="btn rounded-circle glow-color-btn ${glowstickCurrentColor === "#00d2ff" && glowstickCurrentMode !== "rainbow" ? "active" : ""}" data-color="#00d2ff" style="background-color: #00d2ff;" title="Electric Cyan" onclick="event.stopPropagation(); setGlowstickColor('#00d2ff');"></button>
+        <button type="button" class="btn rounded-circle glow-color-btn ${glowstickCurrentColor === "#ff007f" && glowstickCurrentMode !== "rainbow" ? "active" : ""}" data-color="#ff007f" style="background-color: #ff007f;" title="Magenta Pink" onclick="event.stopPropagation(); setGlowstickColor('#ff007f');"></button>
+        <button type="button" class="btn rounded-circle glow-color-btn ${glowstickCurrentColor === "#ffeb3b" && glowstickCurrentMode !== "rainbow" ? "active" : ""}" data-color="#ffeb3b" style="background-color: #ffeb3b;" title="Amber Yellow" onclick="event.stopPropagation(); setGlowstickColor('#ffeb3b');"></button>
+        <button type="button" class="btn rounded-circle glow-color-btn rainbow-btn ${glowstickCurrentMode === "rainbow" ? "active" : ""}" data-color="rainbow" style="background: conic-gradient(#ff0055, #ffaa00, #00e676, #00d2ff, #aa00ff, #ff0055);" title="Changing Colors (Rainbow)" onclick="event.stopPropagation(); setGlowstickRainbowMode();">
+          <i class="bi bi-arrow-repeat text-white fw-bold" style="font-size: 1.1rem; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));"></i>
+        </button>
       </div>
     </div>
   `;
-}
 
-function setGlowstickColor(colorHex) {
-  const wrapper = document.querySelector(".glowstick-wrapper");
-  if (wrapper) {
-    wrapper.style.setProperty("--glow-color", colorHex);
+  if (glowstickCurrentMode === "rainbow") {
+    setGlowstickRainbowMode();
   }
 }
 

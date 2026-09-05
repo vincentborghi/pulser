@@ -1295,8 +1295,8 @@ button {
 }
 
 .glowstick-tube {
-  width: clamp(56px, 15vw, 76px);
-  height: clamp(380px, 65vh, 620px);
+  width: clamp(52px, 14vw, 72px);
+  height: clamp(280px, 48vh, 460px);
   border-radius: 38px;
   background: rgba(255, 255, 255, 0.2);
   box-shadow: 0 0 45px var(--glow-color), 0 0 90px var(--glow-color), 0 0 140px var(--glow-color);
@@ -1346,8 +1346,36 @@ button {
 }
 
 .glowstick-controls {
-  position: relative;
-  z-index: 3;
+  position: absolute;
+  bottom: clamp(24px, 5vh, 48px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.glow-color-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.glow-color-btn:hover,
+.glow-color-btn:active {
+  transform: scale(1.15);
+}
+
+.glow-color-btn.active {
+  border-color: #ffffff;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.95), 0 4px 15px rgba(0, 0, 0, 0.7);
+  transform: scale(1.18);
 }
 
 @keyframes glowstickHaloBreath {
