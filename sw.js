@@ -1,6 +1,6 @@
 // Service Worker for 100% offline usage
 // Cache version identifier
-const CACHE_NAME = "pulser-cache-v11";
+const CACHE_NAME = "pulser-cache-v12";
 
 const ASSETS_TO_CACHE = [
   "./",
@@ -20,17 +20,16 @@ const ASSETS_TO_CACHE = [
 
 // Install event: Pre-cache static assets
 self.addEventListener("install", function (event) {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(function (cache) {
       console.log("[SW] Pre-caching offline assets");
       return cache.addAll(ASSETS_TO_CACHE);
-    }).then(function () {
-      return self.skipWaiting();
     })
   );
 });
 
-// Activate event: Clean up previous caches
+// Activate event: Clean up previous caches and claim clients immediately
 self.addEventListener("activate", function (event) {
   event.waitUntil(
     caches.keys().then(function (cacheNames) {
@@ -48,32 +47,35 @@ self.addEventListener("activate", function (event) {
   );
 });
 
-// Fetch event: Cache first, fallback to network
+// Fetch event: Network-first strategy for app assets
+// Always fetches freshest code when online, and caches it.
+// If network is unreachable (offline mode), falls back to cache instantly.
 self.addEventListener("fetch", function (event) {
-  // Only handle GET requests
   if (event.request.method !== "GET") {
     return;
   }
 
   event.respondWith(
-    caches.match(event.request).then(function (cachedResponse) {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).then(function (networkResponse) {
-        // Cache valid responses
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== "basic") {
-          return networkResponse;
+    fetch(event.request)
+      .then(function (networkResponse) {
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === "basic") {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then(function (cache) {
+            cache.put(event.request, responseToCache);
+          });
         }
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then(function (cache) {
-          cache.put(event.request, responseToCache);
-        });
         return networkResponse;
-      }).catch(function () {
-        // Offline fallback if not in cache
-        return caches.match("./index.html");
-      });
-    })
+      })
+      .catch(function () {
+        // Offline fallback: check cache ignoring search/version query params
+        return caches.match(event.request, { ignoreSearch: true }).then(function (cachedResponse) {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          if (event.request.mode === "navigate") {
+            return caches.match("./index.html");
+          }
+        });
+      })
   );
 });

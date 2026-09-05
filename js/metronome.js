@@ -235,7 +235,7 @@ document.addEventListener("visibilitychange", async function () {
 });
 
 // Quick BPM presets with 5 distinct colors and drag-and-drop reordering
-const PRESETS_STORAGE_KEY = "metronome_quick_bpm_presets_v4";
+const PRESETS_STORAGE_KEY = "metronome_quick_bpm_presets_v5";
 const DEFAULT_PRESETS = [
   { id: "p1", bpm: 60,  colorClass: "preset-color-1", name: "P1" },
   { id: "p2", bpm: 90,  colorClass: "preset-color-2", name: "P2" },
@@ -258,6 +258,7 @@ function loadQuickPresets() {
     localStorage.removeItem("metronome_quick_bpm_presets_v1");
     localStorage.removeItem("metronome_quick_bpm_presets_v2");
     localStorage.removeItem("metronome_quick_bpm_presets_v3");
+    localStorage.removeItem("metronome_quick_bpm_presets_v4");
 
     const saved = localStorage.getItem(PRESETS_STORAGE_KEY);
     if (saved) {

@@ -8,11 +8,11 @@ function registerServiceWorker() {
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
       navigator.serviceWorker
-        .register("./sw.js")
+        .register("./sw.js?v=20260905_12", { updateViaCache: "none" })
         .then(function (reg) {
           console.log("Service Worker registered successfully, scope:", reg.scope);
           // Check for updates on every load
-          reg.update();
+          reg.update().catch(function () {});
 
           reg.addEventListener("updatefound", function () {
             const newWorker = reg.installing;
@@ -116,12 +116,21 @@ function setupForceReload() {
           await caches.delete(key);
         }
       }
+
+      // 3. Reset preset storage keys to guarantee freshest default presets on reload
+      try {
+        localStorage.removeItem("metronome_quick_bpm_presets_v1");
+        localStorage.removeItem("metronome_quick_bpm_presets_v2");
+        localStorage.removeItem("metronome_quick_bpm_presets_v3");
+        localStorage.removeItem("metronome_quick_bpm_presets_v4");
+        localStorage.removeItem("metronome_quick_bpm_presets_v5");
+      } catch (e) {}
     } catch (err) {
       console.warn("Error clearing cache:", err);
     }
 
-    // 3. Reload with a timestamp query param to completely bypass browser HTTP cache
-    const cleanUrl = window.location.origin + window.location.pathname + "?t=" + Date.now();
+    // 4. Reload with a timestamp query param to completely bypass browser HTTP cache
+    const cleanUrl = window.location.origin + window.location.pathname + "?force_reload=" + Date.now();
     window.location.replace(cleanUrl);
   });
 }
