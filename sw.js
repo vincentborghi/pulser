@@ -1,6 +1,6 @@
 // Service Worker for 100% offline usage
 // Cache version identifier
-const CACHE_NAME = "groovepulse-cache-v6";
+const CACHE_NAME = "pulser-cache-v8";
 
 const ASSETS_TO_CACHE = [
   "./",

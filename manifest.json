@@ -1,6 +1,6 @@
 {
-  "name": "GroovePulse - Metronome & Tuner",
-  "short_name": "Metronome",
+  "name": "Pulser - Metronome & Tuner",
+  "short_name": "Pulser",
   "description": "High precision visual & audio metronome, setlist manager, and instrument tuner",
   "start_url": "./index.html",
   "scope": "./",

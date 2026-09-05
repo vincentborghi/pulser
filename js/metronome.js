@@ -234,15 +234,14 @@ document.addEventListener("visibilitychange", async function () {
   }
 });
 
-// Quick BPM presets with 6 distinct colors and drag-and-drop reordering
-const PRESETS_STORAGE_KEY = "metronome_quick_bpm_presets_v1";
+// Quick BPM presets with 5 distinct colors and drag-and-drop reordering
+const PRESETS_STORAGE_KEY = "metronome_quick_bpm_presets_v3";
 const DEFAULT_PRESETS = [
-  { id: "p1", bpm: 140, colorClass: "preset-color-1", name: "P1" },
-  { id: "p2", bpm: 120, colorClass: "preset-color-2", name: "P2" },
+  { id: "p1", bpm: 84,  colorClass: "preset-color-1", name: "P1" },
+  { id: "p2", bpm: 90,  colorClass: "preset-color-2", name: "P2" },
   { id: "p3", bpm: 110, colorClass: "preset-color-3", name: "P3" },
-  { id: "p4", bpm: 100, colorClass: "preset-color-4", name: "P4" },
-  { id: "p5", bpm: 90,  colorClass: "preset-color-5", name: "P5" },
-  { id: "p6", bpm: 80,  colorClass: "preset-color-6", name: "P6" }
+  { id: "p4", bpm: 125, colorClass: "preset-color-4", name: "P4" },
+  { id: "p5", bpm: 140, colorClass: "preset-color-5", name: "P5" }
 ];
 let quickPresets = JSON.parse(JSON.stringify(DEFAULT_PRESETS));
 let isSavingPresetMode = false;
@@ -253,37 +252,35 @@ let touchDragStartIndex = null;
 let touchMoved = false;
 let touchStartPos = { x: 0, y: 0 };
 
-// Load quick presets from storage (with migration for legacy format)
+// Load quick presets from storage (ordered slowest to fastest: 84 to 140)
 function loadQuickPresets() {
   try {
+    localStorage.removeItem("metronome_quick_bpm_presets_v1");
+    localStorage.removeItem("metronome_quick_bpm_presets_v2");
+
     const saved = localStorage.getItem(PRESETS_STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length === 6) {
-        quickPresets = parsed.map(function (item, idx) {
-          if (typeof item === "number") {
-            // Migrate legacy number format to colored preset objects
+      if (Array.isArray(parsed) && parsed.length === 5) {
+        const isDescending = (parsed[0].bpm > parsed[parsed.length - 1].bpm && parsed[0].bpm >= 120);
+        if (!isDescending) {
+          quickPresets = parsed.map(function (item, idx) {
             return {
-              id: "p" + (idx + 1),
-              bpm: parseInt(item, 10) || 120,
-              colorClass: "preset-color-" + (idx + 1),
-              name: "P" + (idx + 1)
+              id: item.id || ("p" + (idx + 1)),
+              bpm: parseInt(item.bpm, 10) || DEFAULT_PRESETS[idx].bpm,
+              colorClass: item.colorClass || ("preset-color-" + (idx + 1)),
+              name: item.name || ("P" + (idx + 1))
             };
-          }
-          return {
-            id: item.id || ("p" + (idx + 1)),
-            bpm: parseInt(item.bpm, 10) || 120,
-            colorClass: item.colorClass || ("preset-color-" + (idx + 1)),
-            name: item.name || ("P" + (idx + 1))
-          };
-        });
-        return;
+          });
+          return;
+        }
       }
     }
   } catch (err) {
     console.error("Failed to load quick presets:", err);
   }
   quickPresets = JSON.parse(JSON.stringify(DEFAULT_PRESETS));
+  saveQuickPresets();
 }
 
 // Save quick presets to storage
@@ -480,8 +477,41 @@ function toggleSavePresetMode(forceState) {
   renderQuickPresets();
 }
 
+let isBpmUnspecified = false;
+
+// Set metronome display to unspecified BPM state ("-")
+function setBpmUnspecified() {
+  isBpmUnspecified = true;
+
+  const tempoDisplay = document.getElementById("tempoDisplay");
+  if (tempoDisplay) {
+    tempoDisplay.textContent = "-";
+  }
+
+  const currentBpmEl = document.getElementById("saveCurrentBpmValue");
+  if (currentBpmEl) {
+    currentBpmEl.textContent = "-";
+  }
+
+  // Clear active preset highlighting
+  quickPresets.forEach(function (presetItem, idx) {
+    const btn = document.getElementById("presetBtn_" + idx);
+    if (btn) {
+      btn.classList.remove("active-preset");
+    }
+  });
+
+  updateGlobalMetronomeBar();
+}
+
+function getIsBpmUnspecified() {
+  return isBpmUnspecified;
+}
+
 // Update BPM UI display and engine
 function updateBpm(newBpm, preserveHistory) {
+  isBpmUnspecified = false;
+
   const roundedBpm = Math.max(30, Math.min(300, Math.round(newBpm)));
   if (bpm !== roundedBpm) {
     beatsAtCurrentTempo = 0;
@@ -500,6 +530,7 @@ function updateBpm(newBpm, preserveHistory) {
 
   if (tempoDisplay) {
     tempoDisplay.textContent = bpm;
+    tempoDisplay.classList.remove("text-warning");
   }
   if (tempoSlider && parseInt(tempoSlider.value, 10) !== bpm) {
     tempoSlider.value = bpm;
@@ -732,10 +763,11 @@ function updateGlobalMetronomeBar() {
       if (typeof getActivePlaylist === "function" && typeof currentSongIndex !== "undefined" && currentSongIndex >= 0) {
         const playlist = getActivePlaylist();
         if (playlist && playlist[currentSongIndex]) {
-          songLabel = playlist[currentSongIndex].title + " • ";
+          songLabel = playlist[currentSongIndex].title + " - ";
         }
       }
-      infoEl.textContent = songLabel + bpm + " BPM (" + timeSignature + "/4)";
+      const bpmText = isBpmUnspecified ? "-" : (bpm + " BPM");
+      infoEl.textContent = songLabel + bpmText + " (" + timeSignature + "/4)";
     }
   } else {
     bar.classList.add("d-none");
@@ -773,6 +805,18 @@ async function togglePlayMetronome() {
       if (dot) dot.classList.remove("active-beat", "active-beat-accent", "active-beat-normal");
     }
   } else {
+    if (isBpmUnspecified) {
+      // Metronome cannot start without a valid BPM; pulse warning on display
+      const tempoDisplay = document.getElementById("tempoDisplay");
+      if (tempoDisplay) {
+        tempoDisplay.classList.add("text-warning");
+        setTimeout(function () {
+          tempoDisplay.classList.remove("text-warning");
+        }, 600);
+      }
+      return;
+    }
+
     beatsAtCurrentTempo = 0;
     hasAddedCurrentTempoToHistory = false;
     startMetronomeEngine();
@@ -857,7 +901,8 @@ function initMetronome() {
   document.querySelectorAll("[data-bpm-delta]").forEach(function (btn) {
     btn.addEventListener("click", function () {
       const delta = parseInt(this.getAttribute("data-bpm-delta"), 10);
-      updateBpm(bpm + delta);
+      const baseBpm = isBpmUnspecified ? 120 : bpm;
+      updateBpm(baseBpm + delta);
     });
   });
 
@@ -1008,7 +1053,7 @@ function initMetronome() {
 }
 
 // Display size accessibility management
-const UI_SIZE_STORAGE_KEY = "groovepulse_ui_size_v1";
+const UI_SIZE_STORAGE_KEY = "pulser_ui_size_v1";
 let currentUiSize = "large"; // Default to "large" for senior readability
 
 function setUiSize(size) {

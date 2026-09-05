@@ -1,8 +1,8 @@
 // Setlist and Multi-Playlist Manager
 // Procedural functional implementation using localStorage
 
-const SETLISTS_STORAGE_KEY = "metronome_setlists_collection_v1";
-const ACTIVE_SETLIST_ID_KEY = "metronome_active_setlist_id_v1";
+const SETLISTS_STORAGE_KEY = "metronome_setlists_collection_v2";
+const ACTIVE_SETLIST_ID_KEY = "metronome_active_setlist_id_v2";
 const LEGACY_STORAGE_KEY = "metronome_setlist_v1";
 
 let setlists = [];
@@ -17,6 +17,23 @@ const defaultSongs = [
   { id: "song_4", title: "Upbeat Finale", bpm: 160, timeSignature: 4, notes: "Final sprint" }
 ];
 
+// Fan di Stelle default setlist
+const fanDiStelleSongs = [
+  { id: "fds_1",  title: "Goka Dunya",       bpm: null, timeSignature: 4, notes: "" },
+  { id: "fds_2",  title: "Les mains d'or",   bpm: null, timeSignature: 4, notes: "" },
+  { id: "fds_3",  title: "Ce qui est dit",   bpm: 110,  timeSignature: 4, notes: "" },
+  { id: "fds_4",  title: "Con toda palabra", bpm: 110,  timeSignature: 4, notes: "" },
+  { id: "fds_5",  title: "Le baiser",        bpm: 140,  timeSignature: 4, notes: "" },
+  { id: "fds_6",  title: "Amari",            bpm: null, timeSignature: 4, notes: "" },
+  { id: "fds_7",  title: "L'aviateur",       bpm: null, timeSignature: 4, notes: "" },
+  { id: "fds_8",  title: "Fragile",          bpm: 84,   timeSignature: 4, notes: "" },
+  { id: "fds_9",  title: "Bidonville",       bpm: 90,   timeSignature: 4, notes: "" },
+  { id: "fds_10", title: "La corrida",       bpm: null, timeSignature: 4, notes: "" },
+  { id: "fds_11", title: "Tete en l'air",    bpm: 125,  timeSignature: 4, notes: "" },
+  { id: "fds_12", title: "Melodie du vent",  bpm: 88,   timeSignature: 4, notes: "" },
+  { id: "fds_13", title: "Que sera",         bpm: null, timeSignature: 4, notes: "" }
+];
+
 // Load multi-setlist collection from localStorage with migration from legacy format
 function loadSetlists() {
   try {
@@ -29,7 +46,7 @@ function loadSetlists() {
     setlists = [];
   }
 
-  // Migration: Check if legacy single setlist exists
+  // If no setlists stored yet, initialize defaults with Main Setlist and Fan di Stelle
   if (!Array.isArray(setlists) || setlists.length === 0) {
     let legacySongs = [];
     try {
@@ -44,9 +61,27 @@ function loadSetlists() {
         id: "setlist_default",
         name: "Main Setlist",
         songs: Array.isArray(legacySongs) && legacySongs.length > 0 ? legacySongs : defaultSongs
+      },
+      {
+        id: "setlist_fan_di_stelle",
+        name: "Fan di Stelle",
+        songs: JSON.parse(JSON.stringify(fanDiStelleSongs))
       }
     ];
     saveSetlists();
+  } else {
+    // Ensure Fan di Stelle is present even if user already had previous setlists
+    const hasFanDiStelle = setlists.some(function (s) {
+      return s.id === "setlist_fan_di_stelle" || s.name === "Fan di Stelle";
+    });
+    if (!hasFanDiStelle) {
+      setlists.push({
+        id: "setlist_fan_di_stelle",
+        name: "Fan di Stelle",
+        songs: JSON.parse(JSON.stringify(fanDiStelleSongs))
+      });
+      saveSetlists();
+    }
   }
 
   // Load active setlist ID
@@ -162,9 +197,23 @@ function selectSong(index) {
   }
   currentSongIndex = index;
   const song = playlist[index];
+  const hasValidBpm = song.bpm && parseInt(song.bpm, 10) > 0;
 
-  // Apply to metronome
-  updateBpm(song.bpm);
+  // Apply to metronome if song has a valid BPM, otherwise show "-"
+  if (hasValidBpm) {
+    updateBpm(parseInt(song.bpm, 10));
+  } else {
+    if (typeof setBpmUnspecified === "function") {
+      setBpmUnspecified();
+    }
+    // Stop metronome if it was playing when switching to a song without BPM
+    if (typeof isEnginePlaying === "function" && isEnginePlaying()) {
+      const playBtn = document.getElementById("playButton");
+      if (playBtn) {
+        playBtn.click();
+      }
+    }
+  }
 
   const sigSelect = document.getElementById("timeSignatureSelect");
   if (sigSelect) {
@@ -174,6 +223,38 @@ function selectSong(index) {
 
   updateActiveSongBadge();
   renderSetlist();
+}
+
+// Select a song, start the metronome (only if BPM is specified), and return to Metronome tab directly
+function playSongAndGoToMetronome(index, evt) {
+  if (evt) {
+    evt.stopPropagation();
+  }
+  const playlist = getActivePlaylist();
+  if (index < 0 || index >= playlist.length) {
+    return;
+  }
+  const song = playlist[index];
+  const hasValidBpm = song.bpm && parseInt(song.bpm, 10) > 0;
+
+  selectSong(index);
+
+  // If song has a valid BPM, start metronome if not already playing
+  if (hasValidBpm) {
+    const isPlayingNow = (typeof isEnginePlaying === "function") ? isEnginePlaying() : false;
+    if (!isPlayingNow) {
+      const playBtn = document.getElementById("playButton");
+      if (playBtn) {
+        playBtn.click();
+      }
+    }
+  }
+
+  // Switch to Metronome tab
+  const metronomeTab = document.getElementById("pills-metronome-tab");
+  if (metronomeTab) {
+    metronomeTab.click();
+  }
 }
 
 // Clear active song and return to neutral free metronome mode
@@ -212,6 +293,7 @@ function updateActiveSongBadge() {
   const badge = document.getElementById("activeSongBadge");
   const subText = document.getElementById("activeSongSubText");
   const clearBtn = document.getElementById("clearActiveSongBtn");
+  const centerZone = document.getElementById("activeSongCenterZone");
   const activeSetlist = getActiveSetlist();
   const setlistName = activeSetlist ? activeSetlist.name : "Setlist";
   const playlist = getActivePlaylist();
@@ -219,12 +301,19 @@ function updateActiveSongBadge() {
   if (currentSongIndex >= 0 && playlist.length > 0 && playlist[currentSongIndex]) {
     const song = playlist[currentSongIndex];
     if (badge) badge.textContent = (currentSongIndex + 1) + ". " + song.title;
-    if (subText) subText.textContent = setlistName + " • " + song.bpm + " BPM (" + (song.timeSignature || 4) + "/4)";
+    const bpmStr = (song.bpm && parseInt(song.bpm, 10) > 0) ? (song.bpm + " BPM") : "BPM: -";
+    if (subText) subText.textContent = setlistName + " - " + bpmStr + " (" + (song.timeSignature || 4) + "/4)";
     if (clearBtn) clearBtn.classList.remove("d-none");
+    if (centerZone) {
+      centerZone.title = "Tap to open Setlist";
+    }
   } else {
     if (badge) badge.textContent = "Free Mode";
-    if (subText) subText.textContent = "Setlist: " + setlistName;
+    if (subText) subText.innerHTML = setlistName + " &bull; <span class=\"text-info fw-bold\">Tap to choose song &rsaquo;</span>";
     if (clearBtn) clearBtn.classList.add("d-none");
+    if (centerZone) {
+      centerZone.title = "Tap to choose a song from Setlist";
+    }
   }
 }
 
@@ -251,7 +340,7 @@ function renderSetlistSelect() {
     headerTitle.textContent = active.name;
   }
   if (headerCount && active) {
-    headerCount.textContent = active.songs.length + " song" + (active.songs.length > 1 ? "s" : "") + " • Tap to load into metronome";
+    headerCount.textContent = active.songs.length + " song" + (active.songs.length > 1 ? "s" : "") + " - Tap to load into metronome";
   }
 }
 
@@ -292,16 +381,25 @@ function renderSetlist() {
       selectSong(idx);
     };
 
+    const bpmBadgeHtml = (song.bpm && parseInt(song.bpm, 10) > 0)
+      ? '<strong class="text-white">' + song.bpm + '</strong> BPM'
+      : '<span class="badge bg-secondary text-white-50 border border-secondary">BPM: -</span>';
+
     item.innerHTML = `
-      <div class="d-flex align-items-center w-100 mb-1">
-        <span class="badge ${isCurrent ? 'bg-success text-dark fw-bold' : 'bg-secondary'} me-2 fs-6">${idx + 1}</span>
-        <div class="fw-bold ${isCurrent ? 'text-success' : 'text-white'} flex-grow-1" style="font-size: 1.15rem; line-height: 1.25;">
-          ${escapeHtml(song.title)}
+      <div class="d-flex align-items-center justify-content-between w-100 mb-1">
+        <div class="d-flex align-items-center flex-grow-1 overflow-hidden me-2">
+          <span class="badge ${isCurrent ? 'bg-success text-dark fw-bold' : 'bg-secondary'} me-2 fs-6 flex-shrink-0">${idx + 1}</span>
+          <div class="fw-bold ${isCurrent ? 'text-success' : 'text-white'} text-truncate" style="font-size: 1.12rem; line-height: 1.25;">
+            ${escapeHtml(song.title)}
+          </div>
         </div>
+        <button class="btn btn-success btn-sm fw-bold px-3 py-1 flex-shrink-0 shadow-sm d-flex align-items-center text-white" onclick="playSongAndGoToMetronome(${idx}, event)" title="Play in metronome">
+          <i class="bi bi-play-fill fs-5 me-1 text-white"></i>Play
+        </button>
       </div>
       <div class="d-flex justify-content-between align-items-center w-100 mt-1">
         <div class="small text-white-50 text-truncate me-2">
-          <strong class="text-white">${song.bpm}</strong> BPM &bull; ${song.timeSignature || 4}/4 ${song.notes ? '&bull; ' + escapeHtml(song.notes) : ''}
+          ${bpmBadgeHtml} &bull; ${song.timeSignature || 4}/4 ${song.notes ? '&bull; ' + escapeHtml(song.notes) : ''}
         </div>
         <div class="btn-group btn-group-sm flex-shrink-0" onclick="event.stopPropagation()">
           <button class="btn btn-outline-info px-2" title="Edit Song (BPM, Signature, Title)" onclick="openEditSongModal(${idx})">
@@ -350,10 +448,15 @@ function addSong(title, songBpm, timeSig, notes) {
   const active = getActiveSetlist();
   if (!active) return;
 
+  let parsedBpm = parseInt(songBpm, 10);
+  if (isNaN(parsedBpm) || parsedBpm <= 0) {
+    parsedBpm = null;
+  }
+
   const newSong = {
     id: "song_" + Date.now(),
     title: title.trim() || "Untitled Song",
-    bpm: parseInt(songBpm, 10) || 120,
+    bpm: parsedBpm,
     timeSignature: parseInt(timeSig, 10) || 4,
     notes: (notes || "").trim()
   };
@@ -379,7 +482,7 @@ function openEditSongModal(index) {
   const indexInput = document.getElementById("editSongIndex");
 
   if (titleInput) titleInput.value = song.title;
-  if (bpmInput) bpmInput.value = song.bpm;
+  if (bpmInput) bpmInput.value = (song.bpm && song.bpm > 0) ? song.bpm : "";
   if (sigInput) sigInput.value = song.timeSignature || 4;
   if (notesInput) notesInput.value = song.notes || "";
   if (indexInput) indexInput.value = index;
@@ -395,19 +498,27 @@ function updateSong(index, title, songBpm, timeSig, notes) {
   const playlist = getActivePlaylist();
   if (index < 0 || index >= playlist.length) return;
 
+  let parsedBpm = parseInt(songBpm, 10);
+  if (isNaN(parsedBpm) || parsedBpm <= 0) {
+    parsedBpm = null;
+  }
+
   playlist[index].title = (title || "").trim() || playlist[index].title;
-  playlist[index].bpm = parseInt(songBpm, 10) || playlist[index].bpm;
+  playlist[index].bpm = parsedBpm;
   playlist[index].timeSignature = parseInt(timeSig, 10) || 4;
   playlist[index].notes = (notes || "").trim();
 
   // If this song is currently active in the metronome, update metronome live
   if (currentSongIndex === index) {
-    updateBpm(playlist[index].bpm);
+    if (parsedBpm && parsedBpm > 0) {
+      updateBpm(parsedBpm);
+    }
     const sigSelect = document.getElementById("timeSignatureSelect");
     if (sigSelect) {
       sigSelect.value = playlist[index].timeSignature;
       sigSelect.dispatchEvent(new Event("change"));
     }
+    updateActiveSongBadge();
   }
 
   saveSetlists();
@@ -561,6 +672,17 @@ function initSetlist() {
     clearBtn.addEventListener("click", function (e) {
       e.stopPropagation();
       clearActiveSong();
+    });
+  }
+
+  // Interactive song header area on metronome view (switches to Setlist tab)
+  const centerZone = document.getElementById("activeSongCenterZone");
+  if (centerZone) {
+    centerZone.addEventListener("click", function () {
+      const setlistTab = document.getElementById("pills-setlist-tab");
+      if (setlistTab) {
+        setlistTab.click();
+      }
     });
   }
 

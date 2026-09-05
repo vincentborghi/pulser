@@ -14,9 +14,11 @@ let autoBpmBeatCounter = 0;
 
 // Algorithm parameters
 const AUTO_BPM_SAMPLE_RATE_HZ = 50; // 50 Hz frame rate (20ms)
-const AUTO_BPM_BUFFER_FRAMES = 250;  // 5 seconds circular history
+const AUTO_BPM_BUFFER_FRAMES = 300;  // 6 seconds circular history
 const autoBpmFluxHistory = [];
-const autoBpmRecentEstimates = [];
+const autoBpmHistogram = new Float32Array(241); // Bins from 0 to 240 BPM
+let autoBpmStableStreak = 0;
+let autoBpmLastCandidateBpm = 0;
 let autoBpmPrevFreqData = null;
 let autoBpmAnalysisTick = 0;
 
@@ -167,7 +169,9 @@ async function startAutoBpmListening() {
     isAutoBpmListening = true;
     autoBpmLastBeatTime = 0;
     autoBpmFluxHistory.length = 0;
-    autoBpmRecentEstimates.length = 0;
+    autoBpmHistogram.fill(0);
+    autoBpmStableStreak = 0;
+    autoBpmLastCandidateBpm = 0;
     autoBpmPrevFreqData = new Uint8Array(autoBpmAnalyser.frequencyBinCount);
     autoBpmAnalysisTick = 0;
 
@@ -236,10 +240,16 @@ function stopAutoBpmListening() {
     beatIndicator.textContent = "Inactive";
   }
   resetAutoBpmBeatDots();
+  autoBpmHistogram.fill(0);
+  autoBpmStableStreak = 0;
+  autoBpmLastCandidateBpm = 0;
 }
 
 function resetAutoBpmUI() {
   autoBpmDetectedValue = null;
+  autoBpmHistogram.fill(0);
+  autoBpmStableStreak = 0;
+  autoBpmLastCandidateBpm = 0;
   resetAutoBpmBeatDots();
   const valDisplay = document.getElementById("autoBpmValueDisplay");
   const statusText = document.getElementById("autoBpmStatusText");
@@ -268,25 +278,28 @@ function processAutoBpmFrame() {
   const freqData = new Uint8Array(binCount);
   autoBpmAnalyser.getByteFrequencyData(freqData);
 
-  // 1. Calculate Multi-Band Spectral Flux (Novelty)
-  // Evaluates sudden positive bursts of energy across bass, snare, and percussion bands
+  // 1. Calculate Multi-Band Spectral Flux with transient weighting
+  // Strong emphasis on kick/bass (bins 1-5) and snare/strum (bins 6-22)
+  // High frequencies are attenuated to avoid subdivision / double-speed bias
   let flux = 0;
   let totalEnergy = 0;
-  const maxAnalyzedBin = Math.min(75, binCount);
+  const maxAnalyzedBin = Math.min(65, binCount);
 
   for (let k = 1; k < maxAnalyzedBin; k++) {
     let weight = 1.0;
-    if (k <= 4) {
-      weight = 2.6; // Bass drum / sub transients (~50 - 350 Hz)
-    } else if (k <= 20) {
-      weight = 1.8; // Snare, guitar, vocals, keys (~350 - 1700 Hz)
+    if (k <= 5) {
+      weight = 3.2; // Sub and Bass drum (~40 - 450 Hz)
+    } else if (k <= 22) {
+      weight = 1.6; // Snare, guitar, vocals, keys (~450 - 2000 Hz)
     } else {
-      weight = 1.2; // Hi-hats, tambourines, cymbal transients (~1700 - 6500 Hz)
+      weight = 0.6; // Cymbals, hi-hats (attenuated to prevent subdivision bias)
     }
 
-    const diff = freqData[k] - (autoBpmPrevFreqData ? autoBpmPrevFreqData[k] : 0);
+    const prev = autoBpmPrevFreqData ? autoBpmPrevFreqData[k] : 0;
+    const diff = freqData[k] - prev;
     if (diff > 0) {
-      flux += diff * weight;
+      // Logarithmic compression for transient novelty
+      flux += Math.log1p(diff * 0.15) * weight * 10;
     }
     totalEnergy += freqData[k];
     if (autoBpmPrevFreqData) {
@@ -301,31 +314,30 @@ function processAutoBpmFrame() {
     levelBar.style.width = levelPercent + "%";
   }
 
-  // Push flux to history buffer (up to 5 seconds of continuous frames)
+  // Push flux to circular history buffer
   autoBpmFluxHistory.push(flux);
   if (autoBpmFluxHistory.length > AUTO_BPM_BUFFER_FRAMES) {
     autoBpmFluxHistory.shift();
   }
 
   // 2. Onset & Beat Dots Trigger
-  // Adaptive local moving average over past 35 frames (~0.7s)
   const windowSize = Math.min(35, autoBpmFluxHistory.length);
   let localSum = 0;
   for (let i = autoBpmFluxHistory.length - windowSize; i < autoBpmFluxHistory.length; i++) {
     localSum += autoBpmFluxHistory[i];
   }
   const localMean = localSum / windowSize;
-  const onsetThreshold = localMean * 1.55 + 18.0;
+  const onsetThreshold = localMean * 1.5 + 15.0;
 
   const now = performance.now();
-  // Refractory lockout of 220ms prevents double-triggering on the same drum hit
   if (flux > onsetThreshold && (now - autoBpmLastBeatTime) > 220) {
     handleDetectedBeatOnset(now);
   }
 
-  // 3. Periodic Autocorrelation Tempo Estimation (runs every 20 frames = ~400ms)
+  // 3. Periodic Autocorrelation Tempo Estimation (runs every 15 frames = ~300ms)
+  // Requires at least 100 frames (~2.0s of music) to have adequate rhythmic context
   autoBpmAnalysisTick++;
-  if (autoBpmAnalysisTick % 20 === 0 && autoBpmFluxHistory.length >= 75) {
+  if (autoBpmAnalysisTick % 15 === 0 && autoBpmFluxHistory.length >= 100) {
     computeAutocorrelationTempo();
   }
 }
@@ -336,7 +348,7 @@ function handleDetectedBeatOnset(timestamp) {
   const beatIndicator = document.getElementById("autoBpmBeatIndicator");
   if (beatIndicator) {
     beatIndicator.className = "badge bg-info text-dark px-2 py-1 fw-bold";
-    beatIndicator.textContent = "Beat! 🥁";
+    beatIndicator.textContent = "Beat!";
     clearTimeout(beatIndicator._timeout);
     beatIndicator._timeout = setTimeout(function () {
       if (beatIndicator) {
@@ -351,7 +363,7 @@ function handleDetectedBeatOnset(timestamp) {
 
 function computeAutocorrelationTempo() {
   const numFrames = autoBpmFluxHistory.length;
-  if (numFrames < 75) return;
+  if (numFrames < 100) return;
 
   // Zero-mean highpass novelty curve
   let sumFlux = 0;
@@ -366,29 +378,51 @@ function computeAutocorrelationTempo() {
   // Lags corresponding to 45 BPM to 220 BPM at 50Hz
   const minLag = Math.round(AUTO_BPM_SAMPLE_RATE_HZ * (60.0 / 220.0)); // ~14 frames
   const maxLag = Math.round(AUTO_BPM_SAMPLE_RATE_HZ * (60.0 / 45.0));  // ~67 frames
-  const priorLag = AUTO_BPM_SAMPLE_RATE_HZ * (60.0 / 115.0);          // 25 frames (~115 BPM)
+  const maxLagToCompute = Math.min(maxLag * 2 + 2, numFrames - 2);
 
-  let bestLag = minLag;
-  let maxCorr = -1;
-  const corrValues = new Float32Array(maxLag + 2);
-
-  for (let lag = minLag; lag <= maxLag; lag++) {
+  // 1. Calculate raw autocorrelation for lags up to 2*maxLag to allow harmonic comb calculations
+  const rawCorr = new Float32Array(maxLagToCompute + 2);
+  for (let lag = Math.floor(minLag / 2); lag <= maxLagToCompute; lag++) {
     let sum = 0;
     let count = 0;
     for (let i = 0; i < numFrames - lag; i++) {
       sum += cleanFlux[i] * cleanFlux[i + lag];
       count++;
     }
-    const rawCorr = count > 0 ? (sum / count) : 0;
-    corrValues[lag] = rawCorr;
+    rawCorr[lag] = count > 0 ? (sum / count) : 0;
+  }
 
-    // Log-normal perceptual tempo prior (favors natural musical tempo 80-150 BPM)
-    const logRatio = Math.log2(lag / priorLag);
-    const priorWeight = Math.exp(-0.5 * logRatio * logRatio * 1.5);
-    const weightedCorr = rawCorr * priorWeight;
+  // 2. Harmonic Comb Filter Summation
+  // A true musical beat at lag tau also produces autocorrelation energy at 2*tau (every 2 beats)
+  // and has subdivisions at tau/2 (sub-beats/eighth notes).
+  // Combining these harmonics reinforces the true fundamental beat and strongly suppresses
+  // jumping between single and double speed (octave confusion).
+  const combScores = new Float32Array(maxLag + 1);
+  const priorCenterBpm = 112.0;
 
-    if (weightedCorr > maxCorr) {
-      maxCorr = weightedCorr;
+  let bestLag = minLag;
+  let maxCombScore = -1;
+
+  for (let lag = minLag; lag <= maxLag; lag++) {
+    const r1 = rawCorr[lag];
+    const r2 = (lag * 2 <= maxLagToCompute) ? rawCorr[lag * 2] : 0;
+    const r3 = (lag * 3 <= maxLagToCompute) ? rawCorr[lag * 3] : 0;
+    const halfLag = Math.round(lag / 2);
+    const rHalf = (halfLag < rawCorr.length) ? rawCorr[halfLag] : 0;
+
+    // Comb combination: fundamental + 0.65*second_harmonic + 0.25*third_harmonic + 0.35*sub_harmonic
+    const comb = r1 + 0.65 * r2 + 0.25 * r3 + 0.35 * rHalf;
+
+    // Smooth log-normal perceptual tempo prior (favors natural musical tempo 80-150 BPM)
+    const candidateBpm = (AUTO_BPM_SAMPLE_RATE_HZ * 60.0) / lag;
+    const logRatio = Math.log2(candidateBpm / priorCenterBpm);
+    const priorWeight = Math.exp(-0.5 * logRatio * logRatio * 1.8);
+
+    const weightedScore = comb * priorWeight;
+    combScores[lag] = weightedScore;
+
+    if (weightedScore > maxCombScore) {
+      maxCombScore = weightedScore;
       bestLag = lag;
     }
   }
@@ -396,9 +430,9 @@ function computeAutocorrelationTempo() {
   // Parabolic interpolation for sub-sample accuracy
   let refinedLag = bestLag;
   if (bestLag > minLag && bestLag < maxLag) {
-    const y0 = corrValues[bestLag - 1];
-    const y1 = corrValues[bestLag];
-    const y2 = corrValues[bestLag + 1];
+    const y0 = combScores[bestLag - 1];
+    const y1 = combScores[bestLag];
+    const y2 = combScores[bestLag + 1];
     const denom = (y0 - 2 * y1 + y2);
     if (Math.abs(denom) > 1e-6) {
       const delta = (0.5 * (y0 - y2)) / denom;
@@ -408,33 +442,75 @@ function computeAutocorrelationTempo() {
     }
   }
 
-  const rawBpm = Math.round((AUTO_BPM_SAMPLE_RATE_HZ * 60.0) / refinedLag);
-  if (rawBpm >= 40 && rawBpm <= 240) {
-    evaluateTempoStability(rawBpm);
+  let candidateBpm = Math.round((AUTO_BPM_SAMPLE_RATE_HZ * 60.0) / refinedLag);
+
+  // Octave folding / disambiguation
+  if (candidateBpm > 160) {
+    const doubleLag = Math.round(refinedLag * 2);
+    if (doubleLag <= maxLag && combScores[doubleLag] >= maxCombScore * 0.60) {
+      candidateBpm = Math.round(candidateBpm / 2);
+    }
+  } else if (candidateBpm < 75) {
+    const halfLag = Math.round(refinedLag / 2);
+    if (halfLag >= minLag && combScores[halfLag] >= maxCombScore * 0.60) {
+      candidateBpm = candidateBpm * 2;
+    }
+  }
+
+  if (candidateBpm >= 45 && candidateBpm <= 220) {
+    evaluateTempoStability(candidateBpm);
   }
 }
 
 function evaluateTempoStability(candidateBpm) {
-  autoBpmRecentEstimates.push(candidateBpm);
-  if (autoBpmRecentEstimates.length > 6) {
-    autoBpmRecentEstimates.shift();
+  // 1. Decay the tempo evidence histogram (exponential moving memory over ~3 seconds)
+  const decay = 0.85;
+  for (let b = 40; b <= 230; b++) {
+    autoBpmHistogram[b] *= decay;
   }
 
-  // Find median of recent estimates
-  const sorted = autoBpmRecentEstimates.slice().sort(function (a, b) { return a - b; });
-  const median = sorted[Math.floor(sorted.length / 2)];
-
-  // Count how many recent estimates are within +/- 2 BPM of the median
-  let closeCount = 0;
-  for (let i = 0; i < autoBpmRecentEstimates.length; i++) {
-    if (Math.abs(autoBpmRecentEstimates[i] - median) <= 2) {
-      closeCount++;
+  // 2. Add Gaussian-smoothed weight around the candidate BPM
+  const spread = 2;
+  for (let delta = -spread; delta <= spread; delta++) {
+    const b = candidateBpm + delta;
+    if (b >= 40 && b <= 230) {
+      const w = Math.exp(-0.5 * (delta * delta) / 1.5);
+      autoBpmHistogram[b] += w * 1.5;
     }
   }
 
-  // When at least 3 estimates agree closely, we have a reliable stable BPM
-  if (closeCount >= 3) {
-    updateDetectedBpm(median);
+  // 3. Find dominant peak in the histogram
+  let peakBpm = 0;
+  let peakEnergy = 0;
+  for (let b = 45; b <= 220; b++) {
+    if (autoBpmHistogram[b] > peakEnergy) {
+      peakEnergy = autoBpmHistogram[b];
+      peakBpm = b;
+    }
+  }
+
+  // 4. Require strong accumulated evidence and consistency
+  if (peakEnergy >= 2.8) {
+    if (Math.abs(peakBpm - autoBpmLastCandidateBpm) <= 2) {
+      autoBpmStableStreak++;
+    } else {
+      // Octave jump protection: if the candidate is close to 2x or 0.5x of the currently
+      // detected BPM, reject immediate jump unless evidence has dominated for a long period
+      if (autoBpmDetectedValue) {
+        const ratio = peakBpm / autoBpmDetectedValue;
+        if ((ratio >= 1.85 && ratio <= 2.15) || (ratio >= 0.45 && ratio <= 0.55)) {
+          // Suppress single-to-double fluctuation
+          return;
+        }
+      }
+      autoBpmStableStreak = 1;
+      autoBpmLastCandidateBpm = peakBpm;
+    }
+
+    // Require 3 consistent updates (~900ms) before confirming the tempo
+    if (autoBpmStableStreak >= 3) {
+      updateDetectedBpm(peakBpm);
+    }
   }
 }
 

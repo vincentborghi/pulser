@@ -75,12 +75,43 @@ label {
 }
 
 /* Metronome Screen & Visual Flash */
-.tempo-display {
-  font-size: 3.8rem;
-  font-weight: 800;
+.tempo-display-block {
+  width: 100%;
   line-height: 1;
+}
+
+.tempo-display {
+  font-size: clamp(3rem, 11vw, 3.8rem);
+  font-weight: 800;
+  line-height: 0.95;
   color: var(--text-main);
   letter-spacing: -1px;
+}
+
+.tempo-unit-label {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  margin-top: 3px;
+  display: block;
+}
+
+.song-header-clickable {
+  cursor: pointer;
+  border-radius: 0.5rem;
+  padding: 2px 4px;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.song-header-clickable:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.song-header-clickable:active {
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: scale(0.98);
 }
 
 .beat-flasher-container {
@@ -284,7 +315,7 @@ body.ui-size-large {
 }
 
 body.ui-size-large .tempo-display {
-  font-size: 4.8rem;
+  font-size: clamp(3.2rem, 12vw, 4.2rem);
 }
 
 body.ui-size-large .preset-btn {
@@ -292,7 +323,7 @@ body.ui-size-large .preset-btn {
 }
 
 body.ui-size-large .preset-btn .preset-bpm {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
 }
 
 body.ui-size-xlarge {
@@ -300,7 +331,7 @@ body.ui-size-xlarge {
 }
 
 body.ui-size-xlarge .tempo-display {
-  font-size: 5.4rem;
+  font-size: clamp(3.4rem, 13vw, 4.6rem);
 }
 
 body.ui-size-xlarge .preset-btn {

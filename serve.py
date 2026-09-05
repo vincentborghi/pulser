@@ -1,4 +1,4 @@
-# Development HTTP server for GroovePulse PWA
+# Development HTTP server for Pulser PWA
 #
 # Examples of command invocations:
 #   python serve.py
@@ -30,7 +30,7 @@ Examples:
   python serve.py --debug
     """
     parser = argparse.ArgumentParser(
-        description="Serve GroovePulse PWA locally with proper MIME types for testing.",
+        description="Serve Pulser PWA locally with proper MIME types for testing.",
         epilog=examples_text,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
