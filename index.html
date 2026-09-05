@@ -18,7 +18,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   
   <!-- Custom App Styles -->
-  <link rel="stylesheet" href="./css/style.css?v=20260905_22">
+  <link rel="stylesheet" href="./css/style.css?v=20260905_23">
 </head>
 <body class="d-flex flex-column ui-size-large">
 
@@ -441,11 +441,14 @@
                   <select id="tickerDecorBeforeSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
                     <option value="">None</option>
                     <option value="⭐">⭐ Star</option>
+                    <option value="⭐⭐⭐">⭐⭐⭐ Stars</option>
                     <option value="❤️">❤️ Heart</option>
+                    <option value="❤️❤️❤️">❤️❤️❤️ Hearts</option>
                     <option value="👍">👍 Thumbs Up</option>
                     <option value="🔥">🔥 Fire</option>
                     <option value="🎵">🎵 Note</option>
                     <option value="✨">✨ Sparkles</option>
+                    <option value="🌈">🌈 Rainbow</option>
                     <option value="🤘">🤘 Horns</option>
                     <option value="🎉">🎉 Party</option>
                     <option value="👏" selected>👏 Claps</option>
@@ -457,7 +460,6 @@
                     <option value="💥">💥 Boom</option>
                     <option value="🕶️">🕶️ Cool</option>
                     <option value="🥁">🥁 Drum</option>
-                    <option value="🌈">🌈 Rainbow</option>
                     <option value="💀">💀 Skull</option>
                     <option value="🚀">🚀 Rocket</option>
                     <option value="🏆">🏆 Trophy</option>
@@ -468,16 +470,19 @@
                 <div class="input-group input-group-sm">
                   <span class="input-group-text bg-dark border-secondary text-white-50 px-2" style="font-size: 0.78rem;">Post</span>
                   <select id="tickerDecorAfterSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
-                    <option value="">None</option>
+                    <option value="" selected>None</option>
                     <option value="⭐">⭐ Star</option>
+                    <option value="⭐⭐⭐">⭐⭐⭐ Stars</option>
                     <option value="❤️">❤️ Heart</option>
+                    <option value="❤️❤️❤️">❤️❤️❤️ Hearts</option>
                     <option value="👍">👍 Thumbs Up</option>
                     <option value="🔥">🔥 Fire</option>
                     <option value="🎵">🎵 Note</option>
                     <option value="✨">✨ Sparkles</option>
+                    <option value="🌈">🌈 Rainbow</option>
                     <option value="🤘">🤘 Horns</option>
                     <option value="🎉">🎉 Party</option>
-                    <option value="👏" selected>👏 Claps</option>
+                    <option value="👏">👏 Claps</option>
                     <option value="🎸">🎸 Guitar</option>
                     <option value="⚡">⚡ Bolt</option>
                     <option value="👑">👑 Crown</option>
@@ -486,7 +491,6 @@
                     <option value="💥">💥 Boom</option>
                     <option value="🕶️">🕶️ Cool</option>
                     <option value="🥁">🥁 Drum</option>
-                    <option value="🌈">🌈 Rainbow</option>
                     <option value="💀">💀 Skull</option>
                     <option value="🚀">🚀 Rocket</option>
                     <option value="🏆">🏆 Trophy</option>
@@ -534,7 +538,7 @@
             <!-- Live Message Preview & Compact Launch Button in one single row -->
             <div class="d-flex gap-2 align-items-stretch">
               <div id="tickerPreviewBar" class="flex-grow-1 text-center py-1 px-2 rounded bg-black border border-secondary fw-bold text-truncate d-flex align-items-center justify-content-center" style="min-height: 42px; font-size: 1.05rem; color: #00d2ff; cursor: pointer;" title="Tap to launch fullscreen">
-                👏 BRAVO ! 👏
+                👏 BRAVO !
               </div>
               <button id="launchCustomTextBtn" class="btn btn-primary px-3 fw-bold shadow text-nowrap d-flex align-items-center justify-content-center" style="min-height: 42px;">
                 <i class="bi bi-play-circle-fill me-1 fs-5"></i>Launch
@@ -829,7 +833,7 @@
           <!-- Release Datetimestamp -->
           <div class="p-2 mb-3 bg-dark rounded border border-secondary d-flex justify-content-between align-items-center">
             <span class="text-white-50 small fw-bold text-uppercase">Release Build</span>
-            <span id="appReleaseTimestamp" class="badge bg-primary font-monospace" style="font-size: 0.85rem;">2026-09-05 17:30:00 CEST</span>
+            <span id="appReleaseTimestamp" class="badge bg-primary font-monospace" style="font-size: 0.85rem;">2026-09-05 17:35:00 CEST</span>
           </div>
 
           <!-- Non-trivial features and tips -->
@@ -957,13 +961,13 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Application Logic -->
-  <script src="./js/voice-data.js?v=20260905_22"></script>
-  <script src="./js/audio-engine.js?v=20260905_22"></script>
-  <script src="./js/auto-bpm.js?v=20260905_22"></script>
-  <script src="./js/metronome.js?v=20260905_22"></script>
-  <script src="./js/setlist.js?v=20260905_22"></script>
-  <script src="./js/tuner.js?v=20260905_22"></script>
-  <script src="./js/gadgets.js?v=20260905_22"></script>
-  <script src="./js/app.js?v=20260905_22"></script>
+  <script src="./js/voice-data.js?v=20260905_23"></script>
+  <script src="./js/audio-engine.js?v=20260905_23"></script>
+  <script src="./js/auto-bpm.js?v=20260905_23"></script>
+  <script src="./js/metronome.js?v=20260905_23"></script>
+  <script src="./js/setlist.js?v=20260905_23"></script>
+  <script src="./js/tuner.js?v=20260905_23"></script>
+  <script src="./js/gadgets.js?v=20260905_23"></script>
+  <script src="./js/app.js?v=20260905_23"></script>
 </body>
 </html>

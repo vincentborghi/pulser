@@ -11,7 +11,7 @@ const DEFAULT_TICKER_PRESETS = [
     name: "Bravo !",
     text: "BRAVO !",
     decorBefore: "👏",
-    decorAfter: "👏",
+    decorAfter: "",
     effect: "zoom",
     color: "#00d2ff",
     speed: 40
@@ -21,7 +21,7 @@ const DEFAULT_TICKER_PRESETS = [
     name: "Love",
     text: "WE LOVE YOU",
     decorBefore: "❤️",
-    decorAfter: "❤️",
+    decorAfter: "",
     effect: "rainbow",
     color: "#00e676",
     speed: 40
@@ -31,7 +31,7 @@ const DEFAULT_TICKER_PRESETS = [
     name: "Une autre !",
     text: "UNE AUTRE !",
     decorBefore: "🔥",
-    decorAfter: "🔥",
+    decorAfter: "",
     effect: "wave_bounce",
     color: "#ff007f",
     speed: 50
@@ -41,7 +41,7 @@ const DEFAULT_TICKER_PRESETS = [
     name: "One More !",
     text: "ONE MORE !",
     decorBefore: "⭐",
-    decorAfter: "⭐",
+    decorAfter: "",
     effect: "scroll",
     color: "#ffcc00",
     speed: 40
@@ -51,7 +51,7 @@ const DEFAULT_TICKER_PRESETS = [
     name: "Encore !",
     text: "ENCORE !",
     decorBefore: "⚡",
-    decorAfter: "⚡",
+    decorAfter: "",
     effect: "blink",
     color: "#ffcc00",
     speed: 65
@@ -61,7 +61,7 @@ const DEFAULT_TICKER_PRESETS = [
     name: "The Best",
     text: "THE BEST",
     decorBefore: "👑",
-    decorAfter: "👑",
+    decorAfter: "",
     effect: "neon_flicker",
     color: "#ffcc00",
     speed: 40
@@ -71,7 +71,7 @@ const DEFAULT_TICKER_PRESETS = [
     name: "Rock Solo",
     text: "SOLO !",
     decorBefore: "🤘",
-    decorAfter: "🤘",
+    decorAfter: "",
     effect: "glitch_shake",
     color: "#ffffff",
     speed: 65
@@ -81,7 +81,7 @@ const DEFAULT_TICKER_PRESETS = [
     name: "Boom !",
     text: "BOOM !",
     decorBefore: "💥",
-    decorAfter: "💥",
+    decorAfter: "",
     effect: "disco_colors",
     color: "#ff3333",
     speed: 65
@@ -91,7 +91,7 @@ const DEFAULT_TICKER_PRESETS = [
     name: "Awesome",
     text: "AWESOME !",
     decorBefore: "👍",
-    decorAfter: "👍",
+    decorAfter: "",
     effect: "scroll",
     color: "#ffea00",
     speed: 40
@@ -99,8 +99,8 @@ const DEFAULT_TICKER_PRESETS = [
 ];
 
 let tickerPresets = [];
-let activeTickerPresetId = localStorage.getItem("pulser_ticker_active_preset_id_v4") || "tp_bravo";
-let customTickerText = "👏 BRAVO ! 👏";
+let activeTickerPresetId = localStorage.getItem("pulser_ticker_active_preset_id_v5") || "tp_bravo";
+let customTickerText = "👏 BRAVO !";
 let customTickerColor = "#00d2ff"; // Electric cyan
 let customTickerSpeed = 40; // Speed factor
 let customTickerEffect = "zoom";
@@ -176,7 +176,7 @@ function exitBrowserFullscreen() {
 
 function loadTickerPresets() {
   try {
-    const raw = localStorage.getItem("pulser_ticker_presets_v4");
+    const raw = localStorage.getItem("pulser_ticker_presets_v5");
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
@@ -193,7 +193,7 @@ function loadTickerPresets() {
 
 function saveTickerPresets() {
   try {
-    localStorage.setItem("pulser_ticker_presets_v4", JSON.stringify(tickerPresets));
+    localStorage.setItem("pulser_ticker_presets_v5", JSON.stringify(tickerPresets));
   } catch (err) {
     console.warn("Could not save ticker presets to storage:", err);
   }
@@ -267,7 +267,7 @@ function populateTickerInputs(preset) {
 function applyTickerPreset(presetId) {
   activeTickerPresetId = presetId;
   try {
-    localStorage.setItem("pulser_ticker_active_preset_id_v4", presetId);
+    localStorage.setItem("pulser_ticker_active_preset_id_v5", presetId);
   } catch (e) {}
   renderTickerPresetsUI();
 }
@@ -285,11 +285,10 @@ function updateTickerPreview() {
   const decorAfter = decorAfterSelect ? decorAfterSelect.value : "";
   const color = colorSelect ? colorSelect.value : "#ffcc00";
 
-  const messageText = rawText || "ONE MORE !";
-  const fullText = [decorBefore, messageText, decorAfter].filter(Boolean).join(" ");
+  const fullText = [decorBefore, rawText, decorAfter].filter(Boolean).join(" ");
 
   if (previewBar) {
-    previewBar.textContent = fullText;
+    previewBar.textContent = fullText || "";
     previewBar.style.color = color;
     previewBar.style.textShadow = "0 0 10px " + color;
   }
@@ -307,7 +306,7 @@ function saveCurrentAsActivePreset() {
   const activePreset = getActiveTickerPreset();
   if (!activePreset) return;
 
-  activePreset.text = textInput ? textInput.value.trim() || "ONE MORE !" : "ONE MORE !";
+  activePreset.text = textInput ? textInput.value.trim() : "";
   activePreset.decorBefore = decorBeforeSelect ? decorBeforeSelect.value : "";
   activePreset.decorAfter = decorAfterSelect ? decorAfterSelect.value : "";
   activePreset.effect = effectSelect ? effectSelect.value : "scroll";
@@ -340,9 +339,9 @@ function createNewTickerPreset() {
   const newPreset = {
     id: newId,
     name: name.trim(),
-    text: textInput && textInput.value.trim() ? textInput.value.trim() : name.trim(),
+    text: textInput ? textInput.value.trim() : "",
     decorBefore: decorBeforeSelect ? decorBeforeSelect.value : "⭐",
-    decorAfter: decorAfterSelect ? decorAfterSelect.value : "⭐",
+    decorAfter: decorAfterSelect ? decorAfterSelect.value : "",
     effect: effectSelect ? effectSelect.value : "scroll",
     color: colorSelect ? colorSelect.value : "#ffcc00",
     speed: speedSelect ? parseInt(speedSelect.value, 10) || 40 : 40
@@ -352,7 +351,7 @@ function createNewTickerPreset() {
   activeTickerPresetId = newId;
   saveTickerPresets();
   try {
-    localStorage.setItem("pulser_ticker_active_preset_id_v4", newId);
+    localStorage.setItem("pulser_ticker_active_preset_id_v5", newId);
   } catch (e) {}
 
   renderTickerPresetsUI();
@@ -374,7 +373,7 @@ function deleteCurrentTickerPreset() {
     activeTickerPresetId = tickerPresets[0].id;
     saveTickerPresets();
     try {
-      localStorage.setItem("pulser_ticker_active_preset_id_v4", activeTickerPresetId);
+      localStorage.setItem("pulser_ticker_active_preset_id_v5", activeTickerPresetId);
     } catch (e) {}
     renderTickerPresetsUI();
   }
@@ -477,11 +476,14 @@ function initGadgets() {
       const speedSelect = document.getElementById("customTextSpeedSelect");
       const effectSelect = document.getElementById("tickerEffectSelect");
 
-      const baseText = input && input.value.trim() ? input.value.trim() : "ONE MORE !";
+      const baseText = input ? input.value.trim() : "";
       const decorBefore = decorBeforeSelect ? decorBeforeSelect.value : "";
       const decorAfter = decorAfterSelect ? decorAfterSelect.value : "";
 
       customTickerText = [decorBefore, baseText, decorAfter].filter(Boolean).join(" ");
+      if (!customTickerText) {
+        customTickerText = "⭐";
+      }
       if (colorSelect) customTickerColor = colorSelect.value;
       if (speedSelect) customTickerSpeed = parseInt(speedSelect.value, 10) || 40;
       if (effectSelect) customTickerEffect = effectSelect.value;
@@ -914,7 +916,8 @@ function startCandleFlame(container) {
 
 // --- GADGET 2: LED BANNER & VISUAL EFFECTS (LANDSCAPE) ---
 function startCustomTextMarquee(container, text, colorHex, speedLevel, effect) {
-  const cleanText = (text || "ONE MORE !").toUpperCase();
+  const rawText = text !== undefined && text !== null ? String(text).trim() : "";
+  const cleanText = (rawText || "⭐").toUpperCase();
   const activeEffect = effect || "scroll";
   const speed = speedLevel || 40;
 
