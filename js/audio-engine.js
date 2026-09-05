@@ -140,6 +140,30 @@ function getMasterNode(ctx) {
   return masterLimiterNode || masterGainNode;
 }
 
+// Dedicated Metronome Bus Gain Node
+// Allows instant cancellation of all pending scheduled notes upon resynchronization
+let metronomeBusNode = null;
+
+function getMetronomeBus(ctx) {
+  if (!metronomeBusNode) {
+    metronomeBusNode = ctx.createGain();
+    metronomeBusNode.gain.setValueAtTime(1.0, ctx.currentTime);
+    metronomeBusNode.connect(getMasterNode(ctx));
+  }
+  return metronomeBusNode;
+}
+
+function cutAllScheduledAudio(ctx) {
+  if (metronomeBusNode) {
+    try {
+      metronomeBusNode.gain.cancelScheduledValues(ctx.currentTime);
+      metronomeBusNode.gain.setValueAtTime(0, ctx.currentTime);
+      metronomeBusNode.disconnect();
+    } catch (e) {}
+    metronomeBusNode = null;
+  }
+}
+
 // Sound 1: Drum Kit - Damped Kick Drum on Beat 1 (Grosse caisse mate)
 function scheduleDampedKick(ctx, time) {
   const startTime = Math.max(time, ctx.currentTime);
@@ -155,7 +179,7 @@ function scheduleDampedKick(ctx, time) {
   gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.09);
 
   osc.connect(gain);
-  gain.connect(getMasterNode(ctx));
+  gain.connect(getMetronomeBus(ctx));
 
   osc.start(startTime);
   osc.stop(startTime + 0.1);
@@ -176,7 +200,7 @@ function scheduleDampedKick(ctx, time) {
 
   noiseSource.connect(filter);
   filter.connect(clickGain);
-  clickGain.connect(getMasterNode(ctx));
+  clickGain.connect(getMetronomeBus(ctx));
 
   noiseSource.start(startTime);
   noiseSource.stop(startTime + 0.025);
@@ -205,7 +229,7 @@ function scheduleClosedHiHat(ctx, time) {
   noiseSource.connect(highpass);
   highpass.connect(bandpass);
   bandpass.connect(gain);
-  gain.connect(getMasterNode(ctx));
+  gain.connect(getMetronomeBus(ctx));
 
   noiseSource.start(startTime);
   noiseSource.stop(startTime + 0.05);
@@ -218,7 +242,7 @@ function scheduleWoodblock(ctx, time, isFirstBeat) {
   const gain = ctx.createGain();
 
   osc.connect(gain);
-  gain.connect(getMasterNode(ctx));
+  gain.connect(getMetronomeBus(ctx));
 
   const duration = isFirstBeat ? 0.045 : 0.035;
   const peakGain = isFirstBeat ? 0.85 : 0.55;
@@ -247,7 +271,7 @@ function scheduleElectronicBeep(ctx, time, isFirstBeat) {
 
   osc.type = "sine";
   osc.connect(gain);
-  gain.connect(getMasterNode(ctx));
+  gain.connect(getMetronomeBus(ctx));
 
   const duration = isFirstBeat ? 0.045 : 0.035;
   const peakGain = isFirstBeat ? 0.85 : 0.55;
@@ -279,7 +303,7 @@ function scheduleVoiceCount(ctx, time, beatNumber, gender = "female") {
     gain.gain.setValueAtTime(peakGain, startTime);
 
     source.connect(gain);
-    gain.connect(getMasterNode(ctx));
+    gain.connect(getMetronomeBus(ctx));
 
     source.start(startTime);
   } else {
@@ -296,7 +320,7 @@ function scheduleSynthesizedVoiceCount(ctx, time, beatNumber) {
   clickGain.gain.setValueAtTime(0.25, time);
   clickGain.gain.exponentialRampToValueAtTime(0.001, time + 0.008);
   clickOsc.connect(clickGain);
-  clickGain.connect(ctx.destination);
+  clickGain.connect(getMetronomeBus(ctx));
   clickOsc.start(time);
   clickOsc.stop(time + 0.01);
 
@@ -432,7 +456,7 @@ function scheduleCowbell(ctx, time, isFirstBeat) {
   osc1.connect(filter);
   osc2.connect(filter);
   filter.connect(gain);
-  gain.connect(getMasterNode(ctx));
+  gain.connect(getMetronomeBus(ctx));
 
   osc1.start(startTime);
   osc2.start(startTime);
@@ -457,7 +481,7 @@ function scheduleMechanicalClick(ctx, time, isFirstBeat) {
   gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.03);
 
   osc.connect(gain);
-  gain.connect(getMasterNode(ctx));
+  gain.connect(getMetronomeBus(ctx));
   osc.start(startTime);
   osc.stop(startTime + 0.035);
 
@@ -475,7 +499,7 @@ function scheduleMechanicalClick(ctx, time, isFirstBeat) {
 
   noiseSource.connect(filter);
   filter.connect(clickGain);
-  clickGain.connect(getMasterNode(ctx));
+  clickGain.connect(getMetronomeBus(ctx));
 
   noiseSource.start(startTime);
   noiseSource.stop(startTime + 0.015);
@@ -496,7 +520,7 @@ function scheduleCrossStick(ctx, time, isFirstBeat) {
   gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.04);
 
   osc.connect(gain);
-  gain.connect(getMasterNode(ctx));
+  gain.connect(getMetronomeBus(ctx));
   osc.start(startTime);
   osc.stop(startTime + 0.045);
 
@@ -514,7 +538,7 @@ function scheduleCrossStick(ctx, time, isFirstBeat) {
 
   noiseSource.connect(filter);
   filter.connect(noiseGain);
-  noiseGain.connect(getMasterNode(ctx));
+  noiseGain.connect(getMetronomeBus(ctx));
 
   noiseSource.start(startTime);
   noiseSource.stop(startTime + 0.025);
@@ -623,6 +647,9 @@ function stopMetronomeEngine() {
     timerId = null;
   }
   notesInQueue.length = 0;
+  if (audioCtx) {
+    cutAllScheduledAudio(audioCtx);
+  }
 }
 
 // Resynchronize on-the-fly to Beat 1 (measure downbeat)
@@ -637,22 +664,27 @@ function resyncEngineToBeatOne() {
     clearTimeout(timerId);
     timerId = null;
   }
+
+  // Instantly cut all pending scheduled audio in Web Audio pipeline
+  // to completely eliminate ghost ticks from the previous measure
+  cutAllScheduledAudio(ctx);
+
+  // Clear visual sync queue
   notesInQueue.length = 0;
 
+  // Schedule Beat 1 immediately with minimal audio quantum safety
   currentBeatInMeasure = 0;
-  nextNoteTime = ctx.currentTime + 0.005;
+  const now = ctx.currentTime;
+  const beatOneTime = now + 0.003;
+  nextNoteTime = beatOneTime;
 
-  scheduleTick(nextNoteTime, true, 0);
+  scheduleTick(beatOneTime, true, 0);
 
-  notesInQueue.push({
-    noteNumber: 0,
-    time: nextNoteTime,
-    isFirstBeat: true
-  });
-
+  // Advance to Beat 2 and restart the scheduler
   advanceNextNote();
   scheduler();
 
+  // Trigger visual downbeat directly for zero-latency UI response
   if (onBeatCallback) {
     onBeatCallback(0, true);
   }

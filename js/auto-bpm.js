@@ -124,6 +124,42 @@ function initAutoBpm() {
   }
 
   if (modalEl) {
+    modalEl.addEventListener("show.bs.modal", function () {
+      const alertBox = document.getElementById("autoBpmMetroRunningAlert");
+      const isMetroRunning = (typeof isEnginePlaying === "function") && isEnginePlaying();
+      if (alertBox) {
+        if (isMetroRunning) {
+          alertBox.classList.remove("d-none");
+          alertBox.className = "alert alert-warning py-2 px-3 mb-3 text-start d-flex align-items-center justify-content-between";
+          alertBox.innerHTML = `
+            <div>
+              <div class="fw-bold text-warning"><i class="bi bi-exclamation-triangle-fill me-1"></i>Metronome is running</div>
+              <div class="small text-white-50">Stop it so the microphone only hears ambient music?</div>
+            </div>
+            <button type="button" id="autoBpmStopMetroBtn" class="btn btn-sm btn-danger fw-bold text-nowrap ms-2">
+              <i class="bi bi-stop-fill me-1"></i>Stop Now
+            </button>
+          `;
+          const stopBtn = document.getElementById("autoBpmStopMetroBtn");
+          if (stopBtn) {
+            stopBtn.addEventListener("click", function () {
+              if (typeof isEnginePlaying === "function" && isEnginePlaying()) {
+                const playBtn = document.getElementById("playButton");
+                if (playBtn) playBtn.click();
+              }
+              alertBox.className = "alert alert-success py-2 px-3 mb-3 text-start";
+              alertBox.innerHTML = '<i class="bi bi-check-circle-fill me-2 text-success"></i><strong>Metronome stopped.</strong> Ready to listen.';
+              setTimeout(function () {
+                alertBox.classList.add("d-none");
+              }, 2000);
+            });
+          }
+        } else {
+          alertBox.classList.add("d-none");
+        }
+      }
+    });
+
     modalEl.addEventListener("hidden.bs.modal", function () {
       stopAutoBpmListening();
       resetAutoBpmUI();
@@ -132,6 +168,21 @@ function initAutoBpm() {
 }
 
 async function startAutoBpmListening() {
+  // Proactively stop metronome if still running so mic does not capture clicks
+  if (typeof isEnginePlaying === "function" && isEnginePlaying()) {
+    const playBtn = document.getElementById("playButton");
+    if (playBtn) playBtn.click();
+    const alertBox = document.getElementById("autoBpmMetroRunningAlert");
+    if (alertBox) {
+      alertBox.className = "alert alert-success py-2 px-3 mb-3 text-start";
+      alertBox.innerHTML = '<i class="bi bi-check-circle-fill me-2 text-success"></i><strong>Metronome stopped.</strong> Listening...';
+      alertBox.classList.remove("d-none");
+      setTimeout(function () {
+        alertBox.classList.add("d-none");
+      }, 2000);
+    }
+  }
+
   const statusText = document.getElementById("autoBpmStatusText");
   const listenBtn = document.getElementById("autoBpmListenToggleBtn");
   const listenText = document.getElementById("autoBpmListenBtnText");

@@ -664,6 +664,17 @@
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body p-3 text-center">
+          <!-- Alert offering to stop metronome if it is currently playing -->
+          <div id="autoBpmMetroRunningAlert" class="alert alert-warning py-2 px-3 mb-3 d-none text-start d-flex align-items-center justify-content-between">
+            <div>
+              <div class="fw-bold text-warning"><i class="bi bi-exclamation-triangle-fill me-1"></i>Metronome is running</div>
+              <div class="small text-white-50">Stop it so the microphone only hears ambient music?</div>
+            </div>
+            <button type="button" id="autoBpmStopMetroBtn" class="btn btn-sm btn-danger fw-bold text-nowrap ms-2">
+              <i class="bi bi-stop-fill me-1"></i>Stop Now
+            </button>
+          </div>
+
           <!-- Big Detected BPM Display -->
           <div class="py-2">
             <span class="text-white-50 small text-uppercase fw-bold d-block mb-1">Detected Tempo</span>

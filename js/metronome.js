@@ -579,10 +579,11 @@ function renderBeatDots() {
 
     if (i === 0) {
       dot.style.cursor = "pointer";
-      dot.title = "Click to resynchronize Beat 1";
+      dot.title = "Tap to resynchronize Beat 1";
       dot.setAttribute("role", "button");
       dot.setAttribute("aria-label", "Resynchronize Beat 1");
-      dot.addEventListener("click", function (e) {
+      dot.addEventListener("pointerdown", function (e) {
+        e.preventDefault();
         e.stopPropagation();
         resyncMetronomeToBeatOne();
       });
@@ -848,6 +849,19 @@ function initMetronome() {
   const playBtn = document.getElementById("playButton");
   if (playBtn) {
     playBtn.addEventListener("click", togglePlayMetronome);
+  }
+
+  // Beat Flasher circle (under BPM display): tap to resync Beat 1 with zero latency
+  const flasher = document.getElementById("beatFlasher");
+  if (flasher) {
+    flasher.style.cursor = "pointer";
+    flasher.title = "Tap to resynchronize Beat 1";
+    flasher.setAttribute("role", "button");
+    flasher.setAttribute("aria-label", "Resynchronize Beat 1");
+    flasher.addEventListener("pointerdown", function (e) {
+      e.preventDefault();
+      resyncMetronomeToBeatOne();
+    });
   }
 
   // Global quick stop button (visible on Setlist and Tuner tabs)
