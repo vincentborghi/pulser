@@ -847,7 +847,7 @@ function startCandleFlame(container) {
   };
 }
 
-// --- GADGET 2: CUSTOM TEXT MARQUEE TICKER & VISUAL EFFECTS (LANDSCAPE) ---
+// --- GADGET 2: LED BANNER & VISUAL EFFECTS (LANDSCAPE) ---
 function startCustomTextMarquee(container, text, colorHex, speedLevel, effect) {
   const cleanText = (text || "ONE MORE !").toUpperCase();
   const activeEffect = effect || "scroll";
