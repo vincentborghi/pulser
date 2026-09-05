@@ -18,7 +18,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   
   <!-- Custom App Styles -->
-  <link rel="stylesheet" href="./css/style.css?v=20260905_16">
+  <link rel="stylesheet" href="./css/style.css?v=20260905_17">
 </head>
 <body class="d-flex flex-column ui-size-large">
 
@@ -839,7 +839,7 @@
           <!-- Release Datetimestamp -->
           <div class="p-2 mb-3 bg-dark rounded border border-secondary d-flex justify-content-between align-items-center">
             <span class="text-white-50 small fw-bold text-uppercase">Release Build</span>
-            <span id="appReleaseTimestamp" class="badge bg-primary font-monospace" style="font-size: 0.85rem;">2026-09-05 16:45:00 CEST</span>
+            <span id="appReleaseTimestamp" class="badge bg-primary font-monospace" style="font-size: 0.85rem;">2026-09-05 16:55:00 CEST</span>
           </div>
 
           <!-- Non-trivial features and tips -->
@@ -917,6 +917,15 @@
                 The bottom footer button completely clears offline service worker caches and fetches the latest GitHub release immediately, with no need to delete browser cookies or site data.
               </div>
             </li>
+
+            <li class="list-group-item bg-transparent text-white border-secondary px-0 py-2">
+              <div class="fw-bold text-warning mb-1">
+                <i class="bi bi-arrow-left-circle me-1"></i>Smart Browser Back Button Navigation
+              </div>
+              <div class="small text-white-50">
+                On mobile and desktop, pressing the browser Back button will close open concert gadgets, modals, or return from Setlist/Tuner/Gadgets to the Metronome instead of exiting. When on the Metronome, it prompts for confirmation before leaving the app.
+              </div>
+            </li>
           </ul>
         </div>
         <div class="modal-footer border-secondary py-2">
@@ -928,21 +937,26 @@
 
   <!-- Fullscreen Concert Gadget Stage Overlay -->
   <div id="concertGadgetOverlay" class="d-none">
-    <div id="gadgetOverlayControls" class="d-flex justify-content-between align-items-center p-3">
-      <div class="d-flex align-items-center gap-2">
-        <button type="button" id="rotateGadgetOverlayBtn" class="btn btn-outline-light btn-sm rounded-pill px-3 py-1 bg-dark bg-opacity-75" title="Toggle 90 degree landscape rotation">
-          <i id="rotateGadgetIcon" class="bi bi-phone-landscape me-1 text-white"></i><span>Rotate 90</span>
+    <div id="gadgetOverlayControls" class="d-flex justify-content-between align-items-center p-2 px-3">
+      <!-- Left side: Rotation and Variant toggles -->
+      <div class="d-flex align-items-center gap-2 flex-nowrap">
+        <button type="button" id="rotateGadgetOverlayBtn" class="btn btn-outline-light btn-sm rounded-pill px-2 py-1 bg-dark bg-opacity-75 text-nowrap" title="Toggle 90 degree landscape rotation">
+          <i id="rotateGadgetIcon" class="bi bi-phone-landscape me-1 text-white"></i><span class="d-none d-sm-inline">Rotate</span><span class="d-inline d-sm-none">90&deg;</span>
         </button>
-        <button type="button" id="switchFlameVariantBtn" class="btn btn-outline-warning btn-sm rounded-pill px-3 py-1 bg-dark bg-opacity-75 d-none" title="Toggle between Candle and Bic Lighter">
+        <button type="button" id="switchFlameVariantBtn" class="btn btn-outline-warning btn-sm rounded-pill px-2 py-1 bg-dark bg-opacity-75 d-none text-nowrap" title="Toggle between Candle and Bic Lighter">
           <i class="bi bi-arrow-repeat me-1"></i><span id="switchFlameVariantLabel">🔥 Bic</span>
         </button>
       </div>
-      <div id="gadgetOverlayHint" class="text-center px-2">
-        <span class="badge bg-dark bg-opacity-75 text-white-50 px-3 py-2 rounded-pill fw-normal" style="font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.15);">
-          Tap screen to hide or close
+
+      <!-- Center floating hint (positioned absolute so it never squishes or pushes buttons off-screen) -->
+      <div id="gadgetOverlayHint" class="text-center">
+        <span class="badge bg-dark bg-opacity-75 text-white-50 px-3 py-1 rounded-pill fw-normal" style="font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.15);">
+          Tap screen to toggle
         </span>
       </div>
-      <button type="button" id="closeGadgetOverlayBtn" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1 bg-dark bg-opacity-75 text-danger fw-bold" title="Exit full screen">
+
+      <!-- Right side: Close button guaranteed on-screen -->
+      <button type="button" id="closeGadgetOverlayBtn" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1 bg-dark bg-opacity-75 text-danger fw-bold ms-auto text-nowrap" title="Exit full screen">
         <i class="bi bi-x-lg me-1"></i><span>Close</span>
       </button>
     </div>
@@ -953,13 +967,13 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Application Logic -->
-  <script src="./js/voice-data.js?v=20260905_16"></script>
-  <script src="./js/audio-engine.js?v=20260905_16"></script>
-  <script src="./js/auto-bpm.js?v=20260905_16"></script>
-  <script src="./js/metronome.js?v=20260905_16"></script>
-  <script src="./js/setlist.js?v=20260905_16"></script>
-  <script src="./js/tuner.js?v=20260905_16"></script>
-  <script src="./js/gadgets.js?v=20260905_16"></script>
-  <script src="./js/app.js?v=20260905_16"></script>
+  <script src="./js/voice-data.js?v=20260905_17"></script>
+  <script src="./js/audio-engine.js?v=20260905_17"></script>
+  <script src="./js/auto-bpm.js?v=20260905_17"></script>
+  <script src="./js/metronome.js?v=20260905_17"></script>
+  <script src="./js/setlist.js?v=20260905_17"></script>
+  <script src="./js/tuner.js?v=20260905_17"></script>
+  <script src="./js/gadgets.js?v=20260905_17"></script>
+  <script src="./js/app.js?v=20260905_17"></script>
 </body>
 </html>

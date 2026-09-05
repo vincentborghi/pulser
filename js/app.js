@@ -1,7 +1,7 @@
 // Main application bootstrap and tab management
 // Pure procedural implementation
 
-const APP_RELEASE_TIMESTAMP = "2026-09-05 16:45:00 CEST";
+const APP_RELEASE_TIMESTAMP = "2026-09-05 16:55:00 CEST";
 let deferredInstallPrompt = null;
 
 // Register Service Worker for offline PWA functionality
@@ -9,7 +9,7 @@ function registerServiceWorker() {
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
       navigator.serviceWorker
-        .register("./sw.js?v=20260905_16", { updateViaCache: "none" })
+        .register("./sw.js?v=20260905_17", { updateViaCache: "none" })
         .then(function (reg) {
           console.log("Service Worker registered successfully, scope:", reg.scope);
           // Check for updates on every load
@@ -68,6 +68,8 @@ function setupInstallPrompt() {
 }
 
 // Setup tab listeners
+let isHistoryNavigating = false;
+
 function setupTabEvents() {
   const tabLinks = document.querySelectorAll('button[data-bs-toggle="pill"]');
   tabLinks.forEach(function (tabEl) {
@@ -80,16 +82,124 @@ function setupTabEvents() {
       }
 
       // Close concert gadget if user switches tab
-      if (typeof closeConcertGadget === "function") {
-        closeConcertGadget();
+      if (typeof closeConcertGadget === "function" && typeof activeGadgetType !== "undefined" && activeGadgetType !== null) {
+        closeConcertGadget(true);
       }
 
       // Update global metronome quick stop bar when switching tabs
       if (typeof updateGlobalMetronomeBar === "function") {
         updateGlobalMetronomeBar();
       }
+
+      // Manage history state on manual UI tab switch
+      if (!isHistoryNavigating) {
+        try {
+          if (targetId === "#pills-metronome") {
+            history.replaceState({ pulser: "metro" }, "");
+          } else if (history.state && history.state.pulser === "tab") {
+            history.replaceState({ pulser: "tab", tab: targetId }, "");
+          } else {
+            history.pushState({ pulser: "tab", tab: targetId }, "");
+          }
+        } catch (err) {
+          console.warn("History push warning:", err);
+        }
+      }
     });
   });
+}
+
+// Navigation History & Browser Back Button Management
+function initNavigationHistory() {
+  try {
+    if (!history.state || !history.state.pulser) {
+      history.replaceState({ pulser: "root" }, "");
+      history.pushState({ pulser: "metro" }, "");
+    }
+  } catch (err) {
+    console.warn("History API init warning:", err);
+  }
+
+  // Handle browser Back / Forward events
+  window.addEventListener("popstate", function (e) {
+    handlePopState(e);
+  });
+
+  // Handle Bootstrap modal show/hide with history
+  const modals = document.querySelectorAll(".modal");
+  modals.forEach(function (modalEl) {
+    modalEl.addEventListener("show.bs.modal", function () {
+      if (!isHistoryNavigating) {
+        try {
+          history.pushState({ pulser: "modal", modalId: modalEl.id }, "");
+        } catch (e) {}
+      }
+    });
+
+    modalEl.addEventListener("hidden.bs.modal", function () {
+      if (!isHistoryNavigating) {
+        try {
+          if (history.state && history.state.pulser === "modal") {
+            history.back();
+          }
+        } catch (e) {}
+      }
+    });
+  });
+}
+
+function handlePopState(e) {
+  // 1. If a concert gadget overlay is currently open, close it and return to Gadgets page
+  if (typeof activeGadgetType !== "undefined" && activeGadgetType !== null) {
+    if (typeof closeConcertGadget === "function") {
+      closeConcertGadget(true);
+    }
+    return;
+  }
+
+  // 2. If any open modal is shown, close it
+  const openModal = document.querySelector(".modal.show");
+  if (openModal) {
+    isHistoryNavigating = true;
+    const modalInstance = bootstrap.Modal.getInstance(openModal);
+    if (modalInstance) {
+      modalInstance.hide();
+    }
+    isHistoryNavigating = false;
+    return;
+  }
+
+  // 3. If user is on a non-metronome tab (setlist, tuner, gadgets), return to Metronome tab
+  const activeTabEl = document.querySelector('.nav-link.active[data-bs-toggle="pill"]');
+  const activeTabTarget = activeTabEl ? activeTabEl.getAttribute("data-bs-target") : null;
+
+  if (activeTabTarget && activeTabTarget !== "#pills-metronome") {
+    const metroTabBtn = document.getElementById("pills-metronome-tab");
+    if (metroTabBtn) {
+      isHistoryNavigating = true;
+      const tabInstance = bootstrap.Tab.getOrCreateInstance(metroTabBtn);
+      tabInstance.show();
+      isHistoryNavigating = false;
+
+      // Update state to metro so that subsequent Back asks for exit confirmation
+      try {
+        history.replaceState({ pulser: "metro" }, "");
+      } catch (err) {}
+    }
+    return;
+  }
+
+  // 4. If user is already on the Metronome tab, ask for confirmation before exiting
+  const exitConfirmed = window.confirm("Do you want to exit Pulser?");
+  if (exitConfirmed) {
+    // User confirmed exit: allow the browser to leave
+    history.back();
+  } else {
+    // User canceled exit: re-push metro state so the user remains in the app
+    try {
+      history.pushState({ pulser: "metro" }, "");
+    } catch (err) {}
+  }
 }
 
 // Force reload and purge all cache to fetch the latest version from network
@@ -154,6 +264,7 @@ document.addEventListener("DOMContentLoaded", function () {
     initGadgets();
   }
   setupTabEvents();
+  initNavigationHistory();
   setupInstallPrompt();
   setupForceReload();
   setupAboutModal();

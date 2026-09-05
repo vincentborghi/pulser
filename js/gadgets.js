@@ -561,15 +561,20 @@ function openConcertGadget(type) {
   // Keep screen awake
   requestGadgetWakeLock();
 
-  // Show top controls and temporary hint briefly upon opening, then auto-fade after 1500ms
+  // Show top controls and temporary hint briefly upon opening, then auto-fade after 4000ms
   if (controls) {
     controls.classList.remove("fade-out");
     controls.style.opacity = "1";
     clearTimeout(controlsHintTimeout);
     controlsHintTimeout = setTimeout(function () {
       controls.classList.add("fade-out");
-    }, 1500);
+    }, 4000);
   }
+
+  // Push overlay state to history so browser Back closes the gadget
+  try {
+    history.pushState({ pulser: "overlay", gadget: type }, "");
+  } catch (err) {}
 
   if (type === "candle") {
     startCandleFlame(stage);
@@ -584,7 +589,7 @@ function openConcertGadget(type) {
   }
 }
 
-function closeConcertGadget() {
+function closeConcertGadget(fromHistoryPop) {
   if (controlsHintTimeout !== null) {
     clearTimeout(controlsHintTimeout);
     controlsHintTimeout = null;
@@ -607,6 +612,15 @@ function closeConcertGadget() {
 
   activeGadgetType = null;
   releaseGadgetWakeLock();
+
+  // If closed via UI action and not popstate, pop the overlay history entry
+  if (!fromHistoryPop) {
+    try {
+      if (history.state && history.state.pulser === "overlay") {
+        history.back();
+      }
+    } catch (err) {}
+  }
 }
 
 function toggleGadgetRotation() {
@@ -638,7 +652,7 @@ function toggleGadgetControlsHint() {
     clearTimeout(controlsHintTimeout);
     controlsHintTimeout = setTimeout(function () {
       controls.classList.add("fade-out");
-    }, 1500);
+    }, 4000);
   } else {
     controls.classList.add("fade-out");
     clearTimeout(controlsHintTimeout);

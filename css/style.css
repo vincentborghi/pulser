@@ -771,14 +771,32 @@ button {
   position: absolute;
   top: 0;
   left: 0;
+  right: 0;
   width: 100%;
+  box-sizing: border-box;
   z-index: 100000;
   transition: opacity 0.3s ease;
+  pointer-events: auto;
 }
 
 #gadgetOverlayControls.fade-out {
   opacity: 0 !important;
   pointer-events: none;
+}
+
+#gadgetOverlayHint {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 6px);
+  transform: translateX(-50%);
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: 90vw;
+}
+
+#closeGadgetOverlayBtn {
+  flex-shrink: 0;
+  z-index: 100001;
 }
 
 #gadgetStageContainer {
