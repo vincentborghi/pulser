@@ -131,6 +131,49 @@ async function releaseGadgetWakeLock() {
   }
 }
 
+// Request browser full screen to force mobile Chrome to hide URL and navigation bars
+function requestBrowserFullscreen() {
+  try {
+    const docEl = document.documentElement;
+    const rfs = docEl.requestFullscreen ||
+      docEl.webkitRequestFullscreen ||
+      docEl.mozRequestFullScreen ||
+      docEl.msRequestFullscreen;
+
+    if (rfs && !document.fullscreenElement && !document.webkitFullscreenElement) {
+      const p = rfs.call(docEl);
+      if (p && typeof p.catch === "function") {
+        p.catch(function () {});
+      }
+    }
+  } catch (err) {
+    // Ignore if not permitted
+  }
+
+  // Fallback for mobile browser address bar collapse
+  try {
+    window.scrollTo(0, 1);
+  } catch (e) {}
+}
+
+function exitBrowserFullscreen() {
+  try {
+    const doc = document;
+    const isFs = doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement;
+    if (isFs) {
+      const efs = doc.exitFullscreen || doc.webkitExitFullscreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
+      if (efs) {
+        const p = efs.call(doc);
+        if (p && typeof p.catch === "function") {
+          p.catch(function () {});
+        }
+      }
+    }
+  } catch (err) {
+    // Ignore
+  }
+}
+
 function loadTickerPresets() {
   try {
     const raw = localStorage.getItem("pulser_ticker_presets_v4");
@@ -519,6 +562,10 @@ function initGadgets() {
       if (target && target.closest("#gadgetOverlayControls")) {
         return;
       }
+      // Re-hide Chrome address bar if it was restored
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        requestBrowserFullscreen();
+      }
       toggleGadgetControlsHint();
     });
   }
@@ -593,6 +640,11 @@ function openConcertGadget(type) {
   // Keep screen awake
   requestGadgetWakeLock();
 
+  // Request browser full screen to force mobile Chrome to hide URL and navigation bars
+  requestBrowserFullscreen();
+  document.body.style.overflow = "hidden";
+  document.documentElement.style.overflow = "hidden";
+
   // Show top controls and temporary hint briefly upon opening, then auto-fade after 4000ms
   if (controls) {
     controls.classList.remove("fade-out");
@@ -644,6 +696,9 @@ function closeConcertGadget(fromHistoryPop) {
 
   activeGadgetType = null;
   releaseGadgetWakeLock();
+  exitBrowserFullscreen();
+  document.body.style.overflow = "";
+  document.documentElement.style.overflow = "";
 
   // If closed via UI action and not popstate, pop the overlay history entry
   if (!fromHistoryPop) {
