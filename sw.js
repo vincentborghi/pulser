@@ -1,6 +1,6 @@
 // Service Worker for 100% offline usage
 // Cache version identifier
-const CACHE_NAME = "pulser-cache-v13";
+const CACHE_NAME = "pulser-cache-v14";
 
 const ASSETS_TO_CACHE = [
   "./",
