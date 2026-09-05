@@ -912,6 +912,34 @@ button {
   pointer-events: none;
 }
 
+/* --- BIC LIGHTER VARIANT WITH THUMB --- */
+.bic-assembly {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: clamp(20px, 4vh, 50px);
+}
+
+.bic-flame-anchor {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  transform-origin: center bottom;
+  transition: transform 0.15s ease-out;
+  z-index: 2;
+  margin-left: -44px;
+  margin-bottom: -10px;
+}
+
+.bic-svg {
+  width: clamp(220px, 58vw, 290px);
+  height: auto;
+  z-index: 3;
+  filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.95));
+}
+
 @keyframes flameDance {
   0% {
     transform: rotate(-3deg) skewX(-2deg) scale(1, 1);

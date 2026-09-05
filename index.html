@@ -18,7 +18,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   
   <!-- Custom App Styles -->
-  <link rel="stylesheet" href="./css/style.css?v=20260905_14">
+  <link rel="stylesheet" href="./css/style.css?v=20260905_15">
 </head>
 <body class="d-flex flex-column ui-size-large">
 
@@ -375,14 +375,25 @@
           <div class="custom-card p-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <div class="d-flex align-items-center gap-2">
-                <span class="fs-3">🕯️</span>
+                <span class="fs-3" id="flameGadgetIcon">🕯️</span>
                 <div>
-                  <h6 class="mb-0 fw-bold text-white">Lighter / Candle Flame</h6>
+                  <h6 class="mb-0 fw-bold text-white">Light Flame</h6>
                   <small class="text-white-50" style="font-size: 0.82rem;">For ballads and slow songs &bull; Portrait mode</small>
                 </div>
               </div>
               <span class="badge bg-warning text-dark fw-bold">Portrait</span>
             </div>
+
+            <!-- Flame Style Selection: Candle vs Bic Lighter -->
+            <div class="d-flex gap-2 mb-3">
+              <button type="button" id="flameVariantCandleBtn" class="btn btn-sm btn-outline-warning flex-fill fw-bold active text-nowrap" style="font-size: 0.84rem;">
+                🕯️ Candle
+              </button>
+              <button type="button" id="flameVariantLighterBtn" class="btn btn-sm btn-outline-warning flex-fill fw-bold text-nowrap" style="font-size: 0.84rem;">
+                🔥 Bic Lighter
+              </button>
+            </div>
+
             <button id="launchCandleBtn" class="btn btn-warning w-100 py-2 fw-bold shadow text-dark" style="min-height: 48px;">
               <i class="bi bi-fire me-2 fs-5"></i>Light Flame
             </button>
@@ -749,7 +760,7 @@
           <!-- Release Datetimestamp -->
           <div class="p-2 mb-3 bg-dark rounded border border-secondary d-flex justify-content-between align-items-center">
             <span class="text-white-50 small fw-bold text-uppercase">Release Build</span>
-            <span id="appReleaseTimestamp" class="badge bg-primary font-monospace" style="font-size: 0.85rem;">2026-09-05 15:58:00 CEST</span>
+            <span id="appReleaseTimestamp" class="badge bg-primary font-monospace" style="font-size: 0.85rem;">2026-09-05 16:30:00 CEST</span>
           </div>
 
           <!-- Non-trivial features and tips -->
@@ -762,6 +773,15 @@
               </div>
               <div class="small text-white-50">
                 Tap the <strong>first circle</strong> directly under the BPM counter (or the central pulse flasher) at any time to instantly resynchronize to the 1st beat on the fly without stopping the metronome.
+              </div>
+            </li>
+
+            <li class="list-group-item bg-transparent text-white border-secondary px-0 py-2">
+              <div class="fw-bold text-danger mb-1">
+                <i class="bi bi-fire me-1"></i>Concert Flame: Candle or Bic Lighter
+              </div>
+              <div class="small text-white-50">
+                In Gadgets, choose between a romantic Candle or an iconic Bic Lighter (complete with human thumb pressing the gas valve). You can also switch between them directly on stage with the quick toggle button.
               </div>
             </li>
 
@@ -821,9 +841,14 @@
   <!-- Fullscreen Concert Gadget Stage Overlay -->
   <div id="concertGadgetOverlay" class="d-none">
     <div id="gadgetOverlayControls" class="d-flex justify-content-between align-items-center p-3">
-      <button type="button" id="rotateGadgetOverlayBtn" class="btn btn-outline-light btn-sm rounded-pill px-3 py-1 bg-dark bg-opacity-75" title="Toggle 90 degree landscape rotation">
-        <i id="rotateGadgetIcon" class="bi bi-phone-landscape me-1 text-white"></i><span>Rotate 90</span>
-      </button>
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" id="rotateGadgetOverlayBtn" class="btn btn-outline-light btn-sm rounded-pill px-3 py-1 bg-dark bg-opacity-75" title="Toggle 90 degree landscape rotation">
+          <i id="rotateGadgetIcon" class="bi bi-phone-landscape me-1 text-white"></i><span>Rotate 90</span>
+        </button>
+        <button type="button" id="switchFlameVariantBtn" class="btn btn-outline-warning btn-sm rounded-pill px-3 py-1 bg-dark bg-opacity-75 d-none" title="Toggle between Candle and Bic Lighter">
+          <i class="bi bi-arrow-repeat me-1"></i><span id="switchFlameVariantLabel">🔥 Bic</span>
+        </button>
+      </div>
       <div id="gadgetOverlayHint" class="text-center px-2">
         <span class="badge bg-dark bg-opacity-75 text-white-50 px-3 py-2 rounded-pill fw-normal" style="font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.15);">
           Tap screen to hide or close
@@ -840,13 +865,13 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Application Logic -->
-  <script src="./js/voice-data.js?v=20260905_14"></script>
-  <script src="./js/audio-engine.js?v=20260905_14"></script>
-  <script src="./js/auto-bpm.js?v=20260905_14"></script>
-  <script src="./js/metronome.js?v=20260905_14"></script>
-  <script src="./js/setlist.js?v=20260905_14"></script>
-  <script src="./js/tuner.js?v=20260905_14"></script>
-  <script src="./js/gadgets.js?v=20260905_14"></script>
-  <script src="./js/app.js?v=20260905_14"></script>
+  <script src="./js/voice-data.js?v=20260905_15"></script>
+  <script src="./js/audio-engine.js?v=20260905_15"></script>
+  <script src="./js/auto-bpm.js?v=20260905_15"></script>
+  <script src="./js/metronome.js?v=20260905_15"></script>
+  <script src="./js/setlist.js?v=20260905_15"></script>
+  <script src="./js/tuner.js?v=20260905_15"></script>
+  <script src="./js/gadgets.js?v=20260905_15"></script>
+  <script src="./js/app.js?v=20260905_15"></script>
 </body>
 </html>
