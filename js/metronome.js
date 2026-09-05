@@ -235,13 +235,13 @@ document.addEventListener("visibilitychange", async function () {
 });
 
 // Quick BPM presets with 5 distinct colors and drag-and-drop reordering
-const PRESETS_STORAGE_KEY = "metronome_quick_bpm_presets_v3";
+const PRESETS_STORAGE_KEY = "metronome_quick_bpm_presets_v4";
 const DEFAULT_PRESETS = [
-  { id: "p1", bpm: 84,  colorClass: "preset-color-1", name: "P1" },
+  { id: "p1", bpm: 60,  colorClass: "preset-color-1", name: "P1" },
   { id: "p2", bpm: 90,  colorClass: "preset-color-2", name: "P2" },
-  { id: "p3", bpm: 110, colorClass: "preset-color-3", name: "P3" },
-  { id: "p4", bpm: 125, colorClass: "preset-color-4", name: "P4" },
-  { id: "p5", bpm: 140, colorClass: "preset-color-5", name: "P5" }
+  { id: "p3", bpm: 120, colorClass: "preset-color-3", name: "P3" },
+  { id: "p4", bpm: 140, colorClass: "preset-color-4", name: "P4" },
+  { id: "p5", bpm: 180, colorClass: "preset-color-5", name: "P5" }
 ];
 let quickPresets = JSON.parse(JSON.stringify(DEFAULT_PRESETS));
 let isSavingPresetMode = false;
@@ -252,11 +252,12 @@ let touchDragStartIndex = null;
 let touchMoved = false;
 let touchStartPos = { x: 0, y: 0 };
 
-// Load quick presets from storage (ordered slowest to fastest: 84 to 140)
+// Load quick presets from storage (ordered slowest to fastest: 60 to 180)
 function loadQuickPresets() {
   try {
     localStorage.removeItem("metronome_quick_bpm_presets_v1");
     localStorage.removeItem("metronome_quick_bpm_presets_v2");
+    localStorage.removeItem("metronome_quick_bpm_presets_v3");
 
     const saved = localStorage.getItem(PRESETS_STORAGE_KEY);
     if (saved) {
