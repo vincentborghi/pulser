@@ -187,6 +187,7 @@ function renderTickerPresetsUI() {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "btn btn-sm py-0 px-2 text-nowrap " + (preset.id === activeTickerPresetId ? "btn-primary text-white fw-bold" : "btn-outline-secondary text-white");
+      btn.style.fontSize = "0.78rem";
       const decor = preset.decorBefore ? preset.decorBefore + " " : "";
       btn.textContent = decor + preset.name;
       btn.addEventListener("click", function () {
@@ -444,6 +445,13 @@ function initGadgets() {
 
       openConcertGadget("custom_text");
     });
+
+    const tickerPreviewBar = document.getElementById("tickerPreviewBar");
+    if (tickerPreviewBar) {
+      tickerPreviewBar.addEventListener("click", function () {
+        launchCustomTextBtn.click();
+      });
+    }
   }
 
   const launchGlowstickBtn = document.getElementById("launchGlowstickBtn");

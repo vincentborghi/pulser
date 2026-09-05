@@ -18,7 +18,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   
   <!-- Custom App Styles -->
-  <link rel="stylesheet" href="./css/style.css?v=20260905_19">
+  <link rel="stylesheet" href="./css/style.css?v=20260905_20">
 </head>
 <body class="d-flex flex-column ui-size-large">
 
@@ -369,23 +369,20 @@
           </small>
         </div>
 
-        <div class="d-flex flex-column gap-3">
+        <div class="d-flex flex-column gap-2">
           
           <!-- Gadget 1: Lighter / Candle Flame (Portrait) -->
           <div class="custom-card p-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <div class="d-flex align-items-center gap-2">
-                <span class="fs-3" id="flameGadgetIcon">🕯️</span>
-                <div>
-                  <h6 class="mb-0 fw-bold text-white">Light Flame</h6>
-                  <small class="text-white-50" style="font-size: 0.82rem;">For ballads and slow songs &bull; Portrait mode</small>
-                </div>
+                <span class="fs-4" id="flameGadgetIcon">🕯️</span>
+                <h6 class="mb-0 fw-bold text-white">Light Flame</h6>
               </div>
               <span class="badge bg-warning text-dark fw-bold">Portrait</span>
             </div>
 
             <!-- Flame Style Selection: Candle vs Bic Lighter -->
-            <div class="d-flex gap-2 mb-3">
+            <div class="d-flex gap-2 mb-2">
               <button type="button" id="flameVariantCandleBtn" class="btn btn-sm btn-outline-warning flex-fill fw-bold active text-nowrap" style="font-size: 0.84rem;">
                 🕯️ Candle
               </button>
@@ -394,7 +391,7 @@
               </button>
             </div>
 
-            <button id="launchCandleBtn" class="btn btn-warning w-100 py-2 fw-bold shadow text-dark" style="min-height: 48px;">
+            <button id="launchCandleBtn" class="btn btn-warning w-100 py-2 fw-bold shadow text-dark" style="min-height: 44px;">
               <i class="bi bi-fire me-2 fs-5"></i>Light Flame
             </button>
           </div>
@@ -403,106 +400,105 @@
           <div class="custom-card p-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <div class="d-flex align-items-center gap-2">
-                <span class="fs-3">💬</span>
-                <div>
-                  <h6 class="mb-0 fw-bold text-white">LED Banner</h6>
-                  <small class="text-white-50" style="font-size: 0.82rem;">Stage beacon messages &bull; Presets, icons &amp; visual effects</small>
-                </div>
+                <span class="fs-4">💬</span>
+                <h6 class="mb-0 fw-bold text-white">LED Banner</h6>
               </div>
-              <span class="badge bg-primary text-white fw-bold">Landscape</span>
+              <div class="d-flex align-items-center gap-1">
+                <span id="tickerSavedToast" class="badge bg-success d-none">Saved!</span>
+                <span class="badge bg-primary text-white fw-bold">Landscape</span>
+              </div>
             </div>
 
-            <!-- Preset Selection & Actions Header -->
-            <div class="mb-2">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-                <label for="tickerPresetSelect" class="form-label small text-white-50 mb-0">Presets</label>
-                <div class="d-flex gap-1">
-                  <button type="button" id="saveTickerPresetBtn" class="btn btn-sm btn-outline-success py-0 px-2 text-white" title="Save changes to current preset">
-                    <i class="bi bi-floppy me-1"></i>Save
-                  </button>
-                  <button type="button" id="newTickerPresetBtn" class="btn btn-sm btn-outline-primary py-0 px-2 text-white" title="Create a new preset">
-                    <i class="bi bi-plus-lg me-1"></i>New
-                  </button>
-                  <button type="button" id="deleteTickerPresetBtn" class="btn btn-sm btn-outline-danger py-0 px-2" title="Delete current preset">
-                    <i class="bi bi-trash"></i>
-                  </button>
-                </div>
-              </div>
+            <!-- Preset Selection & Actions in a single compact input-group -->
+            <div class="input-group input-group-sm mb-1">
+              <span class="input-group-text bg-dark border-secondary text-white-50 px-2 small">Preset</span>
               <select id="tickerPresetSelect" class="form-select form-select-sm bg-dark text-white border-secondary fw-semibold"></select>
+              <button type="button" id="saveTickerPresetBtn" class="btn btn-sm btn-outline-success px-2 text-white" title="Save changes to current preset">
+                <i class="bi bi-floppy"></i>
+              </button>
+              <button type="button" id="newTickerPresetBtn" class="btn btn-sm btn-outline-primary px-2 text-white" title="Create a new preset">
+                <i class="bi bi-plus-lg"></i>
+              </button>
+              <button type="button" id="deleteTickerPresetBtn" class="btn btn-sm btn-outline-danger px-2" title="Delete current preset">
+                <i class="bi bi-trash"></i>
+              </button>
             </div>
 
-            <!-- Quick Preset Chips -->
-            <div id="tickerPresetChips" class="d-flex gap-1 flex-wrap mb-2"></div>
+            <!-- Quick Preset Chips: horizontal scrollable single strip -->
+            <div id="tickerPresetChips" class="d-flex gap-1 flex-nowrap overflow-x-auto pb-1 mb-2" style="scrollbar-width: thin;"></div>
 
-            <!-- Message Text Input -->
-            <div class="mb-2">
-              <label for="customTextInput" class="form-label small text-white-50 mb-1">Message Text</label>
-              <input type="text" id="customTextInput" class="form-control bg-dark text-white border-secondary" placeholder="Type your message..." value="ONE MORE !" maxlength="80">
+            <!-- Message Text Input with compact label -->
+            <div class="input-group input-group-sm mb-1">
+              <span class="input-group-text bg-dark border-secondary text-white-50 px-2 small">Text</span>
+              <input type="text" id="customTextInput" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Type message..." value="ONE MORE !" maxlength="80">
             </div>
 
-            <!-- Decorations: Before and After -->
-            <div class="row g-2 mb-2">
+            <!-- Decorations: Before and After in single row -->
+            <div class="row g-1 mb-1">
               <div class="col-6">
-                <label for="tickerDecorBeforeSelect" class="form-label small text-white-50 mb-1">Decor Before</label>
-                <select id="tickerDecorBeforeSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
-                  <option value="">None</option>
-                  <option value="⭐" selected>⭐ Star</option>
-                  <option value="❤️">❤️ Heart</option>
-                  <option value="👍">👍 Thumbs Up</option>
-                  <option value="🔥">🔥 Fire</option>
-                  <option value="🎵">🎵 Note</option>
-                  <option value="✨">✨ Sparkles</option>
-                  <option value="🤘">🤘 Horns</option>
-                  <option value="🎉">🎉 Party</option>
-                  <option value="👏">👏 Claps</option>
-                  <option value="🎸">🎸 Guitar</option>
-                  <option value="⚡">⚡ Bolt</option>
-                  <option value="👑">👑 Crown</option>
-                  <option value="💎">💎 Diamond</option>
-                  <option value="✌️">✌️ Peace</option>
-                  <option value="💥">💥 Boom</option>
-                  <option value="🕶️">🕶️ Cool</option>
-                  <option value="🥁">🥁 Drum</option>
-                  <option value="🌈">🌈 Rainbow</option>
-                  <option value="💀">💀 Skull</option>
-                  <option value="🚀">🚀 Rocket</option>
-                  <option value="🏆">🏆 Trophy</option>
-                </select>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-dark border-secondary text-white-50 px-2" style="font-size: 0.78rem;">Pre</span>
+                  <select id="tickerDecorBeforeSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
+                    <option value="">None</option>
+                    <option value="⭐" selected>⭐ Star</option>
+                    <option value="❤️">❤️ Heart</option>
+                    <option value="👍">👍 Thumbs Up</option>
+                    <option value="🔥">🔥 Fire</option>
+                    <option value="🎵">🎵 Note</option>
+                    <option value="✨">✨ Sparkles</option>
+                    <option value="🤘">🤘 Horns</option>
+                    <option value="🎉">🎉 Party</option>
+                    <option value="👏">👏 Claps</option>
+                    <option value="🎸">🎸 Guitar</option>
+                    <option value="⚡">⚡ Bolt</option>
+                    <option value="👑">👑 Crown</option>
+                    <option value="💎">💎 Diamond</option>
+                    <option value="✌️">✌️ Peace</option>
+                    <option value="💥">💥 Boom</option>
+                    <option value="🕶️">🕶️ Cool</option>
+                    <option value="🥁">🥁 Drum</option>
+                    <option value="🌈">🌈 Rainbow</option>
+                    <option value="💀">💀 Skull</option>
+                    <option value="🚀">🚀 Rocket</option>
+                    <option value="🏆">🏆 Trophy</option>
+                  </select>
+                </div>
               </div>
               <div class="col-6">
-                <label for="tickerDecorAfterSelect" class="form-label small text-white-50 mb-1">Decor After</label>
-                <select id="tickerDecorAfterSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
-                  <option value="">None</option>
-                  <option value="⭐" selected>⭐ Star</option>
-                  <option value="❤️">❤️ Heart</option>
-                  <option value="👍">👍 Thumbs Up</option>
-                  <option value="🔥">🔥 Fire</option>
-                  <option value="🎵">🎵 Note</option>
-                  <option value="✨">✨ Sparkles</option>
-                  <option value="🤘">🤘 Horns</option>
-                  <option value="🎉">🎉 Party</option>
-                  <option value="👏">👏 Claps</option>
-                  <option value="🎸">🎸 Guitar</option>
-                  <option value="⚡">⚡ Bolt</option>
-                  <option value="👑">👑 Crown</option>
-                  <option value="💎">💎 Diamond</option>
-                  <option value="✌️">✌️ Peace</option>
-                  <option value="💥">💥 Boom</option>
-                  <option value="🕶️">🕶️ Cool</option>
-                  <option value="🥁">🥁 Drum</option>
-                  <option value="🌈">🌈 Rainbow</option>
-                  <option value="💀">💀 Skull</option>
-                  <option value="🚀">🚀 Rocket</option>
-                  <option value="🏆">🏆 Trophy</option>
-                </select>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-dark border-secondary text-white-50 px-2" style="font-size: 0.78rem;">Post</span>
+                  <select id="tickerDecorAfterSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
+                    <option value="">None</option>
+                    <option value="⭐" selected>⭐ Star</option>
+                    <option value="❤️">❤️ Heart</option>
+                    <option value="👍">👍 Thumbs Up</option>
+                    <option value="🔥">🔥 Fire</option>
+                    <option value="🎵">🎵 Note</option>
+                    <option value="✨">✨ Sparkles</option>
+                    <option value="🤘">🤘 Horns</option>
+                    <option value="🎉">🎉 Party</option>
+                    <option value="👏">👏 Claps</option>
+                    <option value="🎸">🎸 Guitar</option>
+                    <option value="⚡">⚡ Bolt</option>
+                    <option value="👑">👑 Crown</option>
+                    <option value="💎">💎 Diamond</option>
+                    <option value="✌️">✌️ Peace</option>
+                    <option value="💥">💥 Boom</option>
+                    <option value="🕶️">🕶️ Cool</option>
+                    <option value="🥁">🥁 Drum</option>
+                    <option value="🌈">🌈 Rainbow</option>
+                    <option value="💀">💀 Skull</option>
+                    <option value="🚀">🚀 Rocket</option>
+                    <option value="🏆">🏆 Trophy</option>
+                  </select>
+                </div>
               </div>
             </div>
 
-            <!-- Effect, Color & Speed -->
-            <div class="row g-2 mb-2">
+            <!-- Effect, Color & Speed in single row -->
+            <div class="row g-1 mb-2">
               <div class="col-5">
-                <label for="tickerEffectSelect" class="form-label small text-white-50 mb-1">Visual Effect</label>
-                <select id="tickerEffectSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
+                <select id="tickerEffectSelect" class="form-select form-select-sm bg-dark text-white border-secondary" title="Visual Effect">
                   <option value="scroll" selected>Scroll Marquee</option>
                   <option value="static">Giant Static</option>
                   <option value="zoom">Zoom Pulse</option>
@@ -516,8 +512,7 @@
                 </select>
               </div>
               <div class="col-4">
-                <label for="customTextColorSelect" class="form-label small text-white-50 mb-1">Color</label>
-                <select id="customTextColorSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
+                <select id="customTextColorSelect" class="form-select form-select-sm bg-dark text-white border-secondary" title="Color">
                   <option value="#ffcc00" selected>Amber Gold</option>
                   <option value="#00e676">Neon Green</option>
                   <option value="#00d2ff">Electric Cyan</option>
@@ -528,43 +523,35 @@
                 </select>
               </div>
               <div class="col-3">
-                <label for="customTextSpeedSelect" class="form-label small text-white-50 mb-1">Speed</label>
-                <select id="customTextSpeedSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
+                <select id="customTextSpeedSelect" class="form-select form-select-sm bg-dark text-white border-secondary" title="Speed">
                   <option value="25">Slow</option>
                   <option value="40" selected>Normal</option>
                   <option value="65">Fast</option>
                 </select>
+              </div>
             </div>
 
-            <!-- Live Message Preview Box -->
-            <div class="mb-3">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="small text-white-50">Live Preview</span>
-                <span id="tickerSavedToast" class="badge bg-success d-none">Saved!</span>
-              </div>
-              <div id="tickerPreviewBar" class="text-center py-2 px-3 rounded bg-black border border-secondary fw-bold text-truncate" style="min-height: 46px; font-size: 1.15rem; color: #ffcc00;">
+            <!-- Live Message Preview & Compact Launch Button in one single row -->
+            <div class="d-flex gap-2 align-items-stretch">
+              <div id="tickerPreviewBar" class="flex-grow-1 text-center py-1 px-2 rounded bg-black border border-secondary fw-bold text-truncate d-flex align-items-center justify-content-center" style="min-height: 42px; font-size: 1.05rem; color: #ffcc00; cursor: pointer;" title="Tap to launch fullscreen">
                 ⭐ ONE MORE ! ⭐
               </div>
+              <button id="launchCustomTextBtn" class="btn btn-primary px-3 fw-bold shadow text-nowrap d-flex align-items-center justify-content-center" style="min-height: 42px;">
+                <i class="bi bi-play-circle-fill me-1 fs-5"></i>Launch
+              </button>
             </div>
-
-            <button id="launchCustomTextBtn" class="btn btn-primary w-100 py-2 fw-bold shadow" style="min-height: 48px;">
-              <i class="bi bi-play-circle-fill me-2 fs-5"></i>Launch Message
-            </button>
           </div>
 
           <!-- Gadget 4: Neon Glowstick (Portrait) -->
           <div class="custom-card p-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <div class="d-flex align-items-center gap-2">
-                <span class="fs-3">🪄</span>
-                <div>
-                  <h6 class="mb-0 fw-bold text-white">Neon Glowstick</h6>
-                  <small class="text-white-50" style="font-size: 0.82rem;">Radiant multi-color neon beacon &bull; Portrait mode</small>
-                </div>
+                <span class="fs-4">🪄</span>
+                <h6 class="mb-0 fw-bold text-white">Neon Glowstick</h6>
               </div>
               <span class="badge bg-success text-dark fw-bold">Portrait</span>
             </div>
-            <button id="launchGlowstickBtn" class="btn btn-success w-100 py-2 fw-bold shadow text-white" style="min-height: 48px;">
+            <button id="launchGlowstickBtn" class="btn btn-success w-100 py-2 fw-bold shadow text-white" style="min-height: 44px;">
               <i class="bi bi-lightning-charge-fill me-2 fs-5"></i>Light Up Glowstick
             </button>
           </div>
@@ -573,15 +560,12 @@
           <div class="custom-card p-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <div class="d-flex align-items-center gap-2">
-                <span class="fs-3">❤️</span>
-                <div>
-                  <h6 class="mb-0 fw-bold text-white">Pulsing Heart Beacon</h6>
-                  <small class="text-white-50" style="font-size: 0.82rem;">Pulsing red glow on black background &bull; For ballads</small>
-                </div>
+                <span class="fs-4">❤️</span>
+                <h6 class="mb-0 fw-bold text-white">Pulsing Heart Beacon</h6>
               </div>
               <span class="badge bg-danger text-white fw-bold">Atmosphere</span>
             </div>
-            <button id="launchHeartBtn" class="btn btn-danger w-100 py-2 fw-bold shadow text-white" style="min-height: 48px;">
+            <button id="launchHeartBtn" class="btn btn-danger w-100 py-2 fw-bold shadow text-white" style="min-height: 44px;">
               <i class="bi bi-heart-fill me-2 fs-5"></i>Launch Pulsing Heart
             </button>
           </div>
@@ -845,7 +829,7 @@
           <!-- Release Datetimestamp -->
           <div class="p-2 mb-3 bg-dark rounded border border-secondary d-flex justify-content-between align-items-center">
             <span class="text-white-50 small fw-bold text-uppercase">Release Build</span>
-            <span id="appReleaseTimestamp" class="badge bg-primary font-monospace" style="font-size: 0.85rem;">2026-09-05 17:10:00 CEST</span>
+            <span id="appReleaseTimestamp" class="badge bg-primary font-monospace" style="font-size: 0.85rem;">2026-09-05 17:15:00 CEST</span>
           </div>
 
           <!-- Non-trivial features and tips -->
@@ -973,13 +957,13 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Application Logic -->
-  <script src="./js/voice-data.js?v=20260905_19"></script>
-  <script src="./js/audio-engine.js?v=20260905_19"></script>
-  <script src="./js/auto-bpm.js?v=20260905_19"></script>
-  <script src="./js/metronome.js?v=20260905_19"></script>
-  <script src="./js/setlist.js?v=20260905_19"></script>
-  <script src="./js/tuner.js?v=20260905_19"></script>
-  <script src="./js/gadgets.js?v=20260905_19"></script>
-  <script src="./js/app.js?v=20260905_19"></script>
+  <script src="./js/voice-data.js?v=20260905_20"></script>
+  <script src="./js/audio-engine.js?v=20260905_20"></script>
+  <script src="./js/auto-bpm.js?v=20260905_20"></script>
+  <script src="./js/metronome.js?v=20260905_20"></script>
+  <script src="./js/setlist.js?v=20260905_20"></script>
+  <script src="./js/tuner.js?v=20260905_20"></script>
+  <script src="./js/gadgets.js?v=20260905_20"></script>
+  <script src="./js/app.js?v=20260905_20"></script>
 </body>
 </html>
