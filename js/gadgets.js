@@ -706,7 +706,11 @@ function closeConcertGadget(fromHistoryPop) {
   if (!fromHistoryPop) {
     try {
       if (history.state && history.state.pulser === "overlay") {
-        history.back();
+        if (typeof window.safeHistoryBack === "function") {
+          window.safeHistoryBack();
+        } else {
+          history.back();
+        }
       }
     } catch (err) {}
   }

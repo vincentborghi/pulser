@@ -92,7 +92,9 @@ function initAutoBpm() {
         }
         stopAutoBpmListening();
         if (modalEl && window.bootstrap && window.bootstrap.Modal) {
-          const modalInstance = bootstrap.Modal.getInstance(modalEl);
+          const modalInstance = typeof bootstrap.Modal.getOrCreateInstance === "function"
+            ? bootstrap.Modal.getOrCreateInstance(modalEl)
+            : bootstrap.Modal.getInstance(modalEl);
           if (modalInstance) {
             modalInstance.hide();
           }

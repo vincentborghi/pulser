@@ -1,7 +1,7 @@
 // Main application bootstrap and tab management
 // Pure procedural implementation
 
-const APP_RELEASE_TIMESTAMP = "2026-09-05 17:35:00 CEST";
+const APP_RELEASE_TIMESTAMP = "2026-09-07 10:20:00 CEST";
 let deferredInstallPrompt = null;
 
 // Register Service Worker for offline PWA functionality
@@ -9,7 +9,7 @@ function registerServiceWorker() {
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
       navigator.serviceWorker
-        .register("./sw.js?v=20260905_23", { updateViaCache: "none" })
+        .register("./sw.js?v=20260907_01", { updateViaCache: "none" })
         .then(function (reg) {
           console.log("Service Worker registered successfully, scope:", reg.scope);
           // Check for updates on every load
@@ -69,6 +69,18 @@ function setupInstallPrompt() {
 
 // Setup tab listeners
 let isHistoryNavigating = false;
+let ignorePopStateCount = 0;
+
+function safeHistoryBack() {
+  ignorePopStateCount++;
+  history.back();
+  setTimeout(function () {
+    if (ignorePopStateCount > 0) {
+      ignorePopStateCount--;
+    }
+  }, 400);
+}
+window.safeHistoryBack = safeHistoryBack;
 
 function setupTabEvents() {
   const tabLinks = document.querySelectorAll('button[data-bs-toggle="pill"]');
@@ -140,7 +152,7 @@ function initNavigationHistory() {
       if (!isHistoryNavigating) {
         try {
           if (history.state && history.state.pulser === "modal") {
-            history.back();
+            safeHistoryBack();
           }
         } catch (e) {}
       }
@@ -149,6 +161,12 @@ function initNavigationHistory() {
 }
 
 function handlePopState(e) {
+  // Check if this popstate was triggered by our own programmatic history cleanup
+  if (ignorePopStateCount > 0) {
+    ignorePopStateCount--;
+    return;
+  }
+
   // 1. If a concert gadget overlay is currently open, close it and return to Gadgets page
   if (typeof activeGadgetType !== "undefined" && activeGadgetType !== null) {
     if (typeof closeConcertGadget === "function") {
@@ -189,7 +207,12 @@ function handlePopState(e) {
     return;
   }
 
-  // 4. If user is already on the Metronome tab, ask for confirmation before exiting
+  // 4. If state popped to metro (for example after closing a modal), stay on metro without prompting
+  if (e.state && e.state.pulser === "metro") {
+    return;
+  }
+
+  // 5. If user is on the Metronome tab and reached root, ask for confirmation before exiting
   const exitConfirmed = window.confirm("Do you want to exit Pulser?");
   if (exitConfirmed) {
     // User confirmed exit: allow the browser to leave
