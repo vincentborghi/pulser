@@ -6,6 +6,16 @@ Live app: [https://vincentborghi.github.io/pulser/](https://vincentborghi.github
 
 ---
 
+## Table of Contents
+
+1. **[Rock-Solid Metronome](#1-rock-solid-metronome)** — Sample-accurate Web Audio engine, rich sound library, flasher modes, and on-the-fly Beat 1 resync.
+2. **[Multi-Setlist Manager](#2-multi-setlist-manager)** — Repertoire management, full-width mobile cards, tempo deviation tracking, and 1-click tempo reset.
+3. **[Ambient Auto-BPM Detector](#3-ambient-auto-bpm-detector)** — Microphone-based beat detection using spectral flux and circular autocorrelation.
+4. **[Chromatic Instrument Tuner](#4-chromatic-instrument-tuner)** — Real-time pitch detection with cent needle gauge and guitar/bass presets.
+5. **[Concert Gadgets (Stage Beacons)](#5-concert-gadgets-audience-stage-beacons)** — Fullscreen audience visuals: lighter flame, scrolling LED banner, glowstick, and pulsing heart.
+
+---
+
 ## Key Features
 
 ### 1. Rock-Solid Metronome
