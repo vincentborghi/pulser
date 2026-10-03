@@ -87,9 +87,9 @@ const DEFAULT_TICKER_PRESETS = [
     speed: 65
   },
   {
-    id: "tp_awesome",
-    name: "Awesome",
-    text: "AWESOME !",
+    id: "tp_super",
+    name: "Super",
+    text: "SUPER !",
     decorBefore: "👍",
     decorAfter: "",
     effect: "scroll",
@@ -181,6 +181,15 @@ function loadTickerPresets() {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
         tickerPresets = parsed;
+        // Migrate Awesome to Super if present from older version
+        tickerPresets.forEach(function (p) {
+          if (p.id === "tp_awesome" || p.name === "Awesome") {
+            p.id = "tp_super";
+            p.name = "Super";
+            if (p.text === "AWESOME !") p.text = "SUPER !";
+          }
+        });
+        saveTickerPresets();
         return;
       }
     }
