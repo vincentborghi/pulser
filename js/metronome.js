@@ -554,6 +554,9 @@ function updateBpm(newBpm, preserveHistory) {
   });
 
   updateGlobalMetronomeBar();
+  if (typeof updateActiveSongBadge === "function") {
+    updateActiveSongBadge();
+  }
 }
 
 // Resynchronize metronome on-the-fly to Beat 1

@@ -288,12 +288,25 @@ function prevSong() {
   }
 }
 
+// Reset metronome BPM back to current song's configured BPM
+function resetSongTempo() {
+  const playlist = getActivePlaylist();
+  if (currentSongIndex >= 0 && playlist[currentSongIndex]) {
+    const song = playlist[currentSongIndex];
+    if (typeof updateBpm === "function") {
+      updateBpm(song.bpm);
+    }
+  }
+}
+
 // Update the quick song bar visible above the metronome
 function updateActiveSongBadge() {
   const badge = document.getElementById("activeSongBadge");
   const subText = document.getElementById("activeSongSubText");
   const clearBtn = document.getElementById("clearActiveSongBtn");
   const centerZone = document.getElementById("activeSongCenterZone");
+  const resetBtn = document.getElementById("resetSongTempoBtn");
+  const resetVal = document.getElementById("resetSongTempoVal");
   const activeSetlist = getActiveSetlist();
   const setlistName = activeSetlist ? activeSetlist.name : "Setlist";
   const playlist = getActivePlaylist();
@@ -301,16 +314,39 @@ function updateActiveSongBadge() {
   if (currentSongIndex >= 0 && playlist.length > 0 && playlist[currentSongIndex]) {
     const song = playlist[currentSongIndex];
     if (badge) badge.textContent = (currentSongIndex + 1) + ". " + song.title;
-    const bpmStr = (song.bpm && parseInt(song.bpm, 10) > 0) ? (song.bpm + " BPM") : "BPM: -";
-    if (subText) subText.textContent = setlistName + " - " + bpmStr + " (" + (song.timeSignature || 4) + "/4)";
     if (clearBtn) clearBtn.classList.remove("d-none");
     if (centerZone) {
       centerZone.title = "Tap to open Setlist";
     }
+
+    const currentBpm = (typeof bpm !== "undefined") ? bpm : song.bpm;
+    const isDeviated = (currentBpm !== song.bpm);
+
+    if (isDeviated) {
+      const delta = currentBpm - song.bpm;
+      const deltaStr = (delta > 0 ? "+" : "") + delta;
+      if (subText) {
+        subText.innerHTML = `${escapeHtml(setlistName)} &bull; Song: <strong>${song.bpm} BPM</strong> <span class="badge bg-warning text-dark ms-1">${deltaStr}</span> &bull; ${song.timeSignature || 4}/4`;
+      }
+      if (resetBtn) {
+        resetBtn.classList.remove("d-none");
+        if (resetVal) resetVal.textContent = song.bpm;
+        resetBtn.title = `Reset metronome to song tempo (${song.bpm} BPM)`;
+      }
+    } else {
+      const bpmStr = (song.bpm && parseInt(song.bpm, 10) > 0) ? (song.bpm + " BPM") : "BPM: -";
+      if (subText) {
+        subText.innerHTML = `${escapeHtml(setlistName)} &bull; ${bpmStr} &bull; ${song.timeSignature || 4}/4`;
+      }
+      if (resetBtn) resetBtn.classList.add("d-none");
+    }
   } else {
     if (badge) badge.textContent = "Free Mode";
-    if (subText) subText.innerHTML = setlistName + " &bull; <span class=\"text-info fw-bold\">Tap to choose song &rsaquo;</span>";
+    if (subText) {
+      subText.innerHTML = `${escapeHtml(setlistName)} &bull; <span class="text-info fw-bold">Tap to choose song &rsaquo;</span>`;
+    }
     if (clearBtn) clearBtn.classList.add("d-none");
+    if (resetBtn) resetBtn.classList.add("d-none");
     if (centerZone) {
       centerZone.title = "Tap to choose a song from Setlist";
     }
@@ -366,7 +402,7 @@ function renderSetlist() {
         <span class="text-muted">Active:</span> <strong class="text-white">${escapeHtml(playlist[currentSongIndex].title)}</strong>
       </div>
       <button class="btn btn-sm btn-outline-warning fw-bold" onclick="clearActiveSong()">
-        <i class="bi bi-box-arrow-left me-1"></i>Free Mode
+        <i class="bi bi-box-arrow-left me-1"></i>Detach (Free Mode)
       </button>
     `;
     container.appendChild(freeModeBanner);
@@ -683,6 +719,15 @@ function initSetlist() {
       if (setlistTab) {
         setlistTab.click();
       }
+    });
+  }
+
+  // Reset song tempo button on metronome view
+  const resetSongBtn = document.getElementById("resetSongTempoBtn");
+  if (resetSongBtn) {
+    resetSongBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      resetSongTempo();
     });
   }
 

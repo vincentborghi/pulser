@@ -77,13 +77,18 @@
             <i class="bi bi-skip-start-fill fs-5"></i>
           </button>
           <div id="activeSongCenterZone" class="text-center overflow-hidden px-2 flex-grow-1 song-header-clickable" role="button" tabindex="0" title="Open Setlist">
-            <div class="d-flex align-items-center justify-content-center gap-1">
+            <div class="d-flex align-items-center justify-content-center gap-2">
               <span id="activeSongBadge" class="fw-bold text-truncate text-white" style="font-size: 1rem;">Free Mode</span>
-              <button id="clearActiveSongBtn" class="btn btn-sm btn-outline-warning py-0 px-1 d-none" title="Return to Free Mode" style="font-size: 0.75rem; border-radius: 6px; height: 24px; white-space: nowrap;">
-                <i class="bi bi-x-lg me-1"></i>Free
+              <button id="clearActiveSongBtn" class="btn btn-sm btn-outline-danger py-0 px-2 d-none flex-shrink-0" title="Detach song (return to Free Mode)" style="font-size: 0.75rem; border-radius: 6px; height: 24px; white-space: nowrap;">
+                <i class="bi bi-x-lg me-1"></i>Detach
               </button>
             </div>
-            <small id="activeSongSubText" class="text-white text-truncate d-block fw-semibold" style="opacity: 0.9; font-size: 0.8rem;">Setlist: Main Setlist</small>
+            <div class="d-flex align-items-center justify-content-center gap-1 mt-1 flex-wrap">
+              <small id="activeSongSubText" class="text-white text-truncate fw-semibold" style="opacity: 0.9; font-size: 0.8rem;">Setlist: Main Setlist</small>
+              <button id="resetSongTempoBtn" class="btn btn-warning btn-sm py-0 px-2 fw-bold text-dark d-none" title="Reset to song tempo" style="font-size: 0.75rem; height: 22px; border-radius: 6px;">
+                <i class="bi bi-arrow-counterclockwise me-1"></i><span id="resetSongTempoVal">120</span> BPM
+              </button>
+            </div>
           </div>
           <button id="quickNextSongBtn" class="btn btn-outline-light btn-sm text-white px-2" title="Next Song" style="min-height: 40px; min-width: 40px;">
             <i class="bi bi-skip-end-fill fs-5"></i>
